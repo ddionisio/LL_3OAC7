@@ -5,5 +5,13 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 [System.Serializable]
-public class JellySpriteEvent : UnityEvent<JellySprite, int, BaseEventData> {
+public class JellySpriteBaseEvent : UnityEvent<JellySprite, int, BaseEventData> {
+}
+
+[System.Serializable]
+public class JellySpritePointerEvent : UnityEvent<JellySprite, int, PointerEventData> {
+}
+
+[System.Serializable]
+public class JellySpriteAxisEvent : UnityEvent<JellySprite, int, AxisEventData> {
 }

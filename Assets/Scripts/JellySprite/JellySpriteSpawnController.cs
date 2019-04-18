@@ -9,6 +9,7 @@ public class JellySpriteSpawnController : MonoBehaviour, M8.IPoolSpawn, M8.IPool
     public const string parmColor = "color";
 
     public UnityJellySprite jellySprite;
+    public bool revertLayerOnDespawn;
 
     private bool mIsInit = false;
     private int mDefaultLayer;
@@ -58,7 +59,15 @@ public class JellySpriteSpawnController : MonoBehaviour, M8.IPoolSpawn, M8.IPool
     }
 
     void M8.IPoolDespawn.OnDespawned() {
-        jellySprite.gameObject.layer = mDefaultLayer;
+        if(revertLayerOnDespawn) {
+            if(jellySprite.ReferencePoints != null) {
+                for(int i = 0; i < jellySprite.ReferencePoints.Count; i++) {
+                    var refPt = jellySprite.ReferencePoints[i];
+                    if(refPt.GameObject)
+                        refPt.GameObject.layer = mDefaultLayer;
+                }
+            }
+        }
     }
 
     void Init() {

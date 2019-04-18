@@ -5,10 +5,10 @@ using UnityEngine;
 [AddComponentMenu("Jelly Sprite/Events/Drag")]
 public class JellySpriteEventDrag : JellySpriteEventBase {
     [Header("Events")]
-    public JellySpriteEvent beginDragEvent;
-    public JellySpriteEvent dragEvent;
-    public JellySpriteEvent endDragEvent;
-    public JellySpriteEvent initializePotentialDragEvent;
+    public JellySpritePointerEvent beginDragEvent;
+    public JellySpritePointerEvent dragEvent;
+    public JellySpritePointerEvent endDragEvent;
+    public JellySpritePointerEvent initializePotentialDragEvent;
 
     protected override void AddCallbacks(JellySpriteEventTrigger eventTrigger) {
         eventTrigger.beginDragCallback += beginDragEvent.Invoke;

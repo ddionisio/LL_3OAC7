@@ -30,21 +30,21 @@ public class JellySpriteEventTrigger : MonoBehaviour,
     public JellySprite jellySprite { get; set; }
     public int index { get; set; }
 
-    public event System.Action<JellySprite, int, BaseEventData> pointerEnterCallback;
-    public event System.Action<JellySprite, int, BaseEventData> pointerExitCallback;
-    public event System.Action<JellySprite, int, BaseEventData> pointerDownCallback;
-    public event System.Action<JellySprite, int, BaseEventData> pointerUpCallback;
-    public event System.Action<JellySprite, int, BaseEventData> pointerClickCallback;
-    public event System.Action<JellySprite, int, BaseEventData> initializePotentialDragCallback;
-    public event System.Action<JellySprite, int, BaseEventData> beginDragCallback;
-    public event System.Action<JellySprite, int, BaseEventData> dragCallback;
-    public event System.Action<JellySprite, int, BaseEventData> endDragCallback;
-    public event System.Action<JellySprite, int, BaseEventData> dropCallback;
-    public event System.Action<JellySprite, int, BaseEventData> scrollCallback;
+    public event System.Action<JellySprite, int, PointerEventData> pointerEnterCallback;
+    public event System.Action<JellySprite, int, PointerEventData> pointerExitCallback;
+    public event System.Action<JellySprite, int, PointerEventData> pointerDownCallback;
+    public event System.Action<JellySprite, int, PointerEventData> pointerUpCallback;
+    public event System.Action<JellySprite, int, PointerEventData> pointerClickCallback;
+    public event System.Action<JellySprite, int, PointerEventData> initializePotentialDragCallback;
+    public event System.Action<JellySprite, int, PointerEventData> beginDragCallback;
+    public event System.Action<JellySprite, int, PointerEventData> dragCallback;
+    public event System.Action<JellySprite, int, PointerEventData> endDragCallback;
+    public event System.Action<JellySprite, int, PointerEventData> dropCallback;
+    public event System.Action<JellySprite, int, PointerEventData> scrollCallback;
     public event System.Action<JellySprite, int, BaseEventData> updateSelectedCallback;
     public event System.Action<JellySprite, int, BaseEventData> selectCallback;
     public event System.Action<JellySprite, int, BaseEventData> deselectCallback;
-    public event System.Action<JellySprite, int, BaseEventData> moveCallback;
+    public event System.Action<JellySprite, int, AxisEventData> moveCallback;
     public event System.Action<JellySprite, int, BaseEventData> submitCallback;
     public event System.Action<JellySprite, int, BaseEventData> cancelCallback;
 

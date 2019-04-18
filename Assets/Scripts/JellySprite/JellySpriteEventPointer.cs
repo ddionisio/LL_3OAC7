@@ -7,11 +7,11 @@ using UnityEngine.EventSystems;
 [AddComponentMenu("Jelly Sprite/Events/Pointer")]
 public class JellySpriteEventPointer : JellySpriteEventBase {
     [Header("Events")]
-    public JellySpriteEvent clickEvent;
-    public JellySpriteEvent downEvent;
-    public JellySpriteEvent upEvent;
-    public JellySpriteEvent enterEvent;
-    public JellySpriteEvent exitEvent;
+    public JellySpritePointerEvent clickEvent;
+    public JellySpritePointerEvent downEvent;
+    public JellySpritePointerEvent upEvent;
+    public JellySpritePointerEvent enterEvent;
+    public JellySpritePointerEvent exitEvent;
 
     protected override void AddCallbacks(JellySpriteEventTrigger eventTrigger) {
         eventTrigger.pointerClickCallback += clickEvent.Invoke;
