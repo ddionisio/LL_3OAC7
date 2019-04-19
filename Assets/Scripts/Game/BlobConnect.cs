@@ -81,6 +81,10 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         
     private Coroutine mRout;
 
+    public bool IsConnectedTo(Blob blob) {
+        return blob == blobLinkStart || blob == blobLinkEnd;
+    }
+
     /// <summary>
     /// Set state to connected and link both blobs
     /// </summary>
@@ -100,12 +104,18 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         int startEdgeRefPtInd;
         blobStart.GetEdge(midPt, out startEdgePt, out startEdgeRefPtInd);
 
+        //just use center pt of ref
+        startEdgePt = blobStart.jellySprite.ReferencePoints[startEdgeRefPtInd].Body2D.position;
+
         mLinkBeginSpring = GenerateSpringJoint(blobStart.jellySprite.ReferencePoints[startEdgeRefPtInd], startEdgePt);
 
         //connect end
         Vector2 endEdgePt;
         int endEdgeRefPtInd;
         blobEnd.GetEdge(midPt, out endEdgePt, out endEdgeRefPtInd);
+
+        //just use center pt of ref
+        endEdgePt = blobEnd.jellySprite.ReferencePoints[endEdgeRefPtInd].Body2D.position;
 
         mLinkEndSpring = GenerateSpringJoint(blobEnd.jellySprite.ReferencePoints[endEdgeRefPtInd], endEdgePt);
 
