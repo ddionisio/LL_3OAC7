@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Connection between blobs with an operator or equal
 /// </summary>
-public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
+public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBeginDragHandler, IDragHandler, IEndDragHandler {
     public enum State {
         None,
         Connecting, //dragging to connect to another blob
@@ -35,6 +36,11 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public float springDampingRatio = 0f;
     public float springDistance = 2.5f;
     public float springFrequency = 1f;
+
+    [Header("Drag")]
+    public LayerMask dragLayerMask; //layers to check during dragging
+    public float dragDelay = 1f;
+    public float dragSpeedLimit = 1f;
 
     [Header("Animation")]
     public M8.Animator.Animate animator;
@@ -75,14 +81,26 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     private SpringJoint2D mLinkBeginSpring;
     private SpringJoint2D mLinkEndSpring;
-        
+
     private State mState = State.None;
     private OperatorType mOp = OperatorType.None;
-        
+
+    private Camera mDragCamera;
+    private Vector2 mDragToPos;
+    private Vector2 mDragVel;
+
     private Coroutine mRout;
 
     public bool IsConnectedTo(Blob blob) {
         return blob == blobLinkStart || blob == blobLinkEnd;
+    }
+
+    public Blob GetLinkedBlob(Blob otherBlob) {
+        if(otherBlob == blobLinkStart)
+            return blobLinkStart;
+        else if(otherBlob == blobLinkEnd)
+            return blobLinkEnd;
+        return null;
     }
 
     /// <summary>
@@ -90,7 +108,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     /// </summary>
     public void ApplyLink(Blob blobStart, Blob blobEnd) {
         SpringRelease();
-                
+
         //grab mid point
         Vector2 startPt = blobStart.jellySprite.CentralPoint.Body2D.position;
         Vector2 EndPt = blobEnd.jellySprite.CentralPoint.Body2D.position;
@@ -100,24 +118,34 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         transform.position = midPt;
 
         //connect start
-        Vector2 startEdgePt;
+        /*Vector2 startEdgePt;
         int startEdgeRefPtInd;
         blobStart.GetEdge(midPt, out startEdgePt, out startEdgeRefPtInd);
 
         //just use center pt of ref
         startEdgePt = blobStart.jellySprite.ReferencePoints[startEdgeRefPtInd].Body2D.position;
 
-        mLinkBeginSpring = GenerateSpringJoint(blobStart.jellySprite.ReferencePoints[startEdgeRefPtInd], startEdgePt);
+        mLinkBeginSpring = GenerateSpringJoint(blobStart.jellySprite.ReferencePoints[startEdgeRefPtInd], startEdgePt);*/
+
+        //just use center
+        Vector2 startEdgePt = blobStart.jellySprite.CentralPoint.Body2D.position;
+        mLinkBeginSpring = GenerateSpringJoint(blobStart.jellySprite.CentralPoint, startEdgePt);
+
+
 
         //connect end
-        Vector2 endEdgePt;
+        /*Vector2 endEdgePt;
         int endEdgeRefPtInd;
         blobEnd.GetEdge(midPt, out endEdgePt, out endEdgeRefPtInd);
 
         //just use center pt of ref
         endEdgePt = blobEnd.jellySprite.ReferencePoints[endEdgeRefPtInd].Body2D.position;
 
-        mLinkEndSpring = GenerateSpringJoint(blobEnd.jellySprite.ReferencePoints[endEdgeRefPtInd], endEdgePt);
+        mLinkEndSpring = GenerateSpringJoint(blobEnd.jellySprite.ReferencePoints[endEdgeRefPtInd], endEdgePt);*/
+
+        //just use center
+        Vector2 endEdgePt = blobEnd.jellySprite.CentralPoint.Body2D.position;
+        mLinkEndSpring = GenerateSpringJoint(blobEnd.jellySprite.CentralPoint, endEdgePt);
 
         state = State.Connected;
     }
@@ -208,6 +236,13 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         ApplyCurOperator();
     }
 
+    void OnApplicationFocus(bool isActive) {
+        if(!isActive) {
+            if(state == State.Dragging)
+                state = State.Connected;
+        }
+    }
+
     void Awake() {
         ApplyCurState(State.None);
 
@@ -217,6 +252,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     void Update() {
         switch(mState) {
+            case State.Dragging:
+            case State.Releasing:
             case State.Connected:
                 ApplyLinkTelemetry(linkBeginSpriteRender, mLinkBeginSpring);
                 ApplyLinkTelemetry(linkEndSpriteRender, mLinkEndSpring);
@@ -224,10 +261,72 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    void FixedUpdate() {
+        switch(mState) {
+            case State.Dragging:
+                if(body) {
+                    Vector2 sPos = body.position;
+                    Vector2 toPos = Vector2.SmoothDamp(sPos, mDragToPos, ref mDragVel, dragDelay, dragSpeedLimit, Time.fixedDeltaTime);
+                    if(sPos == toPos)
+                        break;
+
+                    Vector2 dpos = toPos - sPos;
+                    float dist = dpos.magnitude;
+
+                    float radius = coll is CircleCollider2D ? ((CircleCollider2D)coll).radius : 0f;
+
+                    Vector2 dir = dpos / dist;
+                    var hit = Physics2D.CircleCast(sPos, radius, dir, dist, dragLayerMask);
+                    if(hit.collider) {
+                        toPos = hit.point + hit.normal * radius;
+                    }
+
+                    body.MovePosition(toPos);
+                }
+                break;
+        }
+    }
+
+    //IBeginDragHandler, IDragHandler, IEndDragHandler
+    void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
+        if(state == State.Connected || state == State.Releasing) {
+            state = State.Dragging;
+
+            mDragVel = Vector2.zero;
+
+            UpdateDrag(eventData);
+        }
+    }
+
+    void IDragHandler.OnDrag(PointerEventData eventData) {
+        if(state != State.Dragging)
+            return;
+
+        UpdateDrag(eventData);
+    }
+
+    void IEndDragHandler.OnEndDrag(PointerEventData eventData) {
+        if(state == State.Dragging)
+            state = State.Connected;
+    }
+
+    private void UpdateDrag(PointerEventData eventData) {
+        if(eventData.pointerCurrentRaycast.isValid)
+            mDragToPos = eventData.pointerCurrentRaycast.worldPosition;
+        else {
+            if(!mDragCamera)
+                mDragCamera = Camera.main;
+            if(mDragCamera)
+                mDragToPos = mDragCamera.ScreenToWorldPoint(eventData.position);
+            else
+                mDragToPos = transform.position;
+        }
+    }
+
     private void ApplyLinkTelemetry(SpriteRenderer spriteRenderer, SpringJoint2D joint) {
         if(!spriteRenderer)
             return;
-        
+
         Vector2 connectStartPos = transform.position;
 
         if(joint) {
@@ -257,7 +356,21 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     private void ApplyCurState(State prevState) {
         StopRout();
 
+        //clear out some data from previous state
+        switch(prevState) {
+            case State.Dragging:
+                mDragCamera = null;
+                break;
+        }
+
         switch(mState) {
+            case State.Dragging:
+                SetPhysicsActive(true);
+
+                if(body) body.bodyType = RigidbodyType2D.Kinematic;
+
+                break;
+
             case State.Connected:
                 SetPhysicsActive(true);
 
@@ -366,7 +479,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             mRout = null;
         }
     }
-        
+
     private void HideConnectingDisplay() {
         if(bodyConnectingGO) bodyConnectingGO.SetActive(false);
         if(connectingRoot) connectingRoot.gameObject.SetActive(false);

@@ -33,6 +33,21 @@ public class BlobConnectController : MonoBehaviour {
             }
         }
 
+        public void GetBlobOrder(out Blob blobOpLeft, out Blob blobOpRight, out Blob blobEqual) {
+            blobEqual = blobEq;
+            blobOpRight = connectEq.GetLinkedBlob(blobEqual);
+            blobOpLeft = connectOp.GetLinkedBlob(blobOpRight);
+        }
+
+        public void GetNumbers(out int numOpLeft, out int numOpRight, out int numEqual) {
+            var blobOpRight = connectEq.GetLinkedBlob(blobEq);
+            var blobOpLeft = connectOp.GetLinkedBlob(blobOpRight);
+
+            numOpLeft = blobOpLeft ? blobOpLeft.number : 0;
+            numOpRight = blobOpRight ? blobOpRight.number : 0;
+            numEqual = blobEq ? blobEq.number : 0;
+        }
+
         public bool IsBlobOp(Blob blob) {
             return blobOpLeft == blob || blobOpRight == blob;
         }
@@ -64,14 +79,18 @@ public class BlobConnectController : MonoBehaviour {
             return false;
         }
 
-        public void Clear() {
+        public void Clear(bool releaseConnects) {
             if(connectOp) {
-                connectOp.Release();
+                if(releaseConnects)
+                    connectOp.Release();
+
                 connectOp = null;
             }
 
             if(connectEq) {
-                connectEq.Release();
+                if(releaseConnects)
+                    connectEq.Release();
+
                 connectEq = null;
             }
 
@@ -81,7 +100,7 @@ public class BlobConnectController : MonoBehaviour {
         }
 
         public void SetOp(Blob left, Blob right, BlobConnect connect) {
-            Clear(); //fail-safe
+            Clear(true); //fail-safe
 
             blobOpLeft = left;
             blobOpRight = right;
@@ -103,7 +122,7 @@ public class BlobConnectController : MonoBehaviour {
         /// </summary>
         public bool RemoveBlob(Blob blob) {
             if(blobOpLeft == blob || blobOpRight == blob) {
-                Clear();
+                Clear(true);
                 return true;
             }
             else if(blobEq == blob) {
