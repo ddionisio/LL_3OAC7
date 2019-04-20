@@ -8,6 +8,8 @@ using UnityEngine.EventSystems;
 /// Blob number
 /// </summary>
 public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
+    public const string parmNumber = "number";
+
     [Header("Jelly")]
     public JellySprite jellySprite;
 
@@ -30,13 +32,23 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public SignalBlob signalInvokeDragEnd;
     public SignalBlob signalInvokeDespawn;
 
-    public int number { get; private set; }
+    public int number {
+        get { return mNumber; }
+        set {
+            if(mNumber != value) {
+                mNumber = value;
+                ApplyNumberDisplay();
+            }
+        }
+    }
 
     public int dragRefPointIndex { get; private set; }
     public Vector2 dragPoint { get; private set; } //world
     public bool isDragging { get; private set; }
     public GameObject dragPointerGO { get; private set; } //current GameObject on pointer during drag
     public JellySpriteReferencePoint dragPointerJellySpriteRefPt { get; private set; } //current jelly sprite ref pt. on pointer during drag
+
+    private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
 
@@ -125,8 +137,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     void M8.IPoolSpawn.OnSpawned(M8.GenericParams parms) {
+        mNumber = 0;
 
-        
+        if(parms != null) {
+            if(parms.ContainsKey(parmNumber))
+                mNumber = parms.GetValue<int>(parmNumber);
+        }
+
+        ApplyNumberDisplay();
     }
 
     public void OnPointerEnter(JellySprite jellySprite, int index, PointerEventData eventData) {
@@ -236,5 +254,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             StopCoroutine(mRout);
             mRout = null;
         }
+    }
+
+    private void ApplyNumberDisplay() {
+
     }
 }

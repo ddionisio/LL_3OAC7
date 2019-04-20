@@ -11,7 +11,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         None,
         Connecting, //dragging to connect to another blob
         Connected,
-        Releasing, //hold, then break out, and release
+        Releasing, //animate and release
         Dragging, //drag around
     }
 
@@ -53,6 +53,9 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeConnectedExit;
 
+    [Header("Signal Invokes")]
+    public SignalBlobConnect signalInvokeDelete; //called when user released this via click hold
+
     public State state {
         get { return mState; }
         set {
@@ -71,6 +74,12 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
                 mOp = value;
                 ApplyCurOperator();
             }
+        }
+    }
+
+    public bool isReleased {
+        get {
+            return poolData ? poolData.claimed : false;
         }
     }
 
@@ -209,6 +218,21 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         if(connectingRoot) connectingRoot.position = destPoint;
     }
 
+    /// <summary>
+    /// Call through user interface.
+    /// </summary>
+    public void Delete() {
+        if(isReleased)
+            return;
+
+        if(state != State.Releasing) {
+            state = State.Releasing;
+
+            if(signalInvokeDelete)
+                signalInvokeDelete.Invoke(this);
+        }
+    }
+
     public void Release() {
         if(poolData)
             poolData.Release();
@@ -220,6 +244,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         SpringRelease();
 
         //this will reset display to nothing
+        mState = State.None;
         ApplyCurState(State.None);
     }
 
@@ -244,6 +269,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     }
 
     void Awake() {
+        mState = State.None;
         ApplyCurState(State.None);
 
         mOp = OperatorType.None;

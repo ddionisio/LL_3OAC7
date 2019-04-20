@@ -459,6 +459,7 @@ MonoBehaviour:
   takeConnectingExit: 
   takeConnectedEnter: 
   takeConnectedExit: 
+  signalInvokeDelete: {fileID: 11400000, guid: 5757351d2caa2ca4db0f27afb133074e, type: 2}
 --- !u!114 &2052151854317760517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -493,7 +494,18 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
   clickEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3555412297943577652}
+        m_MethodName: Delete
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!50 &1688722151603163009

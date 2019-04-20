@@ -79,28 +79,31 @@ public class BlobConnectController : MonoBehaviour {
             return false;
         }
 
-        public void Clear(bool releaseConnects) {
-            if(connectOp) {
-                if(releaseConnects)
-                    connectOp.Release();
-
-                connectOp = null;
+        public void ClearEq() {
+            if(connectEq) {
+                if(!connectEq.isReleased)
+                    connectEq.state = BlobConnect.State.Releasing;
+                connectEq = null;
             }
 
-            if(connectEq) {
-                if(releaseConnects)
-                    connectEq.Release();
+            blobEq = null;
+        }
 
-                connectEq = null;
+        public void Clear() {
+            if(connectOp) {
+                if(!connectOp.isReleased)
+                    connectOp.state = BlobConnect.State.Releasing;
+                connectOp = null;
             }
 
             blobOpLeft = null;
             blobOpRight = null;
-            blobEq = null;
-        }
 
+            ClearEq();
+        }
+                
         public void SetOp(Blob left, Blob right, BlobConnect connect) {
-            Clear(true); //fail-safe
+            Clear(); //fail-safe
 
             blobOpLeft = left;
             blobOpRight = right;
@@ -109,8 +112,8 @@ public class BlobConnectController : MonoBehaviour {
         }
 
         public void SetEq(Blob eq, BlobConnect connect) {
-            if(connectEq)
-                connectEq.Release();
+            if(connectEq && !connectEq.isReleased)
+                connectEq.state = BlobConnect.State.Releasing;
 
             blobEq = eq;
 
@@ -122,12 +125,13 @@ public class BlobConnectController : MonoBehaviour {
         /// </summary>
         public bool RemoveBlob(Blob blob) {
             if(blobOpLeft == blob || blobOpRight == blob) {
-                Clear(true);
+                Clear();
                 return true;
             }
             else if(blobEq == blob) {
                 if(connectEq) {
-                    connectEq.Release();
+                    if(!connectEq.isReleased)
+                        connectEq.state = BlobConnect.State.Releasing;
                     connectEq = null;
                 }
 
@@ -153,6 +157,8 @@ public class BlobConnectController : MonoBehaviour {
     public SignalBlob signalListenBlobDragBegin;
     public SignalBlob signalListenBlobDragEnd;
     public SignalBlob signalListenBlobDespawn;
+
+    public SignalBlobConnect signalListenBlobConnectDelete;
 
     /// <summary>
     /// Current operator type when connecting two unlinked blob
@@ -187,6 +193,8 @@ public class BlobConnectController : MonoBehaviour {
         signalListenBlobDragBegin.callback -= OnBlobDragBegin;
         signalListenBlobDragEnd.callback -= OnBlobDragEnd;
         signalListenBlobDespawn.callback -= OnBlobDespawn;
+
+        signalListenBlobConnectDelete.callback -= OnBlobConnectDelete;
     }
 
     void Awake() {
@@ -204,6 +212,8 @@ public class BlobConnectController : MonoBehaviour {
         signalListenBlobDragBegin.callback += OnBlobDragBegin;
         signalListenBlobDragEnd.callback += OnBlobDragEnd;
         signalListenBlobDespawn.callback += OnBlobDespawn;
+
+        signalListenBlobConnectDelete.callback += OnBlobConnectDelete;
     }
 
     void Update() {
@@ -362,6 +372,31 @@ public class BlobConnectController : MonoBehaviour {
 
     void OnBlobDespawn(Blob blob) {
         //check which connects need to be purged.
+        for(int i = mGroupActives.Count - 1; i >= 0; i--) {
+            var grp = mGroupActives[i];
+            if(grp.RemoveBlob(blob)) {
+                if(grp.isEmpty) {
+                    mGroupActives.RemoveAt(i);
+                    mGroupCache.Add(grp);
+                }
+            }
+        }
+    }
+
+    void OnBlobConnectDelete(BlobConnect blobConnect) {
+        //check which connects need to be purged.
+        for(int i = mGroupActives.Count - 1; i >= 0; i--) {
+            var grp = mGroupActives[i];
+            if(grp.connectOp == blobConnect)
+                grp.Clear();
+            else if(grp.connectEq == blobConnect)
+                grp.ClearEq();
+
+            if(grp.isEmpty) {
+                mGroupActives.RemoveAt(i);
+                mGroupCache.Add(grp);
+            }
+        }
     }
 
     private void RemoveBlobFromGroup(Group grp, Blob blob) {
