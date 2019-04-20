@@ -14,13 +14,12 @@ public class BlobSpawner : MonoBehaviour {
     }
 
     public struct SpawnInfo {
-        public string templateName;
+        public int templateIndex;
         public int number;
     }
 
     [Header("Template")]
     public string poolGroup = "blobs";
-    public int poolCapacity = 5;
     public TemplateGroup[] templateGroups;
 
     [Header("Spawn")]
@@ -28,6 +27,10 @@ public class BlobSpawner : MonoBehaviour {
     public LayerMask spawnPointCheckMask; //ensure spot is fine to spawn
     public float spawnPointCheckRadius;
     public float spawnDelay = 0.3f;
+
+    public int spawnQueueCount { get { return mSpawnQueue.Count; } }
+
+    public int blobActiveCount { get { return mBlobActives.Count; } }
 
     private M8.PoolController mPool;
 
@@ -39,8 +42,33 @@ public class BlobSpawner : MonoBehaviour {
 
     private M8.GenericParams mSpawnParms = new M8.GenericParams();
 
+    private M8.CacheList<Blob> mBlobActives;
+
     public void Spawn(string templateName, int number) {
-        mSpawnQueue.Enqueue(new SpawnInfo { templateName = templateName, number = number });
+        //grab template index
+        int templateIndex = -1;
+        for(int i = 0; i < templateGroups.Length; i++) {
+            if(templateGroups[i].name == templateName) {
+                templateIndex = i;
+                break;
+            }
+        }
+
+        if(templateIndex == -1) {
+            Debug.LogWarning("No template for: " + templateName);
+            return;
+        }
+
+        Spawn(templateIndex, number);
+    }
+
+    public void Spawn(int templateIndex, int number) {        
+        if(templateIndex < 0 || templateIndex >= templateGroups.Length) {
+            Debug.LogWarning("Invalid template index: " + templateIndex);
+            return;
+        }
+
+        mSpawnQueue.Enqueue(new SpawnInfo { templateIndex = templateIndex, number = number });
         if(mSpawnRout == null)
             mSpawnRout = StartCoroutine(DoSpawnQueue());
     }
@@ -51,12 +79,17 @@ public class BlobSpawner : MonoBehaviour {
     }
 
     void Awake() {
+
+        int blobCapacity = GameData.instance.blobSpawnCount;
+
+        mBlobActives = new M8.CacheList<Blob>(blobCapacity);
+
         //setup pool
         mPool = M8.PoolController.CreatePool(poolGroup);
         for(int i = 0; i < templateGroups.Length; i++) {
             var grp = templateGroups[i];
             for(int j = 0; j < grp.templates.Length; j++)
-                mPool.AddType(grp.templates[j], poolCapacity, poolCapacity);
+                mPool.AddType(grp.templates[j], blobCapacity, blobCapacity);
         }
 
         //generate spawn points
@@ -74,23 +107,6 @@ public class BlobSpawner : MonoBehaviour {
             yield return wait;
 
             var spawnInfo = mSpawnQueue.Dequeue();
-
-            //grab template
-            string templateName = null;
-            for(int i = 0; i < templateGroups.Length; i++) {
-                if(templateGroups[i].name == spawnInfo.templateName) {
-                    var template = templateGroups[i].template;
-                    if(template)
-                        templateName = template.name;
-
-                    break;
-                }
-            }
-
-            if(string.IsNullOrEmpty(templateName)) {
-                Debug.LogWarning("No template for: " + spawnInfo.templateName);
-                continue;
-            }
 
             //find valid spawn point
             Vector2 spawnPt = Vector2.zero;
@@ -117,10 +133,28 @@ public class BlobSpawner : MonoBehaviour {
             mSpawnParms[JellySpriteSpawnController.parmPosition] = spawnPt;
             mSpawnParms[Blob.parmNumber] = spawnInfo.number;
 
-            mPool.Spawn(templateName, null, mSpawnParms);
+            var template = templateGroups[spawnInfo.templateIndex].template;
+
+            var blob = mPool.Spawn<Blob>(template.name, null, mSpawnParms);
+
+            blob.poolData.despawnCallback += OnBlobRelease;
+
+            mBlobActives.Add(blob);
         }
 
         mSpawnRout = null;
+    }
+
+    void OnBlobRelease(M8.PoolDataController pdc) {
+        pdc.despawnCallback -= OnBlobRelease;
+
+        for(int i = 0; i < mBlobActives.Count; i++) {
+            var blob = mBlobActives[i];
+            if(blob && blob.poolData == pdc) {
+                mBlobActives.RemoveAt(i);
+                break;
+            }
+        }
     }
 
     private void ShuffleSpawnPoints() {

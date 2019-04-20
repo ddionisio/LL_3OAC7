@@ -165,6 +165,8 @@ public class BlobConnectController : MonoBehaviour {
     /// </summary>
     public OperatorType curOp { get { return mCurOp; } set { mCurOp = value; } }
 
+    public event System.Action<Group> evaluateCallback;
+
     private M8.PoolController mPool;
 
     private OperatorType mCurOp = OperatorType.Multiply;
@@ -187,6 +189,18 @@ public class BlobConnectController : MonoBehaviour {
 
         mCurBlobDragging = null;
         mCurGroupDragging = null;
+    }
+
+    public void ClearGroup(Group group) {
+        for(int i = 0; i < mGroupActives.Count; i++) {
+            if(mGroupActives[i] == group) {
+                group.Clear();
+
+                mGroupActives.RemoveAt(i);
+                mGroupCache.Add(group);
+                break;
+            }
+        }
     }
 
     void OnDestroy() {
@@ -292,6 +306,8 @@ public class BlobConnectController : MonoBehaviour {
         //determine if we can connect to a new blob
         var blobRefPt = blob.dragPointerJellySpriteRefPt;
         if(blobRefPt != null && blobRefPt.ParentJellySprite != blob.gameObject) {
+            Group evalGroup = null;
+
             var endBlob = blobRefPt.ParentJellySprite.GetComponent<Blob>();
 
             //determine op
@@ -316,6 +332,7 @@ public class BlobConnectController : MonoBehaviour {
                         RemoveBlobFromGroup(endGroup, endBlob);
 
                         mCurGroupDragging.SetEq(endBlob, mCurConnectDragging);
+                        evalGroup = mCurGroupDragging;
                     }
                     else {
                         //if dragging to one of the operands of end group, then move blob to this group
@@ -324,6 +341,7 @@ public class BlobConnectController : MonoBehaviour {
 
                             //move blob to end group as the equal
                             endGroup.SetEq(blob, mCurConnectDragging);
+                            evalGroup = endGroup;
 
                             //remove from dragging group
                             if(mCurGroupDragging != null)
@@ -345,6 +363,7 @@ public class BlobConnectController : MonoBehaviour {
                     if(toOp == OperatorType.Equal) {
                         //refresh equal
                         mCurGroupDragging.SetEq(endBlob, mCurConnectDragging);
+                        evalGroup = mCurGroupDragging;
                     }
                     else //re-establish group
                         mCurGroupDragging.SetOp(blob, endBlob, mCurConnectDragging);
@@ -365,6 +384,10 @@ public class BlobConnectController : MonoBehaviour {
             mCurConnectDragging = null;
             mCurBlobDragging = null;
             mCurGroupDragging = null;
+
+            //send call to evaluate a group
+            if(evalGroup != null && evalGroup.isComplete)
+                evaluateCallback?.Invoke(evalGroup);
         }
         else
             ReleaseDragging();

@@ -48,6 +48,24 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public GameObject dragPointerGO { get; private set; } //current GameObject on pointer during drag
     public JellySpriteReferencePoint dragPointerJellySpriteRefPt { get; private set; } //current jelly sprite ref pt. on pointer during drag
 
+    public M8.PoolDataController poolData {
+        get {
+            if(!mPoolDataCtrl)
+                mPoolDataCtrl = GetComponent<M8.PoolDataController>();
+            return mPoolDataCtrl;
+        }
+    }
+
+    public bool inputLocked {
+        get { return mInputLocked || mInputLockedInternal; }
+        set {
+            if(mInputLocked != value) {
+                mInputLocked = value;
+                ApplyInputLocked();
+            }
+        }
+    }
+
     private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
@@ -57,6 +75,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     private Coroutine mRout;
 
     private RaycastHit2D[] mHitCache = new RaycastHit2D[16];
+
+    private bool mInputLocked;
+    private bool mInputLockedInternal;
 
     /// <summary>
     /// Get an approximate edge towards given point, relies on reference points to provide edge.
@@ -108,22 +129,19 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         return true;
     }
 
-    public void Release() {
-        if(!mPoolDataCtrl)
-            mPoolDataCtrl = GetComponent<M8.PoolDataController>();
-        if(mPoolDataCtrl)
-            mPoolDataCtrl.Release();
-    }
-
     public void Despawn() {
-        ClearRout();
+        mInputLockedInternal = true;
+        ApplyInputLocked();
 
         //animate and then release
+        ClearRout();
+        mRout = StartCoroutine(DoDespawn());
     }
 
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
-            DragInvalidate();
+            if(isDragging)
+                DragInvalidate();
         }
     }
 
@@ -138,6 +156,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     void M8.IPoolSpawn.OnSpawned(M8.GenericParams parms) {
         mNumber = 0;
+        mInputLocked = false;
+        mInputLockedInternal = false;
 
         if(parms != null) {
             if(parms.ContainsKey(parmNumber))
@@ -145,17 +165,28 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
 
         ApplyNumberDisplay();
+
+        mRout = StartCoroutine(DoSpawn());
     }
 
     public void OnPointerEnter(JellySprite jellySprite, int index, PointerEventData eventData) {
+        if(inputLocked)
+            return;
+
         //highlight on
     }
 
     public void OnPointerExit(JellySprite jellySprite, int index, PointerEventData eventData) {
+        if(inputLocked)
+            return;
+
         //highlight off
     }
 
     public void OnDragBegin(JellySprite jellySprite, int index, PointerEventData eventData) {
+        if(inputLocked)
+            return;
+
         DragStart();
 
         DragUpdate(eventData, index);
@@ -185,8 +216,19 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     IEnumerator DoSpawn() {
-        yield return null;
+        if(animator && !string.IsNullOrEmpty(takeSpawn))
+            yield return animator.PlayWait(takeSpawn);
+
         mRout = null;
+    }
+
+    IEnumerator DoDespawn() {
+        if(animator && !string.IsNullOrEmpty(takeDespawn))
+            yield return animator.PlayWait(takeDespawn);
+
+        mRout = null;
+
+        poolData.Release();
     }
 
     private Vector2 GetWorldPoint(Vector2 screenPos) {
@@ -257,6 +299,17 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     private void ApplyNumberDisplay() {
+        if(numericText)
+            numericText.text = mNumber.ToString();
+    }
 
+    private void ApplyInputLocked() {
+        if(inputLocked) {
+            //clear pointer highlight
+            //update highlight
+
+            if(isDragging)
+                DragInvalidate();
+        }
     }
 }

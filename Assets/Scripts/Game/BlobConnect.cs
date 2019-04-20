@@ -11,6 +11,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         None,
         Connecting, //dragging to connect to another blob
         Connected,
+        Error, //animate and release
         Releasing, //animate and release
         Dragging, //drag around
     }
@@ -52,6 +53,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     public string takeConnectedEnter;
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeConnectedExit;
+    [M8.Animator.TakeSelector(animatorField = "animator")]
+    public string takeConnectedError;
 
     [Header("Signal Invokes")]
     public SignalBlobConnect signalInvokeDelete; //called when user released this via click hold
@@ -225,7 +228,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         if(isReleased)
             return;
 
-        if(state != State.Releasing) {
+        if(state == State.Connected) {
             state = State.Releasing;
 
             if(signalInvokeDelete)
@@ -315,7 +318,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
     //IBeginDragHandler, IDragHandler, IEndDragHandler
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
-        if(state == State.Connected || state == State.Releasing) {
+        if(state == State.Connected) {
             state = State.Dragging;
 
             mDragVel = Vector2.zero;
@@ -453,6 +456,19 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
                         Release();
                         break;
                 }
+                break;
+
+            case State.Error:
+                SetPhysicsActive(true);
+
+                if(body) body.bodyType = RigidbodyType2D.Dynamic;
+
+                if(coll) coll.enabled = false;
+
+                if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
+                if(connectingRoot) connectingRoot.gameObject.SetActive(false);
+
+                mRout = StartCoroutine(DoAnimations(Release, takeConnectedError));
                 break;
 
             case State.None:
