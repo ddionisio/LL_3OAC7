@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayController : GameModeController<PlayController> {    
+public class PlayController : GameModeController<PlayController> {
     [System.Serializable]
     public class OperationGroup {
         public Operation[] infos;
@@ -20,16 +20,22 @@ public class PlayController : GameModeController<PlayController> {
     public OperatorType curRoundOp { get { return mRoundOps != null && curRoundIndex >= 0 && curRoundIndex < mRoundOps.Length ? mRoundOps[curRoundIndex] : OperatorType.None; } }
     public int comboCount { get; private set; }
     public float comboCurTime { get; private set; }
+    public bool comboIsActive { get { return mComboRout != null; } }
+    public int curScore { get; private set; }
+    public int curNumberIndex { get; private set; }
+    public int mistakeCount { get; private set; }
 
     //callbacks
-    public event System.Action roundUpdateCallback;
-    public event System.Action roundCompleteCallback;
+    public event System.Action roundBeginCallback;
+    public event System.Action roundEndCallback;
 
     private OperatorType[] mRoundOps;
     private int[] mNumbers;
 
     private bool mIsAnswerCorrectWait;
+
     private Coroutine mSpawnRout;
+    private Coroutine mComboRout;
 
     protected override void OnInstanceDeinit() {
         if(connectControl)
@@ -97,7 +103,7 @@ public class PlayController : GameModeController<PlayController> {
             connectControl.curOp = curRoundOp;
 
             //signal new round
-            roundUpdateCallback?.Invoke();
+            roundBeginCallback?.Invoke();
 
             //wait for correct answer
             mIsAnswerCorrectWait = true;
@@ -105,19 +111,20 @@ public class PlayController : GameModeController<PlayController> {
                 yield return null;
 
             //signal complete round
-            roundCompleteCallback?.Invoke();
+            roundEndCallback?.Invoke();
         }
     }
 
     IEnumerator DoBlobSpawn() {
-        int curBlobTemplateIndex = 0;
-        int curNumberIndex = 0;
+        curNumberIndex = 0;
 
+        int curBlobTemplateIndex = 0;
+        
         while(curNumberIndex < mNumbers.Length) {
-            var maxCount = GameData.instance.blobSpawnCount;
+            var maxBlobCount = GameData.instance.blobSpawnCount;
 
             //check if we have enough on the board
-            while(blobSpawner.blobActiveCount + blobSpawner.spawnQueueCount < maxCount) {
+            while(blobSpawner.blobActiveCount + blobSpawner.spawnQueueCount < maxBlobCount) {
                 blobSpawner.Spawn(curBlobTemplateIndex, mNumbers[curNumberIndex]);
 
                 curBlobTemplateIndex = (curBlobTemplateIndex + 1) % blobSpawner.templateGroups.Length;
@@ -131,6 +138,33 @@ public class PlayController : GameModeController<PlayController> {
         }
 
         mSpawnRout = null;
+    }
+
+    IEnumerator DoComboUpdate() {
+        var maxBlobCount = GameData.instance.blobSpawnCount;
+
+        var comboMaxTime = GameData.instance.comboDuration;
+
+        comboCount = 0;
+        comboCurTime = 0f;
+
+        while(comboCurTime < comboMaxTime) {
+            //wait for blobs to be filled
+            while(mSpawnRout != null && blobSpawner.blobActiveCount < maxBlobCount)
+                yield return null;
+
+            //wait for blob states to finish
+            while(blobSpawner.CheckAnyBlobActiveState(Blob.State.Spawning, Blob.State.Despawning, Blob.State.Correct))
+                yield return null;
+                        
+            yield return null;
+            comboCurTime += Time.deltaTime;
+        }
+
+        comboCount = 0;
+        comboCurTime = 0f;
+        
+        mComboRout = null;
     }
 
     void OnGroupEval(BlobConnectController.Group grp) {
@@ -159,9 +193,15 @@ public class PlayController : GameModeController<PlayController> {
             grp.connectOp = null;
             grp.connectEq.state = BlobConnect.State.Correct;
             grp.connectEq = null;
+                        
+            //increment and refresh combo            
+            if(mComboRout == null)
+                mComboRout = StartCoroutine(DoComboUpdate());
+
+            comboCount++;
 
             //add score
-            //increment and refresh combo
+            curScore += GameData.instance.correctPoints * comboCount;
 
             //go to next round
             mIsAnswerCorrectWait = false;
@@ -178,7 +218,16 @@ public class PlayController : GameModeController<PlayController> {
             grp.connectEq.state = BlobConnect.State.Error;
             grp.connectEq = null;
 
-            //reset combo
+            //end combo
+            if(mComboRout != null) {
+                StopCoroutine(mComboRout);
+                mComboRout = null;
+
+                comboCount = 0;
+                comboCurTime = 0f;
+            }
+
+            mistakeCount++;
         }
 
         connectControl.ClearGroup(grp);

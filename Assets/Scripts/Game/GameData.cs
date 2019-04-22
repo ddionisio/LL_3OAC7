@@ -6,7 +6,9 @@ using UnityEngine;
 public class GameData : M8.SingletonScriptableObject<GameData> {
     [Header("Play Settings")]
     public int blobSpawnCount = 5;
-    public float comboDelay = 2.0f;
+    public int correctPoints = 100;
+    public int perfectPoints = 1000;
+    public float comboDuration = 2.0f;
 
     protected override void OnInstanceInit() {
 

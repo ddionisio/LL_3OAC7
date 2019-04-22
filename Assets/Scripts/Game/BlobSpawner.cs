@@ -46,6 +46,20 @@ public class BlobSpawner : MonoBehaviour {
 
     private System.Text.StringBuilder mBlobNameCache = new System.Text.StringBuilder();
 
+    public bool CheckAnyBlobActiveState(params Blob.State[] states) {
+        for(int i = 0; i < mBlobActives.Count; i++) {
+            var blob = mBlobActives[i];
+            if(blob) {
+                for(int j = 0; j < states.Length; j++) {
+                    if(blob.state == states[j])
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void DespawnAllBlobs() {
         if(mBlobActives == null)
             return;
