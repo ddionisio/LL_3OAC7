@@ -2,29 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayController : GameModeController<PlayController> {
+public class PlayController : GameModeController<PlayController> {    
     [System.Serializable]
-    public struct OperationInfo {
-        public int operand1;
-        public OperatorType op;
-        public int operand2;
-        public int equal;
-    }
-
-    [System.Serializable]
-    public class OperationInfoGroup {
-        public OperationInfo[] infos;
+    public class OperationGroup {
+        public Operation[] infos;
     }
 
     [Header("Info")]
-    public OperationInfoGroup[] opGroups;
+    public OperationGroup[] opGroups;
 
     [Header("Controls")]
     public BlobConnectController connectControl;
     public BlobSpawner blobSpawner;
 
-    [Header("Signal Invokes")]
-    public SignalOperatorType signalInvokeOpChange;
+    public int curRoundIndex { get; private set; }
+    public int roundCount { get { return mRoundOps != null ? mRoundOps.Length : 0; } }
+    public OperatorType curRoundOp { get { return mRoundOps != null && curRoundIndex >= 0 && curRoundIndex < mRoundOps.Length ? mRoundOps[curRoundIndex] : OperatorType.None; } }
+    public int comboCount { get; private set; }
+    public float comboCurTime { get; private set; }
+
+    //callbacks
+    public event System.Action roundUpdateCallback;
+    public event System.Action roundCompleteCallback;
 
     private OperatorType[] mRoundOps;
     private int[] mNumbers;
@@ -65,6 +64,21 @@ public class PlayController : GameModeController<PlayController> {
         mRoundOps = roundOpList.ToArray();
         mNumbers = numberList.ToArray();
 
+        //mix up spawn orders
+        var spawnCount = GameData.instance.blobSpawnCount;
+        var spawnNextCount = 3;
+
+        M8.ArrayUtil.Shuffle(mNumbers, 0, spawnCount);
+
+        for(int i = spawnCount; i < mNumbers.Length; i += spawnNextCount) {
+            int shuffleCount = spawnNextCount;
+            if(i + spawnNextCount - 1 >= mNumbers.Length)
+                shuffleCount = mNumbers.Length - i;
+
+            if(shuffleCount > 0)
+                M8.ArrayUtil.Shuffle(mNumbers, i, spawnNextCount);
+        }
+
         connectControl.evaluateCallback += OnGroupEval;
     }
 
@@ -79,19 +93,19 @@ public class PlayController : GameModeController<PlayController> {
     }
 
     IEnumerator DoRounds() {
-        for(int i = 0; i < mRoundOps.Length; i++) {
-            var curOp = mRoundOps[i];
+        for(curRoundIndex = 0; curRoundIndex < mRoundOps.Length; curRoundIndex++) {
+            connectControl.curOp = curRoundOp;
 
-            connectControl.curOp = curOp;
-
-            //signal operation change
-            if(signalInvokeOpChange)
-                signalInvokeOpChange.Invoke(curOp);
+            //signal new round
+            roundUpdateCallback?.Invoke();
 
             //wait for correct answer
             mIsAnswerCorrectWait = true;
             while(mIsAnswerCorrectWait)
                 yield return null;
+
+            //signal complete round
+            roundCompleteCallback?.Invoke();
         }
     }
 
@@ -120,7 +134,7 @@ public class PlayController : GameModeController<PlayController> {
     }
 
     void OnGroupEval(BlobConnectController.Group grp) {
-        int op1, op2, eq;
+        float op1, op2, eq;
         grp.GetNumbers(out op1, out op2, out eq);
 
         bool isCorrect = false;
@@ -136,8 +150,15 @@ public class PlayController : GameModeController<PlayController> {
 
         if(isCorrect) {
             //do sparkly thing for blobs
+            grp.blobOpLeft.state = Blob.State.Correct;
+            grp.blobOpRight.state = Blob.State.Correct;
+            grp.blobEq.state = Blob.State.Correct;
 
             //clean out op
+            grp.connectOp.state = BlobConnect.State.Correct;
+            grp.connectOp = null;
+            grp.connectEq.state = BlobConnect.State.Correct;
+            grp.connectEq = null;
 
             //add score
             //increment and refresh combo
@@ -147,6 +168,9 @@ public class PlayController : GameModeController<PlayController> {
         }
         else {
             //do error thing for blobs
+            grp.blobOpLeft.state = Blob.State.Error;
+            grp.blobOpRight.state = Blob.State.Error;
+            grp.blobEq.state = Blob.State.Error;
 
             //clean out op
             grp.connectOp.state = BlobConnect.State.Error;

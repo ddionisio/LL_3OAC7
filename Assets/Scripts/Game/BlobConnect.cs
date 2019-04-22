@@ -11,9 +11,12 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         None,
         Connecting, //dragging to connect to another blob
         Connected,
-        Error, //animate and release
-        Releasing, //animate and release
         Dragging, //drag around
+
+        //releasing states
+        Correct,
+        Error,
+        Releasing,
     }
 
     [Header("Body Display")]
@@ -54,6 +57,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeConnectedExit;
     [M8.Animator.TakeSelector(animatorField = "animator")]
+    public string takeConnectedCorrect;
+    [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeConnectedError;
 
     [Header("Signal Invokes")]
@@ -86,6 +91,12 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         }
     }
 
+    public bool isReleasing {
+        get {
+            return isReleased || state == State.Correct || state == State.Error || state == State.Releasing;
+        }
+    }
+
     public M8.PoolDataController poolData { get; private set; }
 
     public Blob blobLinkStart { get; private set; }
@@ -109,9 +120,9 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
     public Blob GetLinkedBlob(Blob otherBlob) {
         if(otherBlob == blobLinkStart)
-            return blobLinkStart;
-        else if(otherBlob == blobLinkEnd)
             return blobLinkEnd;
+        else if(otherBlob == blobLinkEnd)
+            return blobLinkStart;
         return null;
     }
 
@@ -158,6 +169,9 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         //just use center
         Vector2 endEdgePt = blobEnd.jellySprite.CentralPoint.Body2D.position;
         mLinkEndSpring = GenerateSpringJoint(blobEnd.jellySprite.CentralPoint, endEdgePt);
+
+        blobLinkStart = blobStart;
+        blobLinkEnd = blobEnd;
 
         state = State.Connected;
     }
@@ -395,14 +409,12 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         switch(mState) {
             case State.Dragging:
                 SetPhysicsActive(true);
-
                 if(body) body.bodyType = RigidbodyType2D.Kinematic;
 
                 break;
 
             case State.Connected:
                 SetPhysicsActive(true);
-
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
 
                 if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
@@ -458,11 +470,20 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
                 }
                 break;
 
+            case State.Correct:
+                SetPhysicsActive(true);
+                if(body) body.bodyType = RigidbodyType2D.Dynamic;
+                if(coll) coll.enabled = false;
+
+                if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
+                if(connectingRoot) connectingRoot.gameObject.SetActive(false);
+
+                mRout = StartCoroutine(DoAnimations(Release, takeConnectedCorrect));
+                break;
+
             case State.Error:
                 SetPhysicsActive(true);
-
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
-
                 if(coll) coll.enabled = false;
 
                 if(bodyConnectedGO) bodyConnectedGO.SetActive(true);

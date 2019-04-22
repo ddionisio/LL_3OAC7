@@ -44,6 +44,35 @@ public class BlobSpawner : MonoBehaviour {
 
     private M8.CacheList<Blob> mBlobActives;
 
+    private System.Text.StringBuilder mBlobNameCache = new System.Text.StringBuilder();
+
+    public void DespawnAllBlobs() {
+        if(mBlobActives == null)
+            return;
+
+        for(int i = 0; i < mBlobActives.Count; i++) {
+            var blob = mBlobActives[i];
+            if(!blob)
+                continue;
+
+            if(blob.poolData)
+                blob.poolData.despawnCallback -= OnBlobRelease;
+
+            blob.state = Blob.State.Despawning;
+        }
+
+        mBlobActives.Clear();
+    }
+
+    public void SpawnStop() {
+        if(mSpawnRout != null) {
+            StopCoroutine(mSpawnRout);
+            mSpawnRout = null;
+        }
+
+        mSpawnQueue.Clear();
+    }
+
     public void Spawn(string templateName, int number) {
         //grab template index
         int templateIndex = -1;
@@ -74,8 +103,7 @@ public class BlobSpawner : MonoBehaviour {
     }
 
     void OnDisable() {
-        mSpawnQueue.Clear();
-        mSpawnRout = null;
+        SpawnStop();
     }
 
     void Awake() {
@@ -97,7 +125,8 @@ public class BlobSpawner : MonoBehaviour {
         for(int i = 0; i < spawnPointsRoot.childCount; i++)
             mSpawnPts[i] = spawnPointsRoot.GetChild(i).position;
 
-        ShuffleSpawnPoints();
+        M8.ArrayUtil.Shuffle(mSpawnPts);
+        mCurSpawnPtInd = 0;
     }
 
     IEnumerator DoSpawnQueue() {
@@ -112,11 +141,10 @@ public class BlobSpawner : MonoBehaviour {
             Vector2 spawnPt = Vector2.zero;
 
             while(true) {
-                if(mCurSpawnPtInd == mSpawnPts.Length)
-                    ShuffleSpawnPoints();
-
                 var pt = mSpawnPts[mCurSpawnPtInd];
                 mCurSpawnPtInd++;
+                if(mCurSpawnPtInd == mSpawnPts.Length)
+                    mCurSpawnPtInd = 0;
 
                 //check if valid
                 var coll = Physics2D.OverlapCircle(pt, spawnPointCheckRadius, spawnPointCheckMask);
@@ -135,7 +163,12 @@ public class BlobSpawner : MonoBehaviour {
 
             var template = templateGroups[spawnInfo.templateIndex].template;
 
-            var blob = mPool.Spawn<Blob>(template.name, null, mSpawnParms);
+            mBlobNameCache.Clear();
+            mBlobNameCache.Append(template.name);
+            mBlobNameCache.Append(' ');
+            mBlobNameCache.Append(spawnInfo.number);
+
+            var blob = mPool.Spawn<Blob>(template.name, mBlobNameCache.ToString(), null, mSpawnParms);
 
             blob.poolData.despawnCallback += OnBlobRelease;
 
@@ -155,10 +188,5 @@ public class BlobSpawner : MonoBehaviour {
                 break;
             }
         }
-    }
-
-    private void ShuffleSpawnPoints() {
-        M8.ArrayUtil.Shuffle(mSpawnPts);
-        mCurSpawnPtInd = 0;
     }
 }

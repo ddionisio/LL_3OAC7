@@ -10,6 +10,15 @@ using UnityEngine.EventSystems;
 public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public const string parmNumber = "number";
 
+    public enum State {
+        None,
+        Normal,
+        Spawning, //animate and set to normal
+        Despawning, //animate and release
+        Error, //error highlight for a bit
+        Correct //animate and release
+    }
+
     [Header("Jelly")]
     public JellySprite jellySprite;
 
@@ -66,6 +75,16 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public State state {
+        get { return mState; }
+        set {
+            if(mState != value) {
+                mState = value;
+                ApplyState();
+            }
+        }
+    }
+
     private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
@@ -73,6 +92,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     private Camera mDragCamera;
 
     private Coroutine mRout;
+
+    private State mState = State.None;
 
     private RaycastHit2D[] mHitCache = new RaycastHit2D[16];
 
@@ -129,15 +150,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         return true;
     }
 
-    public void Despawn() {
-        mInputLockedInternal = true;
-        ApplyInputLocked();
-
-        //animate and then release
-        ClearRout();
-        mRout = StartCoroutine(DoDespawn());
-    }
-
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
             if(isDragging)
@@ -145,11 +157,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
-    void M8.IPoolDespawn.OnDespawned() {
-        mRout = null;
-
-        DragInvalidate();
-
+    void M8.IPoolDespawn.OnDespawned() {        
+        state = State.None;
+                
         if(signalInvokeDespawn)
             signalInvokeDespawn.Invoke(this);
     }
@@ -166,7 +176,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         ApplyNumberDisplay();
 
-        mRout = StartCoroutine(DoSpawn());
+        state = State.Spawning;
     }
 
     public void OnPointerEnter(JellySprite jellySprite, int index, PointerEventData eventData) {
@@ -218,17 +228,43 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     IEnumerator DoSpawn() {
         if(animator && !string.IsNullOrEmpty(takeSpawn))
             yield return animator.PlayWait(takeSpawn);
+        else
+            yield return null;
 
         mRout = null;
+
+        state = State.Normal;
     }
 
     IEnumerator DoDespawn() {
         if(animator && !string.IsNullOrEmpty(takeDespawn))
             yield return animator.PlayWait(takeDespawn);
+        else
+            yield return null;
 
         mRout = null;
 
         poolData.Release();
+    }
+
+    IEnumerator DoCorrect() {
+        //something fancy
+
+        yield return null;
+
+        mRout = null;
+
+        poolData.Release();
+    }
+
+    IEnumerator DoError() {
+        //error highlight
+
+        yield return null;
+
+        mRout = null;
+
+        state = State.Normal;
     }
 
     private Vector2 GetWorldPoint(Vector2 screenPos) {
@@ -311,5 +347,47 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             if(isDragging)
                 DragInvalidate();
         }
+    }
+
+    private void ApplyState() {
+        ClearRout();
+
+        bool isDragInvalid = false;
+                
+        switch(mState) {
+            case State.Normal:
+                break;
+
+            case State.Spawning:
+                //animate, and then set state to normal
+                mRout = StartCoroutine(DoSpawn());
+                break;
+
+            case State.Despawning:
+                mInputLockedInternal = true;
+                ApplyInputLocked();
+
+                //animate and then release
+                mRout = StartCoroutine(DoDespawn());
+                break;
+
+            case State.Correct:
+                mInputLockedInternal = true;
+                ApplyInputLocked();
+
+                mRout = StartCoroutine(DoCorrect());
+                break;
+
+            case State.Error:
+                mRout = StartCoroutine(DoError());
+                break;
+
+            default:
+                isDragInvalid = true;
+                break;
+        }
+
+        if(isDragInvalid)
+            DragInvalidate();
     }
 }

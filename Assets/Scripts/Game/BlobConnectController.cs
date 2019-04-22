@@ -48,6 +48,15 @@ public class BlobConnectController : MonoBehaviour {
             numEqual = blobEq ? blobEq.number : 0;
         }
 
+        public void GetNumbers(out float numOpLeft, out float numOpRight, out float numEqual) {
+            var blobOpRight = connectEq.GetLinkedBlob(blobEq);
+            var blobOpLeft = connectOp.GetLinkedBlob(blobOpRight);
+
+            numOpLeft = blobOpLeft ? blobOpLeft.number : 0;
+            numOpRight = blobOpRight ? blobOpRight.number : 0;
+            numEqual = blobEq ? blobEq.number : 0;
+        }
+
         public bool IsBlobOp(Blob blob) {
             return blobOpLeft == blob || blobOpRight == blob;
         }
@@ -81,7 +90,7 @@ public class BlobConnectController : MonoBehaviour {
 
         public void ClearEq() {
             if(connectEq) {
-                if(!connectEq.isReleased)
+                if(!connectEq.isReleasing)
                     connectEq.state = BlobConnect.State.Releasing;
                 connectEq = null;
             }
@@ -91,7 +100,7 @@ public class BlobConnectController : MonoBehaviour {
 
         public void Clear() {
             if(connectOp) {
-                if(!connectOp.isReleased)
+                if(!connectOp.isReleasing)
                     connectOp.state = BlobConnect.State.Releasing;
                 connectOp = null;
             }
@@ -112,7 +121,7 @@ public class BlobConnectController : MonoBehaviour {
         }
 
         public void SetEq(Blob eq, BlobConnect connect) {
-            if(connectEq && !connectEq.isReleased)
+            if(connectEq && !connectEq.isReleasing)
                 connectEq.state = BlobConnect.State.Releasing;
 
             blobEq = eq;
@@ -130,7 +139,7 @@ public class BlobConnectController : MonoBehaviour {
             }
             else if(blobEq == blob) {
                 if(connectEq) {
-                    if(!connectEq.isReleased)
+                    if(!connectEq.isReleasing)
                         connectEq.state = BlobConnect.State.Releasing;
                     connectEq = null;
                 }
