@@ -8,12 +8,27 @@ public class PlayController : GameModeController<PlayController> {
         public Operation[] infos;
     }
 
-    [Header("Info")]
+    [Header("Settings")]
+    public string modalVictory = "victory";
+    public M8.SceneAssetPath nextScene; //after victory
+
+    [Header("Operations")]
     public OperationGroup[] opGroups;
 
     [Header("Controls")]
     public BlobConnectController connectControl;
     public BlobSpawner blobSpawner;
+
+    [Header("Animation")]
+    public M8.Animator.Animate animator;
+    [M8.Animator.TakeSelector(animatorField = "animator")]
+    public string takeEnd;
+
+    [Header("Signal Listen")]
+    public M8.Signal signalListenPlayStart;
+
+    [Header("Signal Invoke")]
+    public M8.Signal signalInvokePlayEnd;
 
     public int curRoundIndex { get; private set; }
     public int roundCount { get { return mRoundOps != null ? mRoundOps.Length : 0; } }
@@ -24,6 +39,7 @@ public class PlayController : GameModeController<PlayController> {
     public int curScore { get; private set; }
     public int curNumberIndex { get; private set; }
     public int mistakeCount { get; private set; }
+    public float curPlayTime { get { return Time.time - mPlayLastTime; } }
 
     //callbacks
     public event System.Action roundBeginCallback;
@@ -34,12 +50,16 @@ public class PlayController : GameModeController<PlayController> {
 
     private bool mIsAnswerCorrectWait;
 
+    private float mPlayLastTime;
+
     private Coroutine mSpawnRout;
     private Coroutine mComboRout;
 
     protected override void OnInstanceDeinit() {
         if(connectControl)
             connectControl.evaluateCallback -= OnGroupEval;
+
+        signalListenPlayStart.callback -= OnSignalPlayBegin;
 
         base.OnInstanceDeinit();
     }
@@ -86,16 +106,23 @@ public class PlayController : GameModeController<PlayController> {
         }
 
         connectControl.evaluateCallback += OnGroupEval;
+
+        signalListenPlayStart.callback += OnSignalPlayBegin;
     }
 
-    protected override IEnumerator Start() {
+    /*protected override IEnumerator Start() {
         yield return base.Start();
 
-        //animation intro
+        //wait for play signal
+    }*/
 
+    void OnSignalPlayBegin() {
+        //start spawning
         StartCoroutine(DoRounds());
 
         mSpawnRout = StartCoroutine(DoBlobSpawn());
+
+        mPlayLastTime = Time.time;
     }
 
     IEnumerator DoRounds() {
@@ -113,6 +140,27 @@ public class PlayController : GameModeController<PlayController> {
             //signal complete round
             roundEndCallback?.Invoke();
         }
+
+        var playTotalTime = curPlayTime;
+
+        yield return null;
+
+        //play finish
+        signalInvokePlayEnd.Invoke();
+
+        //play end animation if available
+        if(animator && !string.IsNullOrEmpty(takeEnd))
+            yield return animator.PlayWait(takeEnd);
+
+        //show victory
+        var parms = new M8.GenericParams();
+        parms[ModalVictory.parmScore] = curScore;
+        parms[ModalVictory.parmTime] = playTotalTime;
+        parms[ModalVictory.parmRoundsCount] = mRoundOps.Length;
+        parms[ModalVictory.parmMistakeCount] = mistakeCount;
+        parms[ModalVictory.parmNextScene] = nextScene;
+
+        M8.ModalManager.main.Open(modalVictory, parms);
     }
 
     IEnumerator DoBlobSpawn() {

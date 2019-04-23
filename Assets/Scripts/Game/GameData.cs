@@ -9,6 +9,8 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     public int correctPoints = 100;
     public int perfectPoints = 1000;
     public float comboDuration = 2.0f;
+    public float timeParPerRound = 6f; //in seconds
+    public int timeBonus = 50; //per second based on (timePar - time)
 
     protected override void OnInstanceInit() {
 
