@@ -22,6 +22,25 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     [Header("Jelly")]
     public JellySprite jellySprite;
 
+    [Header("Face Display")]
+    public SpriteRenderer[] eyeSpriteRenders;
+    public SpriteRenderer mouthSpriteRender;
+
+    [Header("Face States")]
+    public Sprite eyeSpriteNormal;
+    public Sprite eyeSpriteLarge;
+    public Sprite eyeSpriteClose;
+
+    public float eyeBlinkOpenDelayMin = 0.5f;
+    public float eyeBlinkOpenDelayMax = 4f;
+    public float eyeBlinkCloseDelay = 0.3f;
+
+    public Sprite mouthSpriteNormal;
+    public Sprite mouthSpriteDragging;
+    public Sprite mouthSpriteConnected;
+    public Sprite mouthSpriteError;
+    public Sprite mouthSpriteCorrect;
+
     [Header("UI")]
     public GameObject highlightGO; //active during enter and dragging
     public Text numericText;
@@ -85,6 +104,19 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public bool isConnected {
+        get { return mIsConnected; }
+        set {
+            if(mIsConnected != value) {
+                mIsConnected = value;
+
+                RefreshMouthSprite();
+
+                //highlight
+            }
+        }
+    }
+
     private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
@@ -92,6 +124,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     private Camera mDragCamera;
 
     private Coroutine mRout;
+    private Coroutine mEyeBlinkRout;
 
     private State mState = State.None;
 
@@ -99,6 +132,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     private bool mInputLocked;
     private bool mInputLockedInternal;
+
+    private bool mIsConnected;
 
     /// <summary>
     /// Get an approximate edge towards given point, relies on reference points to provide edge.
@@ -149,12 +184,29 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         refPtIndex = edgeInd;
         return true;
     }
-
+        
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
             if(isDragging)
                 DragInvalidate();
         }
+    }
+
+    void Awake() {
+        //apply children to jelly attach
+        Transform[] attaches = new Transform[transform.childCount];
+        for(int i = 0; i < transform.childCount; i++)
+            attaches[i] = transform.GetChild(i);
+
+        if(jellySprite.m_AttachPoints == null)
+            jellySprite.m_AttachPoints = attaches;
+        else {
+            int prevAttachPointLen = jellySprite.m_AttachPoints.Length;
+            System.Array.Resize(ref jellySprite.m_AttachPoints, prevAttachPointLen + attaches.Length);
+            System.Array.Copy(attaches, 0, jellySprite.m_AttachPoints, prevAttachPointLen, attaches.Length);
+        }
+
+        jellySprite.m_NumAttachPoints = jellySprite.m_AttachPoints.Length;
     }
 
     void M8.IPoolDespawn.OnDespawned() {        
@@ -267,6 +319,70 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         state = State.Normal;
     }
 
+    IEnumerator DoEyeBlinking() {
+        var blinkCloseWait = new WaitForSeconds(eyeBlinkCloseDelay);
+
+        while(true) {
+            SetEyesSprite(eyeSpriteNormal);
+
+            yield return new WaitForSeconds(Random.Range(eyeBlinkOpenDelayMin, eyeBlinkOpenDelayMax));
+
+            SetEyesSprite(eyeSpriteClose);
+
+            yield return blinkCloseWait;
+        }
+    }
+
+    private void RefreshMouthSprite() {
+        if(!mouthSpriteRender)
+            return;
+
+        Sprite spr;
+                
+        switch(mState) {
+            case State.Correct:
+                spr = mouthSpriteCorrect;
+                break;
+
+            case State.Error:
+                spr = mouthSpriteError;
+                break;
+
+            default:
+                if(isDragging)
+                    spr = mouthSpriteDragging;
+                else if(isConnected)
+                    spr = mouthSpriteConnected;
+                else
+                    spr = mouthSpriteNormal;
+                break;
+        }
+
+        mouthSpriteRender.sprite = spr;
+    }
+
+    private void SetEyeBlinking(bool active) {
+        if(active) {
+            if(mEyeBlinkRout == null)
+                mEyeBlinkRout = StartCoroutine(DoEyeBlinking());
+        }
+        else {
+            if(mEyeBlinkRout != null) {
+                StopCoroutine(mEyeBlinkRout);
+                mEyeBlinkRout = null;
+
+                SetEyesSprite(eyeSpriteNormal);
+            }
+        }
+    }
+
+    private void SetEyesSprite(Sprite spr) {
+        for(int i = 0; i < eyeSpriteRenders.Length; i++) {
+            if(eyeSpriteRenders[i])
+                eyeSpriteRenders[i].sprite = spr;
+        }
+    }
+
     private Vector2 GetWorldPoint(Vector2 screenPos) {
         if(!mDragCamera)
             mDragCamera = Camera.main;
@@ -281,6 +397,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         isDragging = true;
 
         //display stuff, sound, etc.
+        RefreshMouthSprite();
     }
 
     private void DragUpdate(PointerEventData eventData, int index) {
@@ -325,6 +442,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         dragPointerJellySpriteRefPt = null;
 
         //hide display, etc.
+        RefreshMouthSprite();
     }
 
     private void ClearRout() {
@@ -333,7 +451,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             mRout = null;
         }
     }
-
+        
     private void ApplyNumberDisplay() {
         if(numericText)
             numericText.text = mNumber.ToString();
@@ -348,7 +466,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 DragInvalidate();
         }
     }
-
+        
     private void ApplyState() {
         ClearRout();
 
@@ -356,14 +474,17 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 
         switch(mState) {
             case State.Normal:
+                SetEyeBlinking(true);
                 break;
 
             case State.Spawning:
+                SetEyeBlinking(false);
                 //animate, and then set state to normal
                 mRout = StartCoroutine(DoSpawn());
                 break;
 
             case State.Despawning:
+                SetEyeBlinking(false);
                 mInputLockedInternal = true;
                 ApplyInputLocked();
 
@@ -372,6 +493,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 break;
 
             case State.Correct:
+                SetEyeBlinking(false);
                 mInputLockedInternal = true;
                 ApplyInputLocked();
 
@@ -379,15 +501,21 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 break;
 
             case State.Error:
+                SetEyeBlinking(false);
                 mRout = StartCoroutine(DoError());
                 break;
 
             default:
+                SetEyeBlinking(false);
                 isDragInvalid = true;
                 break;
         }
 
         if(isDragInvalid)
             DragInvalidate();
+
+        mIsConnected = false;
+
+        RefreshMouthSprite();
     }
 }

@@ -173,6 +173,11 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         blobLinkStart = blobStart;
         blobLinkEnd = blobEnd;
 
+        if(blobLinkStart)
+            blobLinkStart.isConnected = true;
+        if(blobLinkEnd)
+            blobLinkEnd.isConnected = true;
+
         state = State.Connected;
     }
 
@@ -531,6 +536,12 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
         if(linkBeginSpriteRender) linkBeginSpriteRender.gameObject.SetActive(false);
         if(linkEndSpriteRender) linkEndSpriteRender.gameObject.SetActive(false);
+
+        //reset 'connect' state from blobs
+        if(blobLinkStart)
+            blobLinkStart.isConnected = false;
+        if(blobLinkEnd)
+            blobLinkEnd.isConnected = false;
 
         blobLinkStart = null;
         blobLinkEnd = null;
