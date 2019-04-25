@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: blobHighlight
-  m_Shader: {fileID: 4800000, guid: dd34b0b3202315e4f8482eb2b858487c, type: 3}
+  m_Name: blobError
+  m_Shader: {fileID: 4800000, guid: 04658c77db1a54948b1a16f1cf42b463, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -73,7 +73,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PulseScale: 2
+    - _PulseScale: 8
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -81,8 +81,8 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _ColorOverlayMax: {r: 0.44705886, g: 0.18431373, b: 0.12941177, a: 1}
-    - _ColorOverlayMin: {r: 0.161, g: 0.06405376, b: 0.04847311, a: 1}
+    - _ColorOverlayMax: {r: 0.9137255, g: 0.5875255, b: 0.5875255, a: 1}
+    - _ColorOverlayMin: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}

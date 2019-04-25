@@ -20,7 +20,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     [Header("Jelly")]
-    public JellySprite jellySprite;
+    public UnityJellySprite jellySprite;
 
     [Header("Face Display")]
     public SpriteRenderer[] eyeSpriteRenders;
@@ -41,6 +41,15 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public Sprite mouthSpriteError;
     public Sprite mouthSpriteCorrect;
 
+    [Header("Highlight Materials")]
+    public Material hoverDragMaterial;
+    public Material errorMaterial;
+    public Material correctMaterial;
+    public Material hintMaterial;
+
+    [Header("Error Settings")]
+    public float errorDuration = 1f;
+
     [Header("UI")]
     public GameObject highlightGO; //active during enter and dragging
     public Text numericText;
@@ -51,6 +60,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public string takeSpawn;
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeDespawn;
+    [M8.Animator.TakeSelector(animatorField = "animator")]
+    public string takeCorrect;
 
     [Header("Signal Listens")]
     public M8.Signal signalListenDespawn; //use to animate and then despawn
@@ -192,7 +203,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
-    void Awake() {
+    /*void Awake() {
         //apply children to jelly attach
         Transform[] attaches = new Transform[transform.childCount];
         for(int i = 0; i < transform.childCount; i++)
@@ -207,7 +218,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
 
         jellySprite.m_NumAttachPoints = jellySprite.m_AttachPoints.Length;
-    }
+    }*/
 
     void M8.IPoolDespawn.OnDespawned() {        
         state = State.None;
@@ -217,6 +228,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     void M8.IPoolSpawn.OnSpawned(M8.GenericParams parms) {
+        jellySprite.Init();
+
         mNumber = 0;
         mInputLocked = false;
         mInputLockedInternal = false;
@@ -235,7 +248,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(inputLocked)
             return;
 
-        //highlight on
+        if(state == State.Normal) {
+            //highlight on
+            ApplyJellySpriteMaterial(hoverDragMaterial);
+
+            if(highlightGO) highlightGO.SetActive(true);
+        }
     }
 
     public void OnPointerExit(JellySprite jellySprite, int index, PointerEventData eventData) {
@@ -243,6 +261,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             return;
 
         //highlight off
+        if(state == State.Normal) {
+            if(!isDragging)
+                ApplyJellySpriteMaterial(null);
+
+            if(highlightGO) highlightGO.SetActive(false);
+        }
     }
 
     public void OnDragBegin(JellySprite jellySprite, int index, PointerEventData eventData) {
@@ -300,9 +324,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     IEnumerator DoCorrect() {
-        //something fancy
+        ApplyJellySpriteMaterial(correctMaterial);
 
-        yield return null;
+        //something fancy
+        if(animator && !string.IsNullOrEmpty(takeCorrect))
+            yield return animator.PlayWait(takeCorrect);
 
         mRout = null;
 
@@ -311,8 +337,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     IEnumerator DoError() {
         //error highlight
+        ApplyJellySpriteMaterial(errorMaterial);
 
-        yield return null;
+        yield return new WaitForSeconds(errorDuration);
+
+        ApplyJellySpriteMaterial(null);
 
         mRout = null;
 
@@ -330,6 +359,13 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             SetEyesSprite(eyeSpriteClose);
 
             yield return blinkCloseWait;
+        }
+    }
+
+    private void ApplyJellySpriteMaterial(Material mat) {
+        if(jellySprite.m_Material != mat) {
+            jellySprite.m_Material = mat;
+            jellySprite.ReInitMaterial();
         }
     }
 
@@ -398,6 +434,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         //display stuff, sound, etc.
         RefreshMouthSprite();
+
+        ApplyJellySpriteMaterial(hoverDragMaterial);
     }
 
     private void DragUpdate(PointerEventData eventData, int index) {
@@ -443,6 +481,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         //hide display, etc.
         RefreshMouthSprite();
+
+        if(state == State.Normal)
+            ApplyJellySpriteMaterial(null);
     }
 
     private void ClearRout() {
@@ -469,6 +510,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         
     private void ApplyState() {
         ClearRout();
+
+        ApplyJellySpriteMaterial(null);
 
         bool isDragInvalid = false;
                 
@@ -517,5 +560,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         mIsConnected = false;
 
         RefreshMouthSprite();
+
+        if(highlightGO) highlightGO.SetActive(false);
     }
 }

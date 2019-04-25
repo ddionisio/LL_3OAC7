@@ -147,6 +147,9 @@ public class BlobSpawner : MonoBehaviour {
         var wait = new WaitForSeconds(spawnDelay);
 
         while(mSpawnQueue.Count > 0) {
+            while(mBlobActives.IsFull) //wait for blobs to release
+                yield return null;
+
             yield return wait;
 
             var spawnInfo = mSpawnQueue.Dequeue();
