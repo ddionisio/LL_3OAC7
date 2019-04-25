@@ -230,17 +230,18 @@ public class PlayController : GameModeController<PlayController> {
                 break;
         }
 
+        Blob blobLeft = grp.blobOpLeft, blobRight = grp.blobOpRight, blobEq = grp.blobEq;
+        BlobConnect connectOp = grp.connectOp, connectEq = grp.connectEq;
+
         if(isCorrect) {
             //do sparkly thing for blobs
-            grp.blobOpLeft.state = Blob.State.Correct;
-            grp.blobOpRight.state = Blob.State.Correct;
-            grp.blobEq.state = Blob.State.Correct;
+            blobLeft.state = Blob.State.Correct;
+            blobRight.state = Blob.State.Correct;
+            blobEq.state = Blob.State.Correct;
 
             //clean out op
-            grp.connectOp.state = BlobConnect.State.Correct;
-            grp.connectOp = null;
-            grp.connectEq.state = BlobConnect.State.Correct;
-            grp.connectEq = null;
+            connectOp.state = BlobConnect.State.Correct;
+            connectEq.state = BlobConnect.State.Correct;
                         
             //increment and refresh combo            
             if(mComboRout == null)
@@ -256,15 +257,13 @@ public class PlayController : GameModeController<PlayController> {
         }
         else {
             //do error thing for blobs
-            grp.blobOpLeft.state = Blob.State.Error;
-            grp.blobOpRight.state = Blob.State.Error;
-            grp.blobEq.state = Blob.State.Error;
+            blobLeft.state = Blob.State.Error;
+            blobRight.state = Blob.State.Error;
+            blobEq.state = Blob.State.Error;
 
             //clean out op
-            grp.connectOp.state = BlobConnect.State.Error;
-            grp.connectOp = null;
-            grp.connectEq.state = BlobConnect.State.Error;
-            grp.connectEq = null;
+            connectOp.state = BlobConnect.State.Error;
+            connectEq.state = BlobConnect.State.Error;
 
             //end combo
             if(mComboRout != null) {

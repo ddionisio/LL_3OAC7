@@ -50,6 +50,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     [Header("Error Settings")]
     public float errorDuration = 1f;
 
+    [Header("Correct Settings")]
+    public float correctStartDelay = 0.5f;
+
     [Header("UI")]
     public GameObject highlightGO; //active during enter and dragging
     public Text numericText;
@@ -124,6 +127,25 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 RefreshMouthSprite();
 
                 //highlight
+            }
+        }
+    }
+
+    public Color color {
+        get { return jellySprite ? jellySprite.m_Color : Color.clear; }
+        set {
+            if(jellySprite)
+                jellySprite.SetColor(value);
+        }
+    }
+
+    public float colorAlpha {
+        get { return jellySprite ? jellySprite.m_Color.a : 0f; }
+        set {
+            if(jellySprite) {
+                var clr = jellySprite.m_Color;
+                clr.a = value;
+                jellySprite.SetColor(clr);
             }
         }
     }
@@ -292,8 +314,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(!isDragging)
             return;
 
-        DragUpdate(eventData, index);
-
+        isDragging = false;
+        
         //signal
         if(signalInvokeDragEnd)
             signalInvokeDragEnd.Invoke(this);
@@ -325,6 +347,13 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     IEnumerator DoCorrect() {
         ApplyJellySpriteMaterial(correctMaterial);
+
+        if(correctStartDelay > 0f)
+            yield return new WaitForSeconds(correctStartDelay);
+        else
+            yield return null;
+
+        ApplyJellySpriteMaterial(null);
 
         //something fancy
         if(animator && !string.IsNullOrEmpty(takeCorrect))

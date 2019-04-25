@@ -19,12 +19,12 @@ MonoBehaviour:
     numLoop: 1
     loopMode: 0
     loopBackToFrame: 0
-    trackCounter: 7
+    trackCounter: 12
     groupCounter: 0
     rootGroup:
       group_name: 
       group_id: 0
-      elements: 020000000300000004000000050000000600000007000000
+      elements: 020000000c000000030000000800000004000000090000000a000000050000000b0000000600000007000000
       foldout: 1
     groupValues: []
   - name: despawn
@@ -39,6 +39,20 @@ MonoBehaviour:
       group_name: 
       group_id: 0
       elements: 02000000
+      foldout: 1
+    groupValues: []
+  - name: correct
+    frameRate: 30
+    endFramePadding: 0
+    numLoop: 1
+    loopMode: 0
+    loopBackToFrame: 0
+    trackCounter: 21
+    groupCounter: 0
+    rootGroup:
+      group_name: 
+      group_id: 0
+      elements: 0c00000008000000090000000a000000050000000b000000060000000d00000012000000130000001400000015000000
       foldout: 1
     groupValues: []
   serializeData:
@@ -64,8 +78,32 @@ MonoBehaviour:
       useSendMessage: 0
       parameters: []
       methodName: Play
-    _goSetActiveTracks: []
-    _goSetActiveKeys: []
+    _goSetActiveTracks:
+    - id: 13
+      name: Track8
+      foldout: 1
+      _targetPath: victory
+      obj: {fileID: 0}
+      startActive: 0
+    _goSetActiveKeys:
+    - version: 1
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      setActive: 1
+      endFrame: 16
+    - version: 1
+      interp: 1
+      frame: 16
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      setActive: 0
+      endFrame: -1
     _materialTracks: []
     _materialKeys: []
     _orientationTracks: []
@@ -101,6 +139,116 @@ MonoBehaviour:
       componentName: SpriteRenderer
       fieldName: 
       propertyName: color
+    - id: 8
+      name: Track7
+      foldout: 1
+      _targetPath: blobEyeRight
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteColorAlpha
+      fieldName: 
+      propertyName: alpha
+    - id: 9
+      name: Track8
+      foldout: 1
+      _targetPath: blobEyeLeft
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteColorAlpha
+      fieldName: 
+      propertyName: alpha
+    - id: 10
+      name: Track9
+      foldout: 1
+      _targetPath: blobMouth
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteColorAlpha
+      fieldName: 
+      propertyName: alpha
+    - id: 11
+      name: Track10
+      foldout: 1
+      _targetPath: canvas
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: CanvasGroup
+      fieldName: 
+      propertyName: alpha
+    - id: 12
+      name: Track11
+      foldout: 1
+      _targetPath: .
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: Blob
+      fieldName: 
+      propertyName: colorAlpha
+    - id: 5
+      name: Track4
+      foldout: 1
+      _targetPath: ringGlowLarge
+      valueType: 6
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteRenderer
+      fieldName: 
+      propertyName: color
+    - id: 8
+      name: Track7
+      foldout: 1
+      _targetPath: blobEyeRight
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteColorAlpha
+      fieldName: 
+      propertyName: alpha
+    - id: 9
+      name: Track8
+      foldout: 1
+      _targetPath: blobEyeLeft
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteColorAlpha
+      fieldName: 
+      propertyName: alpha
+    - id: 10
+      name: Track9
+      foldout: 1
+      _targetPath: blobMouth
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: SpriteColorAlpha
+      fieldName: 
+      propertyName: alpha
+    - id: 11
+      name: Track10
+      foldout: 1
+      _targetPath: canvas
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: CanvasGroup
+      fieldName: 
+      propertyName: alpha
+    - id: 12
+      name: Track9
+      foldout: 1
+      _targetPath: .
+      valueType: 2
+      obj: {fileID: 0}
+      component: {fileID: 0}
+      componentName: Blob
+      fieldName: 
+      propertyName: colorAlpha
     _propertyKeys:
     - version: 2
       interp: 2
@@ -186,12 +334,412 @@ MonoBehaviour:
       valString: 
       valObj: {fileID: 0}
       vect4: {x: 0.9803922, y: 0.63529414, z: 0.427451, w: 0}
+    - version: 2
+      interp: 1
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 5
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 5
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 5
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 5
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 5
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 1
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 5
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0.9803922, y: 0.63529414, z: 0.427451, w: 0}
+    - version: 2
+      interp: 1
+      frame: 5
+      easeType: 2
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 7
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0.9803922, y: 0.63529414, z: 0.427451, w: 1}
+    - version: 2
+      interp: 1
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0.9803922, y: 0.63529414, z: 0.427451, w: 0}
+    - version: 2
+      interp: 1
+      frame: 3
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 7
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 3
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 7
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 3
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 7
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 3
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 7
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 3
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: 7
+      val: 1
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
+    - version: 2
+      interp: 1
+      frame: 7
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      endFrame: -1
+      val: 0
+      valString: 
+      valObj: {fileID: 0}
+      vect4: {x: 0, y: 0, z: 0, w: 0}
     _rotationEulerTracks: []
     _rotationEulerKeys: []
     _rotationTracks: []
     _rotationKeys: []
-    _translationTracks: []
-    _translationKeys: []
+    _translationTracks:
+    - id: 18
+      name: Track9
+      foldout: 1
+      _targetPath: victory/sparkle (0)
+      _obj: {fileID: 0}
+      pixelSnap: 0
+      pixelPerUnit: 100
+    - id: 19
+      name: Track10
+      foldout: 1
+      _targetPath: victory/sparkle (1)
+      _obj: {fileID: 0}
+      pixelSnap: 0
+      pixelPerUnit: 100
+    - id: 20
+      name: Track11
+      foldout: 1
+      _targetPath: victory/sparkle (2)
+      _obj: {fileID: 0}
+      pixelSnap: 0
+      pixelPerUnit: 100
+    - id: 21
+      name: Track12
+      foldout: 1
+      _targetPath: victory/sparkle (3)
+      _obj: {fileID: 0}
+      pixelSnap: 0
+      pixelPerUnit: 100
+    _translationKeys:
+    - version: 2
+      interp: 0
+      frame: 5
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: 0, y: 0, z: 0}
+      endFrame: 15
+      path:
+      - {x: 0, y: 0, z: 0}
+      - {x: -1.31, y: 1.31, z: 0}
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 15
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: -1.31, y: 1.31, z: 0}
+      endFrame: 15
+      path: []
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 5
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: 0, y: 0, z: 0}
+      endFrame: 15
+      path:
+      - {x: 0, y: 0, z: 0}
+      - {x: -1.31, y: -1.31, z: 0}
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 15
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: -1.31, y: -1.31, z: 0}
+      endFrame: 15
+      path: []
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 5
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: 0, y: 0, z: 0}
+      endFrame: 15
+      path:
+      - {x: 0, y: 0, z: 0}
+      - {x: 1.31, y: 1.31, z: 0}
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 15
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: 1.31, y: 1.31, z: 0}
+      endFrame: 15
+      path: []
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 5
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: 0, y: 0, z: 0}
+      endFrame: 15
+      path:
+      - {x: 0, y: 0, z: 0}
+      - {x: 1.31, y: -1.31, z: 0}
+      isConstSpeed: 1
+    - version: 2
+      interp: 0
+      frame: 15
+      easeType: 3
+      amplitude: 0
+      period: 0
+      customEase: []
+      position: {x: 1.31, y: -1.31, z: 0}
+      endFrame: 15
+      path: []
+      isConstSpeed: 1
     _unityAnimationTracks: []
     _unityAnimationKeys: []
     _scaleTracks:
@@ -211,6 +759,12 @@ MonoBehaviour:
       name: Track1
       foldout: 1
       _targetPath: .
+      axis: -1
+      _obj: {fileID: 0}
+    - id: 6
+      name: Track5
+      foldout: 1
+      _targetPath: ringGlowLarge
       axis: -1
       _obj: {fileID: 0}
     _scaleKeys:
@@ -277,6 +831,24 @@ MonoBehaviour:
       customEase: []
       scale: {x: 0, y: 0, z: 1}
       endFrame: -1
+    - version: 1
+      interp: 1
+      frame: 1
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      scale: {x: 0, y: 0, z: 1}
+      endFrame: 5
+    - version: 1
+      interp: 1
+      frame: 5
+      easeType: 1
+      amplitude: 0
+      period: 0
+      customEase: []
+      scale: {x: 1.1, y: 1.1, z: 1}
+      endFrame: -1
     _trackLookups:
     - type: 11
       index: 0
@@ -296,7 +868,58 @@ MonoBehaviour:
     - type: 3
       index: 0
       keyIndices: 00000000
+    - type: 7
+      index: 3
+      keyIndices: 0700000008000000
+    - type: 7
+      index: 4
+      keyIndices: 090000000a000000
+    - type: 7
+      index: 5
+      keyIndices: 0b0000000c000000
+    - type: 7
+      index: 6
+      keyIndices: 0d0000000e000000
+    - type: 7
+      index: 7
+      keyIndices: 0f00000010000000
     - type: 11
       index: 2
       keyIndices: 0500000006000000
-    _takeTrackCounts: 0600000001000000
+    - type: 7
+      index: 8
+      keyIndices: 110000001200000013000000
+    - type: 11
+      index: 3
+      keyIndices: 0700000008000000
+    - type: 7
+      index: 9
+      keyIndices: 1400000015000000
+    - type: 7
+      index: 10
+      keyIndices: 1600000017000000
+    - type: 7
+      index: 11
+      keyIndices: 1800000019000000
+    - type: 7
+      index: 12
+      keyIndices: 1a0000001b000000
+    - type: 7
+      index: 13
+      keyIndices: 1c0000001d000000
+    - type: 4
+      index: 0
+      keyIndices: 0000000001000000
+    - type: 10
+      index: 0
+      keyIndices: 0000000001000000
+    - type: 10
+      index: 1
+      keyIndices: 0200000003000000
+    - type: 10
+      index: 2
+      keyIndices: 0400000005000000
+    - type: 10
+      index: 3
+      keyIndices: 0600000007000000
+    _takeTrackCounts: 0b000000010000000c000000
