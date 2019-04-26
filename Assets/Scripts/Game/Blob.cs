@@ -21,6 +21,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     [Header("Jelly")]
     public UnityJellySprite jellySprite;
+    public float radius; //estimate radius
 
     [Header("Face Display")]
     public SpriteRenderer[] eyeSpriteRenders;

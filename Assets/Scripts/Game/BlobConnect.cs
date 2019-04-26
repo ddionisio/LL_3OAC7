@@ -6,7 +6,9 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Connection between blobs with an operator or equal
 /// </summary>
-public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBeginDragHandler, IDragHandler, IEndDragHandler {
+public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler {
+    public const float zOfs = -0.1f;
+
     public enum State {
         None,
         Connecting, //dragging to connect to another blob
@@ -23,6 +25,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     public GameObject bodyConnectedGO;
     public GameObject bodyConnectingGO;
     public Transform connectingRoot; //follow mouse pointer
+    public GameObject selectGO;
 
     [Header("Operator Display")]
     public GameObject[] operatorMultiplyGO;
@@ -30,8 +33,9 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     public GameObject[] operatorEqualGO;
 
     [Header("Link Display")]
-    public SpriteRenderer linkBeginSpriteRender; //ensure it is in 9-slice render
-    public SpriteRenderer linkEndSpriteRender; //ensure it is in 9-slice render
+    public SpriteRenderer linkBeginSpriteRender;
+    public SpriteRenderer linkEndSpriteRender;
+    public bool linkUseScale = true; //use scale instead of size for link begin/end
     public float linkConnectOfs = 0f; //length offset connecting towards blob
 
     [Header("Physics")]
@@ -113,6 +117,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     private Vector2 mDragVel;
 
     private Coroutine mRout;
+    private bool mIsPointerEnter;
 
     public bool IsConnectedTo(Blob blob) {
         return blob == blobLinkStart || blob == blobLinkEnd;
@@ -178,7 +183,27 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         if(blobLinkEnd)
             blobLinkEnd.isConnected = true;
 
+        if(linkBeginSpriteRender) linkBeginSpriteRender.color = blobStart.color;
+        if(linkEndSpriteRender) linkEndSpriteRender.color = blobEnd.color;
+
         state = State.Connected;
+    }
+
+    public void SpringRelease() {
+        if(mLinkBeginSpring) { Destroy(mLinkBeginSpring); mLinkBeginSpring = null; }
+        if(mLinkEndSpring) { Destroy(mLinkEndSpring); mLinkEndSpring = null; }
+
+        if(linkBeginSpriteRender) linkBeginSpriteRender.gameObject.SetActive(false);
+        if(linkEndSpriteRender) linkEndSpriteRender.gameObject.SetActive(false);
+
+        //reset 'connect' state from blobs
+        if(blobLinkStart)
+            blobLinkStart.isConnected = false;
+        if(blobLinkEnd)
+            blobLinkEnd.isConnected = false;
+
+        blobLinkStart = null;
+        blobLinkEnd = null;
     }
 
     private SpringJoint2D GenerateSpringJoint(JellySprite.ReferencePoint refPt, Vector2 refPtPos) {
@@ -198,32 +223,34 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     /// <summary>
     /// Call during Connecting state
     /// </summary>
-    public void UpdateConnecting(Vector2 srcPoint, Vector2 destPoint) {
+    public void UpdateConnecting(Vector2 srcPoint, Vector2 destPoint, float midOfs, Color color) {
         var dpos = srcPoint - destPoint;
         var lenSqr = dpos.sqrMagnitude;
         if(lenSqr > 0f) {
             var len = Mathf.Sqrt(lenSqr);
-            var halfLen = len * 0.5f;
             var dirToSrc = dpos / len;
-            var midPt = destPoint + dirToSrc * halfLen;
+            var midPt = destPoint + dirToSrc * ((len - midOfs) * 0.5f);
 
             //apply link displays
             if(linkBeginSpriteRender) {
                 linkBeginSpriteRender.gameObject.SetActive(true);
-                linkBeginSpriteRender.transform.up = dirToSrc;
 
-                var s = linkBeginSpriteRender.size;
-                s.y = halfLen;
-                linkBeginSpriteRender.size = s;
-            }
+                var t = linkBeginSpriteRender.transform;
+                t.up = dirToSrc;
 
-            if(linkEndSpriteRender) {
-                linkEndSpriteRender.gameObject.SetActive(true);
-                linkEndSpriteRender.transform.up = -dirToSrc;
+                if(linkUseScale) {
+                    var s = t.localScale;
+                    s.y = len + linkConnectOfs * 2f;
+                    t.localScale = s;
+                    t.position = destPoint + (len * 0.5f + linkConnectOfs) * dirToSrc;
+                }
+                else {
+                    var s = linkBeginSpriteRender.size;
+                    s.y = len;
+                    linkBeginSpriteRender.size = s;
+                }
 
-                var s = linkEndSpriteRender.size;
-                s.y = halfLen;
-                linkEndSpriteRender.size = s;
+                linkBeginSpriteRender.color = color;
             }
 
             //set self to midway
@@ -231,7 +258,6 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         }
         else {
             if(linkBeginSpriteRender) linkBeginSpriteRender.gameObject.SetActive(false);
-            if(linkEndSpriteRender) linkBeginSpriteRender.gameObject.SetActive(false);
 
             //set self to destPoint
             transform.position = destPoint;
@@ -285,6 +311,9 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
+            mIsPointerEnter = false;
+            if(selectGO) selectGO.SetActive(false);
+
             if(state == State.Dragging)
                 state = State.Connected;
         }
@@ -299,14 +328,11 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     }
 
     void Update() {
-        switch(mState) {
-            case State.Dragging:
-            case State.Releasing:
-            case State.Connected:
-                ApplyLinkTelemetry(linkBeginSpriteRender, mLinkBeginSpring);
-                ApplyLinkTelemetry(linkEndSpriteRender, mLinkEndSpring);
-                break;
-        }
+        if(mLinkBeginSpring)
+            ApplyLinkTelemetry(linkBeginSpriteRender, mLinkBeginSpring);
+
+        if(mLinkEndSpring)
+            ApplyLinkTelemetry(linkEndSpriteRender, mLinkEndSpring);
     }
 
     void FixedUpdate() {
@@ -335,7 +361,22 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         }
     }
 
-    //IBeginDragHandler, IDragHandler, IEndDragHandler
+    void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData) {
+        mIsPointerEnter = true;
+
+        if(state == State.Connected && mRout == null) {
+            if(selectGO) selectGO.SetActive(true);
+        }
+    }
+
+    void IPointerExitHandler.OnPointerExit(PointerEventData eventData) {
+        mIsPointerEnter = false;
+
+        if(state == State.Connected && mRout == null) {
+            if(selectGO) selectGO.SetActive(false);
+        }
+    }
+
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
         if(state == State.Connected) {
             state = State.Dragging;
@@ -386,11 +427,21 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
             if(len > 0f) {
                 spriteRenderer.gameObject.SetActive(true);
 
-                spriteRenderer.transform.up = dpos / len;
+                var dir = dpos / len;
+                var t = spriteRenderer.transform;
+                t.up = dir;
 
-                var s = spriteRenderer.size;
-                s.y = len + linkConnectOfs;
-                spriteRenderer.size = s;
+                if(linkUseScale) {
+                    var s = t.localScale;
+                    s.y = len + linkConnectOfs * 2f;
+                    t.localScale = s;
+                    t.position = connectStartPos + (len * 0.5f + linkConnectOfs) * dir;
+                }
+                else {
+                    var s = spriteRenderer.size;
+                    s.y = len + linkConnectOfs;
+                    spriteRenderer.size = s;
+                }
             }
             else { //fail-safe
                 spriteRenderer.gameObject.SetActive(false);
@@ -411,28 +462,36 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
                 break;
         }
 
+        Vector3 pos;
+
         switch(mState) {
             case State.Dragging:
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Kinematic;
 
+                if(selectGO) selectGO.SetActive(true);
+
+                pos = transform.position;
+                transform.position = new Vector3(pos.x, pos.y, zOfs);
                 break;
 
             case State.Connected:
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
 
-                if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
                 if(connectingRoot) connectingRoot.gameObject.SetActive(false);
 
+                pos = transform.position;
+                transform.position = new Vector3(pos.x, pos.y, zOfs);
+
                 switch(prevState) {
-                    case State.Connecting:
-                        mRout = StartCoroutine(DoAnimations(HideConnectingDisplay, takeConnectingExit, takeConnectedEnter));
-                        break;
                     case State.Dragging:
+                        if(selectGO) selectGO.SetActive(mIsPointerEnter);
                         break;
+
                     default:
-                        mRout = StartCoroutine(DoAnimations(null, takeConnectedEnter));
+                        if(selectGO) selectGO.SetActive(false);
+                        mRout = StartCoroutine(DoConnectedEnter(prevState));
                         break;
                 }
                 break;
@@ -442,24 +501,21 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
                 SpringRelease();
 
-                if(bodyConnectingGO) bodyConnectingGO.SetActive(true);
+                if(selectGO) selectGO.SetActive(false);
+                mIsPointerEnter = false;
+
                 if(connectingRoot) connectingRoot.gameObject.SetActive(true);
 
-                switch(prevState) {
-                    case State.Connected:
-                    case State.Dragging:
-                        mRout = StartCoroutine(DoAnimations(HideConnectDisplay, takeConnectedExit, takeConnectingEnter));
-                        break;
-                    default:
-                        mRout = StartCoroutine(DoAnimations(null, takeConnectingEnter));
-                        break;
-                }
+                mRout = StartCoroutine(DoConnectingEnter(prevState));
                 break;
 
             case State.Releasing:
                 SetPhysicsActive(false);
 
                 SpringRelease();
+
+                if(selectGO) selectGO.SetActive(false);
+                mIsPointerEnter = false;
 
                 switch(prevState) {
                     case State.Connected:
@@ -480,8 +536,11 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
                 if(coll) coll.enabled = false;
 
+                if(selectGO) selectGO.SetActive(false);
+                mIsPointerEnter = false;
+
+                HideConnectingDisplay();
                 if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
-                if(connectingRoot) connectingRoot.gameObject.SetActive(false);
 
                 mRout = StartCoroutine(DoAnimations(Release, takeConnectedCorrect));
                 break;
@@ -490,9 +549,12 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
                 if(coll) coll.enabled = false;
+                                
+                if(selectGO) selectGO.SetActive(false);
+                mIsPointerEnter = false;
 
+                HideConnectingDisplay();
                 if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
-                if(connectingRoot) connectingRoot.gameObject.SetActive(false);
 
                 mRout = StartCoroutine(DoAnimations(Release, takeConnectedError));
                 break;
@@ -504,6 +566,9 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
                 HideConnectingDisplay();
                 HideConnectDisplay();
+
+                if(selectGO) selectGO.SetActive(false);
+                mIsPointerEnter = false;
                 break;
         }
     }
@@ -511,6 +576,10 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
     private void SetPhysicsActive(bool aActive) {
         if(body) body.simulated = aActive;
         if(coll) coll.enabled = aActive;
+
+        if(!aActive) {
+            mIsPointerEnter = false;
+        }
     }
 
     private void ApplyCurOperator() {
@@ -530,23 +599,6 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
         }
     }
 
-    private void SpringRelease() {
-        if(mLinkBeginSpring) { Destroy(mLinkBeginSpring); mLinkBeginSpring = null; }
-        if(mLinkEndSpring) { Destroy(mLinkEndSpring); mLinkEndSpring = null; }
-
-        if(linkBeginSpriteRender) linkBeginSpriteRender.gameObject.SetActive(false);
-        if(linkEndSpriteRender) linkEndSpriteRender.gameObject.SetActive(false);
-
-        //reset 'connect' state from blobs
-        if(blobLinkStart)
-            blobLinkStart.isConnected = false;
-        if(blobLinkEnd)
-            blobLinkEnd.isConnected = false;
-
-        blobLinkStart = null;
-        blobLinkEnd = null;
-    }
-
     private void StopRout() {
         if(mRout != null) {
             StopCoroutine(mRout);
@@ -561,6 +613,45 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IBegin
 
     private void HideConnectDisplay() {
         if(bodyConnectedGO) bodyConnectedGO.SetActive(false);
+    }
+
+    IEnumerator DoConnectedEnter(State prevState) {
+        switch(prevState) {
+            case State.Connecting:
+                if(animator && !string.IsNullOrEmpty(takeConnectingExit))
+                    yield return animator.PlayWait(takeConnectingExit);
+
+                HideConnectingDisplay();
+                break;
+        }
+
+        if(bodyConnectedGO) bodyConnectedGO.SetActive(true);
+
+        if(animator && !string.IsNullOrEmpty(takeConnectedEnter))
+            yield return animator.PlayWait(takeConnectedEnter);
+
+        if(selectGO) selectGO.SetActive(mIsPointerEnter);
+
+        mRout = null;
+    }
+
+    IEnumerator DoConnectingEnter(State prevState) {
+        switch(prevState) {
+            case State.Connected:
+            case State.Dragging:
+                if(animator && !string.IsNullOrEmpty(takeConnectedExit))
+                    yield return animator.PlayWait(takeConnectedExit);
+
+                HideConnectDisplay();
+                break;
+        }
+
+        if(bodyConnectingGO) bodyConnectingGO.SetActive(true);
+
+        if(animator && !string.IsNullOrEmpty(takeConnectingEnter))
+            yield return animator.PlayWait(takeConnectingEnter);
+
+        mRout = null;
     }
 
     IEnumerator DoAnimations(System.Action postCall, params string[] takes) {

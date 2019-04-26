@@ -263,9 +263,7 @@ public class BlobConnectController : MonoBehaviour {
                     connectPtStart = connectPtEnd;
                 }
                 else {
-                    //grab edge of the blob relative to end.
-                    int refInd;
-                    mCurBlobDragging.GetEdge(connectPtEnd, out connectPtStart, out refInd);
+                    connectPtStart = mCurBlobDragging.transform.position;
 
                     //check if we are over another blob
                     if(mCurBlobDragging.dragPointerJellySpriteRefPt) {
@@ -280,7 +278,7 @@ public class BlobConnectController : MonoBehaviour {
                 }
 
                 mCurConnectDragging.op = dragOp;
-                mCurConnectDragging.UpdateConnecting(connectPtStart, connectPtEnd);
+                mCurConnectDragging.UpdateConnecting(connectPtStart, connectPtEnd, mCurBlobDragging.radius, mCurBlobDragging.color);
             }
             else //blob being dragged on released?
                 ReleaseDragging();
