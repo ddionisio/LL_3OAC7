@@ -239,6 +239,18 @@ public class BlobConnectController : MonoBehaviour {
         signalListenBlobConnectDelete.callback += OnBlobConnectDelete;
     }
 
+    void SetCurGroupDraggingOtherBlobHighlight(bool isHighlight) {
+        if(mCurGroupDragging != null) {
+            Blob otherBlob = null;
+            if(mCurGroupDragging.connectOp)
+                otherBlob = mCurGroupDragging.connectOp.GetLinkedBlob(mCurBlobDragging);
+            else if(mCurGroupDragging.connectEq)
+                otherBlob = mCurGroupDragging.connectEq.GetLinkedBlob(mCurBlobDragging);
+            if(otherBlob)
+                otherBlob.ApplyJellySpriteMaterial(isHighlight ? otherBlob.hoverDragMaterial : null);
+        }
+    }
+
     void Update() {
         //we are dragging
         if(mCurConnectDragging) {
@@ -261,6 +273,9 @@ public class BlobConnectController : MonoBehaviour {
                 if(dragJellySprRef && dragJellySprRef.ParentJellySprite == mCurBlobDragging.gameObject) {
                     //start set the same as end.
                     connectPtStart = connectPtEnd;
+
+                    //unhighlight the other connection
+                    SetCurGroupDraggingOtherBlobHighlight(false);
                 }
                 else {
                     connectPtStart = mCurBlobDragging.transform.position;
@@ -274,6 +289,13 @@ public class BlobConnectController : MonoBehaviour {
                             if(toGrp.IsBlobOp(blobGO))
                                 dragOp = OperatorType.Equal;
                         }
+
+                        //highlight the other connection
+                        SetCurGroupDraggingOtherBlobHighlight(true);
+                    }
+                    else {
+                        //unhighlight the other connection
+                        SetCurGroupDraggingOtherBlobHighlight(false);
                     }
                 }
 
@@ -310,6 +332,8 @@ public class BlobConnectController : MonoBehaviour {
     }
 
     void OnBlobDragEnd(Blob blob) {
+        SetCurGroupDraggingOtherBlobHighlight(false);
+
         //determine if we can connect to a new blob
         var blobRefPt = blob.dragPointerJellySpriteRefPt;
         if(blobRefPt != null && blobRefPt.ParentJellySprite != blob.gameObject) {

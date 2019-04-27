@@ -46,13 +46,19 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public Material hoverDragMaterial;
     public Material errorMaterial;
     public Material correctMaterial;
-    public Material hintMaterial;
 
     [Header("Error Settings")]
     public float errorDuration = 1f;
 
     [Header("Correct Settings")]
     public float correctStartDelay = 0.5f;
+
+    [Header("Spawn Settings")]
+    public M8.RangeFloat spawnCenterImpulse;
+    public M8.RangeFloat spawnEdgeImpulse;
+
+    [Header("Hint Settings")]
+    public GameObject hintActiveGO;
 
     [Header("UI")]
     public GameObject highlightGO; //active during enter and dragging
@@ -151,6 +157,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public bool hintActive {
+        get { return hintActiveGO && hintActiveGO.activeSelf; }
+        set {
+            if(hintActiveGO)
+                hintActiveGO.SetActive(value);
+        }
+    }
+
     private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
@@ -218,7 +232,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         refPtIndex = edgeInd;
         return true;
     }
-        
+
+    public void ApplyJellySpriteMaterial(Material mat) {
+        if(jellySprite.m_Material != mat) {
+            jellySprite.m_Material = mat;
+            jellySprite.ReInitMaterial();
+        }
+    }
+
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
             if(isDragging)
@@ -333,6 +354,21 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         mRout = null;
 
         state = State.Normal;
+
+        //impulse center
+        var centerDir = M8.MathUtil.RotateAngle(Vector2.up, Random.Range(0f, 360f));
+        jellySprite.CentralPoint.Body2D.AddForce(centerDir * spawnCenterImpulse.random, ForceMode2D.Impulse);
+
+        //impulse edges
+        if(jellySprite.ReferencePoints.Count > 1) {
+            var edgeDir = Vector2.right;
+            var rotAmt = 360f / (jellySprite.ReferencePoints.Count - 1);
+            for(int i = 1; i < jellySprite.ReferencePoints.Count; i++) {
+                var refPt = jellySprite.ReferencePoints[i];
+                refPt.Body2D.AddForce(edgeDir * spawnEdgeImpulse.random, ForceMode2D.Impulse);
+                edgeDir = M8.MathUtil.RotateAngle(edgeDir, rotAmt);
+            }
+        }
     }
 
     IEnumerator DoDespawn() {
@@ -391,14 +427,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             yield return blinkCloseWait;
         }
     }
-
-    private void ApplyJellySpriteMaterial(Material mat) {
-        if(jellySprite.m_Material != mat) {
-            jellySprite.m_Material = mat;
-            jellySprite.ReInitMaterial();
-        }
-    }
-
+        
     private void RefreshMouthSprite() {
         if(!mouthSpriteRender)
             return;
@@ -552,12 +581,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             case State.Spawning:
                 SetEyeBlinking(false);
+                hintActive = false;
                 //animate, and then set state to normal
                 mRout = StartCoroutine(DoSpawn());
                 break;
 
             case State.Despawning:
                 SetEyeBlinking(false);
+                hintActive = false;
                 mInputLockedInternal = true;
                 ApplyInputLocked();
 
@@ -567,6 +598,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             case State.Correct:
                 SetEyeBlinking(false);
+                hintActive = false;
                 mInputLockedInternal = true;
                 ApplyInputLocked();
 
@@ -580,6 +612,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
             default:
                 SetEyeBlinking(false);
+                hintActive = false;
                 isDragInvalid = true;
                 break;
         }

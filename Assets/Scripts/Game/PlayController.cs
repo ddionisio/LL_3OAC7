@@ -125,17 +125,72 @@ public class PlayController : GameModeController<PlayController> {
         mPlayLastTime = Time.time;
     }
 
+    private void ApplyHintActive() {
+        for(int i = 0; i < blobSpawner.blobActives.Count - 2; i++) {
+            var op1 = blobSpawner.blobActives[i];
+
+            for(int j = i + 1; j < blobSpawner.blobActives.Count - 1; j++) {
+                var op2 = blobSpawner.blobActives[j];
+
+                switch(curRoundOp) {
+                    case OperatorType.Multiply:
+                        for(int k = j + 1; k < blobSpawner.blobActives.Count; k++) {
+                            var op3 = blobSpawner.blobActives[k];
+                            if(op1.number * op2.number == op3.number
+                                || op1.number * op3.number == op2.number
+                                || op2.number * op3.number == op1.number) {
+                                op1.hintActive = true;
+                                op2.hintActive = true;
+                                op3.hintActive = true;
+                                return;
+                            }
+                        }
+                        break;
+
+                    case OperatorType.Divide:
+                        for(int k = j + 1; k < blobSpawner.blobActives.Count; k++) {
+                            var op3 = blobSpawner.blobActives[k];
+                            if(op1.number / op2.number == op3.number || op2.number / op1.number == op3.number
+                                || op1.number / op3.number == op2.number || op3.number / op1.number == op2.number
+                                || op2.number / op3.number == op1.number || op3.number / op2.number == op1.number) {
+                                op1.hintActive = true;
+                                op2.hintActive = true;
+                                op3.hintActive = true;
+                                return;
+                            }
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
     IEnumerator DoRounds() {
+        var hintDelay = GameData.instance.hintDelay;
+
         for(curRoundIndex = 0; curRoundIndex < mRoundOps.Length; curRoundIndex++) {
             connectControl.curOp = curRoundOp;
 
             //signal new round
             roundBeginCallback?.Invoke();
 
+            var roundBeginLastTime = Time.time;
+            var isHintShown = false;
+            
             //wait for correct answer
             mIsAnswerCorrectWait = true;
-            while(mIsAnswerCorrectWait)
+            while(mIsAnswerCorrectWait) {
+                //check if we want hint to activate
+                if(!isHintShown) {
+                    if(Time.time - roundBeginLastTime > hintDelay) {
+                        //find matching operands and equal based on operation
+                        ApplyHintActive();
+                        isHintShown = true;
+                    }
+                }
+
                 yield return null;
+            }
 
             //signal complete round
             roundEndCallback?.Invoke();
@@ -172,7 +227,7 @@ public class PlayController : GameModeController<PlayController> {
             var maxBlobCount = GameData.instance.blobSpawnCount;
 
             //check if we have enough on the board
-            while(blobSpawner.blobActiveCount + blobSpawner.spawnQueueCount < maxBlobCount) {
+            while(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount < maxBlobCount) {
                 blobSpawner.Spawn(curBlobTemplateIndex, mNumbers[curNumberIndex]);
 
                 curBlobTemplateIndex = (curBlobTemplateIndex + 1) % blobSpawner.templateGroups.Length;
@@ -198,7 +253,7 @@ public class PlayController : GameModeController<PlayController> {
 
         while(comboCurTime < comboMaxTime) {
             //wait for blobs to be filled
-            while(mSpawnRout != null && blobSpawner.blobActiveCount < maxBlobCount)
+            while(mSpawnRout != null && blobSpawner.blobActives.Count < maxBlobCount)
                 yield return null;
 
             //wait for blob states to finish
