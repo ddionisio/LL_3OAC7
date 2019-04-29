@@ -22,6 +22,8 @@ public class PlayController : GameModeController<PlayController> {
     [Header("Animation")]
     public M8.Animator.Animate animator;
     [M8.Animator.TakeSelector(animatorField = "animator")]
+    public string takeBegin;
+    [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeEnd;
 
     [Header("Signal Listen")]
@@ -110,11 +112,13 @@ public class PlayController : GameModeController<PlayController> {
         signalListenPlayStart.callback += OnSignalPlayBegin;
     }
 
-    /*protected override IEnumerator Start() {
+    protected override IEnumerator Start() {
         yield return base.Start();
 
-        //wait for play signal
-    }*/
+        //play enter if available
+        if(animator && !string.IsNullOrEmpty(takeBegin))
+            yield return animator.PlayWait(takeBegin);
+    }
 
     void OnSignalPlayBegin() {
         //start spawning
