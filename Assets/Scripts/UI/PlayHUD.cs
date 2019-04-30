@@ -10,13 +10,7 @@ public class PlayHUD : MonoBehaviour {
     [Header("Display")]
     public GameObject readySetGoDisplayGO;
 
-    public M8.UI.Texts.TextCounter scoreCounter;
-
-    public GameObject comboGO;
-    public Text comboCountText;
-    public string comboCountFormat = "x{0}";
-    public Image comboTimeFill;
-
+    [Header("Operator Display")]
     public GameObject opCurrentTabMultiplyGO;
     public GameObject opCurrentTabDivideGO;
 
@@ -32,6 +26,28 @@ public class PlayHUD : MonoBehaviour {
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeChangeOp;
 
+    [Header("Score Display")]
+    public M8.UI.Texts.TextCounter scoreCounter;
+
+    public M8.Animator.Animate scoreAnimator;
+    [M8.Animator.TakeSelector(animatorField = "scoreAnimator")]
+    public string scoreTakeUpdate;
+
+    [Header("Combo Display")]
+    public GameObject comboGO;
+    public Text comboCountText;
+    public string comboCountFormat = "x{0}";
+    public Image comboTimeFill;
+
+    public M8.Animator.Animate comboAnimator;
+    [M8.Animator.TakeSelector(animatorField = "comboAnimator")]
+    public string comboTakeEnter;
+    [M8.Animator.TakeSelector(animatorField = "comboAnimator")]
+    public string comboTakeUpdate;
+    [M8.Animator.TakeSelector(animatorField = "comboAnimator")]
+    public string comboTakeExit;
+       
+            
     [Header("Signal Listens")]
     public GameModeSignal signalListenGameMode;
     public M8.Signal signalListenPlayEnd;

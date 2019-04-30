@@ -169,6 +169,13 @@ public class PlayController : GameModeController<PlayController> {
         }
     }
 
+    private void ClearHintActive() {
+        for(int i = 0; i < blobSpawner.blobActives.Count; i++) {
+            var blob = blobSpawner.blobActives[i];
+            blob.hintActive = false;
+        }
+    }
+
     IEnumerator DoRounds() {
         var hintDelay = GameData.instance.hintDelay;
 
@@ -195,6 +202,8 @@ public class PlayController : GameModeController<PlayController> {
 
                 yield return null;
             }
+
+            ClearHintActive();
 
             //signal complete round
             roundEndCallback?.Invoke();
