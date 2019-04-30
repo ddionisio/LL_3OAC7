@@ -8,6 +8,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     public float hintDelay = 15f;
     public int blobSpawnCount = 5;
     public int correctPoints = 100;
+    public int correctDecayPoints = 25; //if hint was shown
     public int perfectPoints = 1000;
     public float comboDuration = 2.0f;
     public float timeParPerRound = 6f; //in seconds

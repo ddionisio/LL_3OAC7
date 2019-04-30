@@ -41,6 +41,8 @@ public class PlayController : GameModeController<PlayController> {
     public int curScore { get; private set; }
     public int curNumberIndex { get; private set; }
     public int mistakeCount { get; private set; }
+
+    public bool isHintShown { get; private set; }
     public float curPlayTime { get { return Time.time - mPlayLastTime; } }
 
     //callbacks
@@ -179,6 +181,8 @@ public class PlayController : GameModeController<PlayController> {
     IEnumerator DoRounds() {
         var hintDelay = GameData.instance.hintDelay;
 
+        isHintShown = false;
+
         for(curRoundIndex = 0; curRoundIndex < mRoundOps.Length; curRoundIndex++) {
             connectControl.curOp = curRoundOp;
 
@@ -186,7 +190,7 @@ public class PlayController : GameModeController<PlayController> {
             roundBeginCallback?.Invoke();
 
             var roundBeginLastTime = Time.time;
-            var isHintShown = false;
+            isHintShown = false;
             
             //wait for correct answer
             mIsAnswerCorrectWait = true;
@@ -318,7 +322,10 @@ public class PlayController : GameModeController<PlayController> {
             comboCount++;
 
             //add score
-            curScore += GameData.instance.correctPoints * comboCount;
+            if(isHintShown)
+                curScore += GameData.instance.correctDecayPoints;
+            else
+                curScore += GameData.instance.correctPoints * comboCount;
 
             //go to next round
             mIsAnswerCorrectWait = false;

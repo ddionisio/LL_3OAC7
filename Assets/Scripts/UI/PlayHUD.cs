@@ -17,6 +17,14 @@ public class PlayHUD : MonoBehaviour {
     public GameObject opNextTabMultiplyGO;
     public GameObject opNextTabDivideGO;
 
+    public GameObject opSymbolMultiplyGO;
+    public GameObject opSymbolDivideGO;
+
+    [M8.Localize]
+    public string opTextSpeakRefMultiply;
+    [M8.Localize]
+    public string opTextSpeakRefDivide;
+
     [Header("Animation")]
     public M8.Animator.Animate animator;
     [M8.Animator.TakeSelector(animatorField = "animator")]
@@ -80,6 +88,9 @@ public class PlayHUD : MonoBehaviour {
 
         ApplyOpCurrentDisplay();
 
+        if(opSymbolMultiplyGO) opSymbolMultiplyGO.SetActive(false);
+        if(opSymbolDivideGO) opSymbolDivideGO.SetActive(false);
+
         //hide stuff
         if(readySetGoDisplayGO) readySetGoDisplayGO.SetActive(false);
 
@@ -135,7 +146,14 @@ public class PlayHUD : MonoBehaviour {
         var playerCtrl = PlayController.instance;
 
         //update score
-        if(scoreCounter) scoreCounter.count = playerCtrl.curScore;
+        if(scoreCounter) {
+            if(scoreCounter.count != playerCtrl.curScore) {
+                scoreCounter.count = playerCtrl.curScore;
+
+                if(scoreAnimator && !string.IsNullOrEmpty(scoreTakeUpdate))
+                    scoreAnimator.Play(scoreTakeUpdate);
+            }
+        }
 
         //do combo display if available
         if(playerCtrl.comboIsActive) {
@@ -165,6 +183,9 @@ public class PlayHUD : MonoBehaviour {
     }
 
     IEnumerator DoOpChange(OperatorType opNext) {
+        if(opSymbolMultiplyGO) opSymbolMultiplyGO.SetActive(false);
+        if(opSymbolDivideGO) opSymbolDivideGO.SetActive(false);
+
         //wait for animator to finish
         if(animator) {
             while(animator.isPlaying)
@@ -187,20 +208,42 @@ public class PlayHUD : MonoBehaviour {
         ApplyOpCurrentDisplay();
         ApplyOpNextDisplay(OperatorType.None);
 
+        //update op symbol display and speak text
+        switch(mCurOpTypeDisplay) {
+            case OperatorType.Multiply:
+                if(opSymbolMultiplyGO) opSymbolMultiplyGO.SetActive(true);
+
+                if(!string.IsNullOrEmpty(opTextSpeakRefMultiply))
+                    LoLManager.instance.SpeakText(opTextSpeakRefMultiply);
+                break;
+            case OperatorType.Divide:
+                if(opSymbolDivideGO) opSymbolDivideGO.SetActive(true);
+
+                if(!string.IsNullOrEmpty(opTextSpeakRefDivide))
+                    LoLManager.instance.SpeakText(opTextSpeakRefDivide);
+                break;
+        }
+
         mChangeOpRout = null;
     }
 
     IEnumerator DoComboDisplay() {
+        ApplyCurrentComboCountDisplay();
+
         if(comboGO) comboGO.SetActive(true);
+
+        if(comboAnimator && !string.IsNullOrEmpty(comboTakeEnter))
+            yield return comboAnimator.PlayWait(comboTakeEnter);
 
         var comboDuration = GameData.instance.comboDuration;
 
         var playCtrl = PlayController.instance;
         while(playCtrl.comboIsActive) {
             if(mCurComboCountDisplay != playCtrl.comboCount) {
-                mCurComboCountDisplay = playCtrl.comboCount;
+                ApplyCurrentComboCountDisplay();
 
-                if(comboCountText) comboCountText.text = string.Format(comboCountFormat, mCurComboCountDisplay);
+                if(comboAnimator && !string.IsNullOrEmpty(comboTakeUpdate))
+                    comboAnimator.Play(comboTakeUpdate);
             }
 
             if(comboTimeFill) comboTimeFill.fillAmount = 1.0f - Mathf.Clamp01(playCtrl.comboCurTime / comboDuration);
@@ -208,12 +251,21 @@ public class PlayHUD : MonoBehaviour {
             yield return null;
         }
 
+        if(comboAnimator && !string.IsNullOrEmpty(comboTakeExit))
+            yield return comboAnimator.PlayWait(comboTakeExit);
+
         //clear combo display
         if(comboGO) comboGO.SetActive(false);
 
         mCurComboCountDisplay = 0;
 
         mComboDisplayRout = null;
+    }
+
+    private void ApplyCurrentComboCountDisplay() {
+        mCurComboCountDisplay = PlayController.instance.comboCount;
+
+        if(comboCountText) comboCountText.text = string.Format(comboCountFormat, mCurComboCountDisplay);
     }
 
     private void ApplyOpCurrentDisplay() {
