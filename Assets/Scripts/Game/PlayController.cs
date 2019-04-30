@@ -215,7 +215,9 @@ public class PlayController : GameModeController<PlayController> {
 
         var playTotalTime = curPlayTime;
 
-        yield return null;
+        //wait for blobs to clear out
+        while(blobSpawner.blobActives.Count > 0)
+            yield return null;
 
         //play finish
         signalInvokePlayEnd.Invoke();

@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 /// <summary>
 /// Connection between blobs with an operator or equal
 /// </summary>
-public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler {
+public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler {
     public const float zOfs = -0.1f;
 
     public enum State {
@@ -24,7 +24,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     [Header("Body Display")]
     public GameObject bodyConnectedGO;
     public GameObject bodyConnectingGO;
-    public Transform connectingRoot; //follow mouse pointer
+    public SpriteRenderer connectingSpriteRender; //follow mouse pointer
     public GameObject selectGO;
 
     [Header("Operator Display")]
@@ -263,7 +263,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
             transform.position = destPoint;
         }
 
-        if(connectingRoot) connectingRoot.position = destPoint;
+        if(connectingSpriteRender) connectingSpriteRender.transform.position = destPoint;
     }
 
     /// <summary>
@@ -298,6 +298,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
     void M8.IPoolSpawn.OnSpawned(M8.GenericParams parms) {
         if(!poolData) poolData = GetComponent<M8.PoolDataController>();
+
+        if(body) body.bodyType = RigidbodyType2D.Dynamic;
 
         var toState = State.None;
         var toOp = OperatorType.None;
@@ -377,8 +379,21 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
         }
     }
 
+    void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
+        if(body) {
+            body.bodyType = RigidbodyType2D.Kinematic;
+            body.velocity = Vector2.zero;
+        }
+    }
+
+    void IPointerUpHandler.OnPointerUp(PointerEventData eventData) {
+        if(body) body.bodyType = RigidbodyType2D.Dynamic;
+    }
+
     void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
         if(state == State.Connected) {
+            if(body) body.bodyType = RigidbodyType2D.Dynamic;
+
             state = State.Dragging;
 
             mDragVel = Vector2.zero;
@@ -479,7 +494,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
 
-                if(connectingRoot) connectingRoot.gameObject.SetActive(false);
+                if(connectingSpriteRender) connectingSpriteRender.gameObject.SetActive(false);
 
                 pos = transform.position;
                 transform.position = new Vector3(pos.x, pos.y, zOfs);
@@ -504,7 +519,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 if(selectGO) selectGO.SetActive(false);
                 mIsPointerEnter = false;
 
-                if(connectingRoot) connectingRoot.gameObject.SetActive(true);
+                if(connectingSpriteRender) connectingSpriteRender.gameObject.SetActive(true);
 
                 mRout = StartCoroutine(DoConnectingEnter(prevState));
                 break;
@@ -608,7 +623,7 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
     private void HideConnectingDisplay() {
         if(bodyConnectingGO) bodyConnectingGO.SetActive(false);
-        if(connectingRoot) connectingRoot.gameObject.SetActive(false);
+        if(connectingSpriteRender) connectingSpriteRender.gameObject.SetActive(false);
     }
 
     private void HideConnectDisplay() {

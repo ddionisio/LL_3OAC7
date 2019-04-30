@@ -315,6 +315,8 @@ public class BlobConnectController : MonoBehaviour {
             mCurConnectDragging = mPool.Spawn<BlobConnect>(connectTemplate.name, "", null, mConnectSpawnParms);
         }
 
+        mCurBlobDragging = blob;
+
         var toOp = mCurOp;
 
         //determine what the operator is based on blob's current connect state
@@ -322,7 +324,8 @@ public class BlobConnectController : MonoBehaviour {
         mCurConnectDragging.op = toOp;
         mCurConnectDragging.state = BlobConnect.State.Connecting;
 
-        mCurBlobDragging = blob;
+        if(mCurConnectDragging.connectingSpriteRender)
+            mCurConnectDragging.connectingSpriteRender.color = mCurBlobDragging.color;
 
         //determine if this is in a group
         mCurGroupDragging = GetGroup(blob);

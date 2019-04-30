@@ -1,13 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class ModalVictory : M8.ModalController, M8.IModalPush {
+public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     public const string parmScore = "score";
     public const string parmTime = "time";
     public const string parmRoundsCount = "roundsCount";
     public const string parmMistakeCount = "mistake";
     public const string parmNextScene = "nextScene";
+
+    [Header("Display")]
+    public GameObject scoreGO;
+    public M8.UI.Texts.TextCounter scoreCounterText;
+
+    public GameObject timeGO;
+    public M8.UI.Texts.TextTime timeText;
+
+    public GameObject timeBonusGO;
+    public M8.UI.Texts.TextCounter timeBonusCounterText;
+
+    public GameObject perfectBonusGO;
+    public M8.UI.Texts.TextCounter perfectBonusCounterText;
+
+    public GameObject separatorGO;
+
+    public GameObject totalGO;
+    public M8.UI.Texts.TextCounter totalCounterText;
+
+    [Header("Settings")]
+    public float showDelay = 0.6f;
 
     private int mScore;
     private float mTime;
@@ -28,6 +50,14 @@ public class ModalVictory : M8.ModalController, M8.IModalPush {
     }
 
     void M8.IModalPush.Push(M8.GenericParams parms) {
+
+        scoreGO.SetActive(false);
+        timeGO.SetActive(false);
+        timeBonusGO.SetActive(false);
+        perfectBonusGO.SetActive(false);
+        separatorGO.SetActive(false);
+        totalGO.SetActive(false);
+
         mScore = 0;
         mTime = float.MaxValue;
         mTimeScore = 0;
@@ -43,7 +73,7 @@ public class ModalVictory : M8.ModalController, M8.IModalPush {
             if(parms.ContainsKey(parmRoundsCount))
                 mRoundsCount = parms.GetValue<int>(parmRoundsCount);
             if(parms.ContainsKey(parmMistakeCount))
-                mRoundsCount = parms.GetValue<int>(parmMistakeCount);
+                mMistakeCount = parms.GetValue<int>(parmMistakeCount);
             if(parms.ContainsKey(parmNextScene))
                 mNextScene = parms.GetValue<M8.SceneAssetPath>(parmNextScene);
         }
@@ -60,7 +90,47 @@ public class ModalVictory : M8.ModalController, M8.IModalPush {
             mPerfectScore = GameData.instance.perfectPoints;
 
         mTotalScore = mScore + mTimeScore + mPerfectScore;
+    }
 
-        //update displays and which gameobjects to show up
+    void M8.IModalActive.SetActive(bool aActive) {
+        if(aActive) {
+            StartCoroutine(DoShow());
+        }
+    }
+
+    IEnumerator DoShow() {
+        var wait = new WaitForSeconds(showDelay);
+
+        //score
+        scoreGO.SetActive(true);
+        scoreCounterText.SetCountImmediate(0);
+        yield return wait;
+        scoreCounterText.count = mScore;
+
+        //time
+        timeGO.SetActive(true);
+        timeText.time = mTime;
+        yield return wait;
+
+        //time bonus
+        timeBonusGO.SetActive(true);
+        timeBonusCounterText.SetCountImmediate(0);
+        yield return wait;
+        timeBonusCounterText.count = mTimeScore;
+
+        if(mPerfectScore > 0) {
+            perfectBonusGO.SetActive(true);
+            perfectBonusCounterText.SetCountImmediate(0);
+            yield return wait;
+            perfectBonusCounterText.count = mPerfectScore;
+        }
+
+        separatorGO.SetActive(true);
+
+        //total
+        totalGO.SetActive(true);
+        totalCounterText.SetCountImmediate(0);
+        yield return wait;
+        totalCounterText.count = mTotalScore;
     }
 }
