@@ -20,6 +20,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
     public Text textLabel;
     public float textCharPerSecond = 0.1f;
 
+    public GameObject textProcessActiveGO;
     public GameObject textProcessFinishGO;
 
     [Header("Data")]
@@ -132,6 +133,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
             StopTextProcess();
             textLabel.text = mTextDialog;
 
+            if(textProcessActiveGO) textProcessActiveGO.SetActive(false);
             if(textProcessFinishGO) textProcessFinishGO.SetActive(true);
 
             return;
@@ -182,6 +184,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
 
         StopTextProcess();
 
+        if(textProcessActiveGO) textProcessActiveGO.SetActive(false);
         if(textProcessFinishGO) textProcessFinishGO.SetActive(false);
 
         mNextCallback = null;
@@ -197,6 +200,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
             mNextCallback = parms.GetValue<System.Action>(parmNextCallback);
         }
 
+        if(textProcessActiveGO) textProcessActiveGO.SetActive(false);
         if(textProcessFinishGO) textProcessFinishGO.SetActive(false);
 
         mIsNextProcessed = false;
@@ -249,6 +253,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
     }
 
     IEnumerator DoTextProcess() {
+        if(textProcessActiveGO) textProcessActiveGO.SetActive(true);
         if(textProcessFinishGO) textProcessFinishGO.SetActive(false);
 
         mTextProcessSB.Clear();
@@ -265,6 +270,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
 
         mTextProcessRout = null;
 
+        if(textProcessActiveGO) textProcessActiveGO.SetActive(false);
         if(textProcessFinishGO) textProcessFinishGO.SetActive(true);
     }
 }
