@@ -407,7 +407,7 @@ MonoBehaviour:
       position:
         serializedVersion: 2
         x: 66
-        y: 116
+        y: 100
         width: 100
         height: 32
       isBreakpoint: 0
@@ -467,7 +467,7 @@ MonoBehaviour:
       position:
         serializedVersion: 2
         x: 64
-        y: 178
+        y: 162
         width: 142
         height: 32
       isBreakpoint: 0
@@ -573,9 +573,9 @@ MonoBehaviour:
       position:
         serializedVersion: 2
         x: 267
-        y: 182
+        y: 166
         width: 133
-        height: 32
+        height: 192
       isBreakpoint: 0
       isSequence: 1
       hideUnused: 0
@@ -585,6 +585,86 @@ MonoBehaviour:
           isSystemEvent: 0
           isGlobal: 0
         toState: Intro
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LEVEL_1
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LESSON_2
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LEVEL_2
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LESSON_3
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LEVEL_3
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LESSON_4
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LEVEL_4
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LESSON_5
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: LEVEL_5
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: ENDING
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: TODO
         linkStyle: 0
         linkConstraint: 0
         colorIndex: 0
@@ -633,6 +713,66 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: 0
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 1
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 2
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 3
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 4
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 5
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 6
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 7
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 8
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 9
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 10
         fsmBoolParams:
         - useVariable: 0
           name: 
@@ -647,32 +787,132 @@ MonoBehaviour:
         fsmQuaternionParams: []
         stringParams:
         - INTRO
+        - LEVEL_1
+        - LESSON_2
+        - LEVEL_2
+        - LESSON_3
+        - LEVEL_3
+        - LESSON_4
+        - LEVEL_4
+        - LESSON_5
+        - LEVEL_5
+        - ENDING
         byteData: 00
-        arrayParamSizes: 0100000001000000
+        arrayParamSizes: 0b0000000b000000
         arrayParamTypes:
         - HutongGames.PlayMaker.FsmInt
         - HutongGames.PlayMaker.FsmEvent
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1000000011000000100000000c000000100000000c0000001700000001000000
+        paramDataType: 1000000011000000100000000c00000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000000c000000170000001700000017000000170000001700000017000000170000001700000017000000170000001700000001000000
         paramName:
         - output
         - everyFrame
         - intVariable
         - compareTo
         - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
         - sendEvent
         - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
+        - 
         - everyFrame
-        paramDataPos: 0000000000000000010000000000000002000000010000000000000000000000
-        paramByteDataSize: 0000000000000000000000000000000000000000000000000000000001000000
+        paramDataPos: 0000000000000000010000000000000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c00000001000000000000000100000002000000030000000400000005000000060000000700000008000000090000000a00000000000000
+        paramByteDataSize: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000
     - name: Intro
       description: 
       colorIndex: 0
       position:
         serializedVersion: 2
-        x: 456
-        y: 112
+        x: 473
+        y: 132
+        width: 100
+        height: 16
+      isBreakpoint: 0
+      isSequence: 0
+      hideUnused: 0
+      transitions: []
+      actionData:
+        actionNames:
+        - HutongGames.PlayMaker.Actions.M8.SceneLoad
+        customNames:
+        - 
+        actionEnabled: 01
+        actionIsOpen: 01
+        actionStartIndex: 00000000
+        actionHashCodes: 978a3000
+        unityObjectParams: []
+        fsmGameObjectParams: []
+        fsmOwnerDefaultParams: []
+        animationCurveParams: []
+        functionCallParams: []
+        fsmTemplateControlParams: []
+        fsmEventTargetParams: []
+        fsmPropertyParams: []
+        layoutOptionParams: []
+        fsmStringParams:
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: intro
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Assets/Scenes/intro.unity
+        fsmObjectParams: []
+        fsmVarParams: []
+        fsmArrayParams: []
+        fsmEnumParams: []
+        fsmFloatParams: []
+        fsmIntParams: []
+        fsmBoolParams: []
+        fsmVector2Params: []
+        fsmVector3Params: []
+        fsmColorParams: []
+        fsmRectParams: []
+        fsmQuaternionParams: []
+        stringParams: []
+        byteData: 
+        arrayParamSizes: 
+        arrayParamTypes: []
+        customTypeSizes: 02000000
+        customTypeNames:
+        - HutongGames.PlayMaker.Actions.M8.FsmSceneName
+        paramDataType: 280000001200000012000000
+        paramName:
+        - scene
+        - Name
+        - Path
+        paramDataPos: 000000000000000001000000
+        paramByteDataSize: 000000000000000000000000
+    - name: TODO
+      description: 
+      colorIndex: 0
+      position:
+        serializedVersion: 2
+        x: 469
+        y: 264
         width: 100
         height: 16
       isBreakpoint: 0
@@ -722,7 +962,37 @@ MonoBehaviour:
     - name: FINISHED
       isSystemEvent: 1
       isGlobal: 0
+    - name: ENDING
+      isSystemEvent: 0
+      isGlobal: 0
     - name: INTRO
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LESSON_2
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LESSON_3
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LESSON_4
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LESSON_5
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LEVEL_1
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LEVEL_2
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LEVEL_3
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LEVEL_4
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: LEVEL_5
       isSystemEvent: 0
       isGlobal: 0
     globalTransitions: []
@@ -875,6 +1145,21 @@ PrefabInstance:
     - target: {fileID: 4936926241476708, guid: b9aed749047e1b34a91971378d3132ac, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 20490728748771628, guid: b9aed749047e1b34a91971378d3132ac,
+        type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.077
+      objectReference: {fileID: 0}
+    - target: {fileID: 20490728748771628, guid: b9aed749047e1b34a91971378d3132ac,
+        type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.046869565
+      objectReference: {fileID: 0}
+    - target: {fileID: 20490728748771628, guid: b9aed749047e1b34a91971378d3132ac,
+        type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.07532609
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9aed749047e1b34a91971378d3132ac, type: 3}
