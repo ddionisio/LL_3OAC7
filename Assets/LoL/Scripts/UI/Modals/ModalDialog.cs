@@ -18,7 +18,7 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
     public Text nameLabel;
 
     public Text textLabel;
-    public float textCharPerSecond = 0.1f;
+    public float textCharPerSecond = 0.05f;
 
     public GameObject textProcessActiveGO;
     public GameObject textProcessFinishGO;

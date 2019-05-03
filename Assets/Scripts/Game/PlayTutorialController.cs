@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayTutorialController : MonoBehaviour {
     public Operation op;
+    [M8.TagSelector]
+    public string dragIndicatorTag;
 
     [Header("Controls")]
     public BlobConnectController connectControl;
@@ -20,16 +22,44 @@ public class PlayTutorialController : MonoBehaviour {
     [Header("Signal Listens")]
     public M8.Signal signalListenStart;
     public M8.Signal signalListenEnd;
+    public M8.Signal signalListenDragShow;
 
     [Header("Signal Invokes")]
     public M8.Signal signalInvokeCorrect;
 
+    private Coroutine mRout;
+    private Coroutine mDragIndicatorRout;
+
+    private DragToGuideWidget mDragGuide;
+
+    public void HideDrag() {
+        if(mDragIndicatorRout != null) {
+            StopCoroutine(mDragIndicatorRout);
+            mDragIndicatorRout = null;
+        }
+
+        if(mDragGuide)
+            mDragGuide.Hide();
+    }
+        
     void OnDestroy() {
         if(connectControl)
             connectControl.evaluateCallback += OnGroupEval;
 
         signalListenStart.callback -= OnSignalStart;
         signalListenEnd.callback -= OnSignalEnd;
+        signalListenDragShow.callback -= OnSignalDragShow;
+    }
+
+    void OnDisable() {
+        mRout = null;
+
+        if(mDragIndicatorRout != null) {
+            if(mDragGuide)
+                mDragGuide.Hide();
+
+            mDragIndicatorRout = null;
+        }
     }
 
     void Awake() {
@@ -39,16 +69,28 @@ public class PlayTutorialController : MonoBehaviour {
 
         signalListenStart.callback += OnSignalStart;
         signalListenEnd.callback += OnSignalEnd;
+        signalListenDragShow.callback += OnSignalDragShow;
     }
 
     void OnSignalStart() {
-        StopAllCoroutines();
-        StartCoroutine(DoPlay());
+        if(mRout != null)
+            StopCoroutine(mRout);
+
+        mRout = StartCoroutine(DoPlay());
     }
 
     void OnSignalEnd() {
-        StopAllCoroutines();
-        StartCoroutine(DoEnd());
+        if(mRout != null)
+            StopCoroutine(mRout);
+
+        mRout = StartCoroutine(DoEnd());
+    }
+
+    void OnSignalDragShow() {
+        if(mDragIndicatorRout != null)
+            StopCoroutine(mDragIndicatorRout);
+
+        mDragIndicatorRout = StartCoroutine(DoDragIndicator());
     }
 
     IEnumerator DoPlay() {
@@ -61,6 +103,8 @@ public class PlayTutorialController : MonoBehaviour {
         blobSpawner.Spawn(0, op.operand1);
         blobSpawner.Spawn(1 % blobSpawner.templateGroups.Length, op.operand2);
         blobSpawner.Spawn(2 % blobSpawner.templateGroups.Length, op.equal);
+
+        mRout = null;
     }
 
     IEnumerator DoEnd() {
@@ -68,6 +112,62 @@ public class PlayTutorialController : MonoBehaviour {
             yield return animator.PlayWait(takeEnd);
 
         if(activeGO) activeGO.SetActive(false);
+
+        mRout = null;
+    }
+
+    IEnumerator DoDragIndicator() {
+        //grab guide
+        if(!mDragGuide) {
+            var go = GameObject.FindGameObjectWithTag(dragIndicatorTag);
+            mDragGuide = go.GetComponent<DragToGuideWidget>();
+        }
+
+        //grab camera
+        var cam = Camera.main;
+
+        //wait for blobs to spawn
+        while(blobSpawner.spawnQueueCount > 0 && blobSpawner.CheckAnyBlobActiveState(Blob.State.Spawning))
+            yield return null;
+
+        var blobOp1 = blobSpawner.blobActives[0];
+        var blobOp2 = blobSpawner.blobActives[1];
+        var blobEq = blobSpawner.blobActives[2];
+
+        while(!(blobOp1.isConnected && blobOp2.isConnected && blobEq.isConnected)) {
+            //wait for blob 1 and 2 to be connected
+            if(!(blobOp1.isConnected && blobOp2.isConnected)) {
+                var blobOp1Pos = blobOp1.jellySprite.CentralPoint.Body2D.position;
+                var blobOp2Pos = blobOp2.jellySprite.CentralPoint.Body2D.position;
+
+                Vector2 blobOp1UIPos = cam.WorldToScreenPoint(blobOp1Pos);
+                Vector2 blobOp2UIPos = cam.WorldToScreenPoint(blobOp2Pos);
+
+                if(mDragGuide.isActive)
+                    mDragGuide.UpdatePositions(blobOp1UIPos, blobOp2UIPos);
+                else
+                    mDragGuide.Show(false, blobOp1UIPos, blobOp2UIPos);
+            }
+            //wait for blob 3 to be connected
+            else if(!blobEq.isConnected) {
+                var blobOp2Pos = blobOp2.jellySprite.CentralPoint.Body2D.position;
+                var blobEqPos = blobEq.jellySprite.CentralPoint.Body2D.position;
+
+                Vector2 blobOp2UIPos = cam.WorldToScreenPoint(blobOp2Pos);
+                Vector2 blobEqUIPos = cam.WorldToScreenPoint(blobEqPos);
+
+                if(mDragGuide.isActive)
+                    mDragGuide.UpdatePositions(blobOp2UIPos, blobEqUIPos);
+                else
+                    mDragGuide.Show(false, blobOp2UIPos, blobEqUIPos);
+            }
+
+            yield return null;
+        }
+
+        mDragGuide.Hide();
+
+        mDragIndicatorRout = null;
     }
 
     void OnGroupEval(BlobConnectController.Group grp) {
@@ -98,6 +198,9 @@ public class PlayTutorialController : MonoBehaviour {
             //clean out op
             connectOp.state = BlobConnect.State.Correct;
             connectEq.state = BlobConnect.State.Correct;
+
+            if(mDragIndicatorRout != null)
+                HideDrag();
         }
         else {
             //do error thing for blobs
@@ -108,6 +211,10 @@ public class PlayTutorialController : MonoBehaviour {
             //clean out op
             connectOp.state = BlobConnect.State.Error;
             connectEq.state = BlobConnect.State.Error;
+
+            //restart drag show
+            if(mDragIndicatorRout != null)
+                OnSignalDragShow();
         }
 
         connectControl.ClearGroup(grp);

@@ -38,13 +38,9 @@ public class DragToGuideWidget : MonoBehaviour {
     private float mDragPosition;
     private bool mIsPaused;
 
-    /// <summary>
-    /// start and end in UI space
-    /// </summary>
-    public void Show(bool pause, Vector2 start, Vector2 end) {
-        StopAllCoroutines();
-
-        SetPause(pause);
+    public void UpdatePositions(Vector2 start, Vector2 end) {
+        mDragStart = start;
+        mDragEnd = end;
 
         mDragStart = start;
         mDragEnd = end;
@@ -63,7 +59,20 @@ public class DragToGuideWidget : MonoBehaviour {
         lineRoot.sizeDelta = new Vector2(lineRoot.sizeDelta.x, dist * (576f / Screen.height));
         //
 
-        dragPosition = 0f;
+        dragRoot.position = Vector2.Lerp(mDragStart, mDragEnd, mDragPosition);
+    }
+
+    /// <summary>
+    /// start and end in UI space
+    /// </summary>
+    public void Show(bool pause, Vector2 start, Vector2 end) {
+        StopAllCoroutines();
+
+        SetPause(pause);
+
+        mDragPosition = 0f;
+
+        UpdatePositions(start, end);
 
         if(displayRootGO) displayRootGO.SetActive(true);
 

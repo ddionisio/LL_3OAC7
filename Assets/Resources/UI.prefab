@@ -7568,7 +7568,7 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: 9c6a166d7c725464fa706b520e0ee024, type: 3}
     m_FontSize: 24
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 18
     m_MaxSize: 24
     m_Alignment: 0
@@ -10507,6 +10507,7 @@ GameObject:
   - component: {fileID: 447959476343382063}
   - component: {fileID: 2438601184972097106}
   - component: {fileID: 6093828467945002030}
+  - component: {fileID: 1412217354056710719}
   m_Layer: 5
   m_Name: _back
   m_TagString: Untagged
@@ -10556,6 +10557,34 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+--- !u!114 &1412217354056710719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4656775077389414230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f8efb15caa5804a8cd048d3b5d6430, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 508801637994526631}
+        m_MethodName: Next
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!1 &4715920138239221674
 GameObject:
   m_ObjectHideFlags: 0
@@ -15362,7 +15391,7 @@ MonoBehaviour:
   portraitResize: 0
   nameLabel: {fileID: 0}
   textLabel: {fileID: 388916503441256598}
-  textCharPerSecond: 0.1
+  textCharPerSecond: 0.05
   textProcessActiveGO: {fileID: 4247872030329589793}
   textProcessFinishGO: {fileID: 4897603194199052869}
   nextDelay: 1
@@ -18744,6 +18773,12 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 6470344389266071506}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4595468400835625690 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7353575382533168392, guid: 96f02c0cb4d8c0142b4052f6efedf191,
+    type: 3}
+  m_PrefabInstance: {fileID: 6470344389266071506}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &4595468400835625692 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7353575382533168398, guid: 96f02c0cb4d8c0142b4052f6efedf191,
@@ -18756,9 +18791,3 @@ MonoBehaviour:
   m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &4595468400835625690 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7353575382533168392, guid: 96f02c0cb4d8c0142b4052f6efedf191,
-    type: 3}
-  m_PrefabInstance: {fileID: 6470344389266071506}
-  m_PrefabAsset: {fileID: 0}
