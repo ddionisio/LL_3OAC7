@@ -24,6 +24,7 @@ public class BlobSpawner : MonoBehaviour {
 
     [Header("Spawn")]
     public Transform spawnPointsRoot; //grab child for spawn point
+    public bool spawnPointsShuffle = true;
     public LayerMask spawnPointCheckMask; //ensure spot is fine to spawn
     public float spawnPointCheckRadius;
     public float spawnDelay = 0.3f;
@@ -139,7 +140,9 @@ public class BlobSpawner : MonoBehaviour {
         for(int i = 0; i < spawnPointsRoot.childCount; i++)
             mSpawnPts[i] = spawnPointsRoot.GetChild(i).position;
 
-        M8.ArrayUtil.Shuffle(mSpawnPts);
+        if(spawnPointsShuffle)
+            M8.ArrayUtil.Shuffle(mSpawnPts);
+
         mCurSpawnPtInd = 0;
     }
 
