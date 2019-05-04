@@ -99,6 +99,8 @@ public class PlayTutorialController : MonoBehaviour {
         if(animator && !string.IsNullOrEmpty(takeBegin))
             yield return animator.PlayWait(takeBegin);
 
+        connectControl.curOp = op.op;
+
         //spawn operation
         blobSpawner.Spawn(0, op.operand1);
         blobSpawner.Spawn(1 % blobSpawner.templateGroups.Length, op.operand2);
@@ -135,8 +137,20 @@ public class PlayTutorialController : MonoBehaviour {
         var blobEq = blobSpawner.blobActives[2];
 
         while(!(blobOp1.isConnected && blobOp2.isConnected && blobEq.isConnected)) {
-            //wait for blob 1 and 2 to be connected
-            if(!(blobOp1.isConnected && blobOp2.isConnected)) {
+            if(connectControl.curOp == OperatorType.Divide && blobOp1.isConnected && blobEq.isConnected) {
+                //special case when dividing
+                var blobEqPos = blobEq.jellySprite.CentralPoint.Body2D.position;
+                var blobOp2Pos = blobOp2.jellySprite.CentralPoint.Body2D.position;
+
+                Vector2 blobEqUIPos = cam.WorldToScreenPoint(blobEqPos);
+                Vector2 blobOp2UIPos = cam.WorldToScreenPoint(blobOp2Pos);
+
+                if(mDragGuide.isActive)
+                    mDragGuide.UpdatePositions(blobEqUIPos, blobOp2UIPos);
+                else
+                    mDragGuide.Show(false, blobEqUIPos, blobOp2UIPos);
+            }
+            else if(!(blobOp1.isConnected && blobOp2.isConnected)) {
                 var blobOp1Pos = blobOp1.jellySprite.CentralPoint.Body2D.position;
                 var blobOp2Pos = blobOp2.jellySprite.CentralPoint.Body2D.position;
 
