@@ -16,6 +16,7 @@ namespace HutongGames.PlayMaker.Actions.LoL {
         public M8.FsmLocalize[] dialogTexts;
 
         public FsmBool closeOnEnd;
+        public FsmBool clearModals;
 
         private int mCurIndex;
         private bool mIsNext;
@@ -27,6 +28,7 @@ namespace HutongGames.PlayMaker.Actions.LoL {
             nameText = null;
             dialogTexts = null;
             closeOnEnd = true;
+            clearModals = false;
         }
 
         public override void OnEnter() {
@@ -56,8 +58,15 @@ namespace HutongGames.PlayMaker.Actions.LoL {
         }
 
         void OpenDialog() {
+
             string textRef = dialogTexts[mCurIndex].GetStringRef();
             if(!string.IsNullOrEmpty(textRef)) {
+                if(clearModals.Value) {
+                    var uiMgr = ModalManager.main;
+                    if(uiMgr.GetTop() != modal.Value)
+                        uiMgr.CloseAll();
+                }
+
                 if(usePortrait.Value)
                     ModalDialog.OpenApplyPortrait(modal.Value, portrait.Value as Sprite, nameText.GetStringRef(), textRef, OnDialogNext);
                 else

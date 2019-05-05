@@ -6,6 +6,8 @@ using UnityEngine.EventSystems;
 public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
     public RectTransform columnHighlight;
     public RectTransform rowHighlight;
+    public float columnOfsScale = -1f; //size relative to deltaSize of this RectTransform
+    public float rowOfsScale = -1f; //size relative to deltaSize of this RectTransform
 
     void OnApplicationFocus(bool aActive) {
         if(!aActive)
@@ -20,6 +22,7 @@ public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointer
         SetHighlightActive(true);
 
         //apply position
+        var rt = transform as RectTransform;
         var parentRT = transform.parent as RectTransform;
         var parentRTRect = parentRT.rect;
         parentRTRect.position += (Vector2)parentRT.position;
@@ -31,7 +34,7 @@ public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointer
             //assume proper transform setup for pivot = (0.5, 0), top stretch
             var colDeltaSize = columnHighlight.sizeDelta;
 
-            var height = Mathf.Abs(parentRTRect.max.y - pos.y);
+            var height = Mathf.Abs(parentRTRect.max.y - pos.y) + rt.sizeDelta.y * columnOfsScale;
 
             colDeltaSize.y = height;
 
@@ -45,7 +48,7 @@ public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointer
             //assume proper transform setup for pivot = (1, 0.5), left stretch
             var rowDeltaSize = rowHighlight.sizeDelta;
 
-            var width = Mathf.Abs(parentRTRect.min.x - pos.x);
+            var width = Mathf.Abs(parentRTRect.min.x - pos.x) + rt.sizeDelta.x * rowOfsScale;
 
             rowDeltaSize.x = width;
 
