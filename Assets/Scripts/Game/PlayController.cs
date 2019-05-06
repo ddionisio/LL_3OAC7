@@ -19,6 +19,10 @@ public class PlayController : GameModeController<PlayController> {
     public BlobConnectController connectControl;
     public BlobSpawner blobSpawner;
 
+    [Header("Rounds")]
+    public Transform roundsRoot; //grab SpriteColorFromPalette for each child
+    public float roundCompleteBrightness = 0.3f;
+
     [Header("Animation")]
     public M8.Animator.Animate animator;
     [M8.Animator.TakeSelector(animatorField = "animator")]
@@ -55,6 +59,8 @@ public class PlayController : GameModeController<PlayController> {
     private bool mIsAnswerCorrectWait;
 
     private float mPlayLastTime;
+
+    private M8.SpriteColorFromPalette[] mSpriteColorFromPalettes;
 
     private Coroutine mSpawnRout;
     private Coroutine mComboRout;
@@ -108,6 +114,16 @@ public class PlayController : GameModeController<PlayController> {
             if(shuffleCount > 0)
                 M8.ArrayUtil.Shuffle(mNumbers, i, spawnNextCount);
         }
+
+        //init rounds display
+        int roundsDisplayCount = Mathf.Min(mRoundOps.Length, roundsRoot.childCount);
+        mSpriteColorFromPalettes = new M8.SpriteColorFromPalette[roundsDisplayCount];
+        for(int i = 0; i < roundsDisplayCount; i++) {
+            mSpriteColorFromPalettes[i] = roundsRoot.GetChild(i).GetComponent<M8.SpriteColorFromPalette>();
+        }
+
+        for(int i = roundsDisplayCount; i < roundsRoot.childCount; i++) //deactivate the rest
+            roundsRoot.GetChild(i).gameObject.SetActive(false);
 
         connectControl.evaluateCallback += OnGroupEval;
 
@@ -208,6 +224,8 @@ public class PlayController : GameModeController<PlayController> {
             }
 
             ClearHintActive();
+
+            mSpriteColorFromPalettes[curRoundIndex].brightness = roundCompleteBrightness;
 
             //signal complete round
             roundEndCallback?.Invoke();
