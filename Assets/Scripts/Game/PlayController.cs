@@ -9,7 +9,8 @@ public class PlayController : GameModeController<PlayController> {
     }
 
     [Header("Settings")]
-    public string modalVictory = "victory";
+    public int levelIndex;
+    public string modalVictory = "victory";    
     public M8.SceneAssetPath nextScene; //after victory
 
     [Header("Operations")]
@@ -246,6 +247,7 @@ public class PlayController : GameModeController<PlayController> {
 
         //show victory
         var parms = new M8.GenericParams();
+        parms[ModalVictory.parmLevel] = levelIndex;
         parms[ModalVictory.parmScore] = curScore;
         parms[ModalVictory.parmTime] = playTotalTime;
         parms[ModalVictory.parmRoundsCount] = mRoundOps.Length;

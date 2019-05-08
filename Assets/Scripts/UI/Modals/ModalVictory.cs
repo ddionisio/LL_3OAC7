@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
+    public const string parmLevel = "level";
     public const string parmScore = "score";
     public const string parmTime = "time";
     public const string parmRoundsCount = "roundsCount";
@@ -39,12 +40,17 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     private int mMistakeCount;
     private int mTotalScore;
 
+    private int mLevelIndex = -1;
+
     private M8.SceneAssetPath mNextScene;
 
     public void Proceed() {
         var curProgress = LoLManager.instance.curProgress;
         var curScore = LoLManager.instance.curScore;
         LoLManager.instance.ApplyProgress(curProgress + 1, curScore + mTotalScore);
+
+        if(mLevelIndex != -1)
+            GameData.instance.ScoreApply(mLevelIndex, mTotalScore);
 
         mNextScene.Load();
     }
@@ -58,6 +64,7 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         separatorGO.SetActive(false);
         totalGO.SetActive(false);
 
+        mLevelIndex = -1;
         mScore = 0;
         mTime = float.MaxValue;
         mTimeScore = 0;
@@ -66,6 +73,8 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         mMistakeCount = 0;
 
         if(parms != null) {
+            if(parms.ContainsKey(parmLevel))
+                mLevelIndex = parms.GetValue<int>(parmLevel);
             if(parms.ContainsKey(parmScore))
                 mScore = parms.GetValue<int>(parmScore);
             if(parms.ContainsKey(parmTime))
