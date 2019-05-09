@@ -65,6 +65,8 @@ public class PlayController : GameModeController<PlayController> {
 
     private float mPlayLastTime;
 
+    private int mMistakeRoundCount;
+
     private M8.SpriteColorFromPalette[] mSpriteColorFromPalettes;
 
     private Coroutine mSpawnRout;
@@ -215,13 +217,49 @@ public class PlayController : GameModeController<PlayController> {
 
             var roundBeginLastTime = Time.time;
             isHintShown = false;
-            
+
+            mMistakeRoundCount = 0;
+                        
             //wait for correct answer
             mIsAnswerCorrectWait = true;
             while(mIsAnswerCorrectWait) {
+                //check if we are in the last 3 and it is unsolvable
+                if(curRoundIndex == mRoundOps.Length - 1 && blobSpawner.GetBlobStateCount(Blob.State.Normal) == 3 && blobSpawner.blobActives.Count == 3) {
+                    var blob1 = blobSpawner.blobActives[0];
+                    var blob2 = blobSpawner.blobActives[1];
+                    var blob3 = blobSpawner.blobActives[2];
+
+                    bool isValid = false;
+
+                    switch(curRoundOp) {
+                        case OperatorType.Multiply:
+                            isValid = blob1.number * blob2.number == blob3.number
+                                   || blob1.number * blob3.number == blob2.number
+                                   || blob2.number * blob3.number == blob1.number;
+                            break;
+                        case OperatorType.Divide:
+                            isValid = blob1.number / blob2.number == blob3.number 
+                                   || blob2.number / blob1.number == blob3.number 
+                                   || blob3.number / blob1.number == blob2.number 
+                                   || blob1.number / blob3.number == blob2.number 
+                                   || blob3.number / blob2.number == blob1.number 
+                                   || blob2.number / blob3.number == blob1.number;
+                            break;
+                    }
+
+                    if(!isValid) {
+                        blob1.state = Blob.State.Correct;
+                        blob2.state = Blob.State.Correct;
+                        blob3.state = Blob.State.Correct;
+
+                        //force end the round, give credits
+                        curScore += GameData.instance.correctPoints * (comboCount + 1);
+                        break;
+                    }
+                }
                 //check if we want hint to activate
-                if(!isHintShown) {
-                    if(Time.time - roundBeginLastTime > hintDelay) {
+                else if(!isHintShown) {
+                    if(mMistakeRoundCount >= GameData.instance.hintErrorCount || Time.time - roundBeginLastTime > hintDelay) {
                         //find matching operands and equal based on operation
                         ApplyHintActive();
                         isHintShown = true;
@@ -340,6 +378,10 @@ public class PlayController : GameModeController<PlayController> {
             blobRight.state = Blob.State.Correct;
             blobEq.state = Blob.State.Correct;
 
+            blobSpawner.RemoveFromActive(blobLeft);
+            blobSpawner.RemoveFromActive(blobRight);
+            blobSpawner.RemoveFromActive(blobEq);
+
             //clean out op
             connectOp.state = BlobConnect.State.Correct;
             connectEq.state = BlobConnect.State.Correct;
@@ -348,6 +390,7 @@ public class PlayController : GameModeController<PlayController> {
             if(mComboRout == null)
                 mComboRout = StartCoroutine(DoComboUpdate());
 
+            comboCurTime = 0f;
             comboCount++;
 
             //add score
@@ -379,6 +422,7 @@ public class PlayController : GameModeController<PlayController> {
             }
 
             mistakeCount++;
+            mMistakeRoundCount++;
         }
 
         connectControl.ClearGroup(grp);

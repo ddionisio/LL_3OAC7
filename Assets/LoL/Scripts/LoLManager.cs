@@ -420,13 +420,12 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
             mIsGameStartHandled = true;
         }
     }
-    
+
     // Store the questions and show them in order based on your game flow.
     protected void HandleQuestions(MultipleChoiceQuestionList questionList) {
         mIsQuestionsReceived = true;
 
-        mQuestionsList = questionList;
-        mQuestionsAnsweredList = new List<QuestionAnswered>(mQuestionsList.questions.Length);
+        mQuestionsAnsweredList = new List<QuestionAnswered>();
     }
 
     // Use language to populate UI

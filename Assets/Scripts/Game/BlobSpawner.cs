@@ -61,6 +61,24 @@ public class BlobSpawner : MonoBehaviour {
         return false;
     }
 
+    public int GetBlobStateCount(params Blob.State[] states) {
+        int count = 0;
+
+        for(int i = 0; i < mBlobActives.Count; i++) {
+            var blob = mBlobActives[i];
+            if(blob) {
+                for(int j = 0; j < states.Length; j++) {
+                    if(blob.state == states[j]) {
+                        count++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+
     public void DespawnAllBlobs() {
         if(mBlobActives == null)
             return;
@@ -115,6 +133,12 @@ public class BlobSpawner : MonoBehaviour {
         mSpawnQueue.Enqueue(new SpawnInfo { templateIndex = templateIndex, number = number });
         if(mSpawnRout == null)
             mSpawnRout = StartCoroutine(DoSpawnQueue());
+    }
+
+    public void RemoveFromActive(Blob blob) {
+        if(mBlobActives.Remove(blob)) {
+            blob.poolData.despawnCallback -= OnBlobRelease;
+        }
     }
 
     void OnDisable() {

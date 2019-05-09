@@ -8,6 +8,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
     [Header("Play Settings")]
     public float hintDelay = 15f;
+    public int hintErrorCount = 5;
     public int blobSpawnCount = 5;
     public int correctPoints = 100;
     public int correctDecayPoints = 25; //if hint was shown
