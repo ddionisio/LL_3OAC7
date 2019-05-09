@@ -32,6 +32,10 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     [Header("Settings")]
     public float showDelay = 0.6f;
 
+    [Header("Sfx")]
+    [M8.SoundPlaylist]
+    public string soundEnter;
+
     private int mScore;
     private float mTime;
     private int mRoundsCount;
@@ -99,6 +103,8 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
             mPerfectScore = GameData.instance.perfectPoints;
 
         mTotalScore = mScore + mTimeScore + mPerfectScore;
+
+        M8.SoundPlaylist.instance.Play(soundEnter, false);
     }
 
     void M8.IModalActive.SetActive(bool aActive) {

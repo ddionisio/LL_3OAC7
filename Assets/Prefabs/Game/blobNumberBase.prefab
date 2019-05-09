@@ -5580,7 +5580,7 @@ ParticleSystem:
 --- !u!199 &1448326987208585205
 ParticleSystemRenderer:
   serializedVersion: 6
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -6158,6 +6158,7 @@ MonoBehaviour:
   takeSpawn: spawn
   takeDespawn: despawn
   takeCorrect: correct
+  soundSpawn: boop
   signalListenDespawn: {fileID: 0}
   signalInvokeDragBegin: {fileID: 11400000, guid: ee51b3f94bf076444ad83ce3f061eb96,
     type: 2}

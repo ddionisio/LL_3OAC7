@@ -17,7 +17,6 @@ public class OperationInspector : PropertyDrawer {
         var propOp1 = property.FindPropertyRelative("operand1");
         var propOp = property.FindPropertyRelative("op");
         var propOp2 = property.FindPropertyRelative("operand2");
-        var propEq = property.FindPropertyRelative("equal");
 
         //hack
         /*if(position.width < 350f) {
@@ -49,14 +48,6 @@ public class OperationInspector : PropertyDrawer {
         //op 2
         rect.x += 40f;
         propOp2.intValue = EditorGUI.IntField(rect, propOp2.intValue);
-
-        rect.x += 40f;
-        var labelRect = rect; labelRect.x += 40f; labelRect.width = 40f;
-        GUI.Label(labelRect, "=");
-
-        //equal
-        rect.x += 20f;
-        propEq.intValue = EditorGUI.IntField(rect, propEq.intValue);
 
         EditorGUI.EndProperty();
     }

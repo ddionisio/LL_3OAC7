@@ -9,6 +9,10 @@ public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointer
     public float columnOfsScale = -1f; //size relative to deltaSize of this RectTransform
     public float rowOfsScale = -1f; //size relative to deltaSize of this RectTransform
 
+    public string enterText;
+
+    public SignalString signalInvokeTextEnter;
+
     void OnApplicationFocus(bool aActive) {
         if(!aActive)
             SetHighlightActive(false);
@@ -54,6 +58,9 @@ public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointer
 
             rowHighlight.sizeDelta = rowDeltaSize;
         }
+
+        if(signalInvokeTextEnter)
+            signalInvokeTextEnter.Invoke(enterText);
     }
 
     void IPointerExitHandler.OnPointerExit(PointerEventData eventData) {

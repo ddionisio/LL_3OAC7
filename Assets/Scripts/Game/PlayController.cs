@@ -31,6 +31,10 @@ public class PlayController : GameModeController<PlayController> {
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeEnd;
 
+    [Header("Music")]
+    [M8.MusicPlaylist]
+    public string playMusic;
+
     [Header("Signal Listen")]
     public M8.Signal signalListenPlayStart;
 
@@ -133,6 +137,9 @@ public class PlayController : GameModeController<PlayController> {
 
     protected override IEnumerator Start() {
         yield return base.Start();
+
+        //music
+        M8.MusicPlaylist.instance.Play(playMusic, true, false);
 
         //play enter if available
         if(animator && !string.IsNullOrEmpty(takeBegin))

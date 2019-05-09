@@ -840,6 +840,11 @@ MonoBehaviour:
   takeConnectedExit: connectedExit
   takeConnectedCorrect: connectedCorrect
   takeConnectedError: connectedError
+  soundConnecting: tap
+  soundConnected: tap
+  soundDelete: click
+  soundCorrect: correct
+  soundError: wrong
   signalInvokeDelete: {fileID: 11400000, guid: 5757351d2caa2ca4db0f27afb133074e, type: 2}
 --- !u!114 &2052151854317760517
 MonoBehaviour:
@@ -6642,7 +6647,7 @@ ParticleSystem:
 --- !u!199 &3536799557821433526
 ParticleSystemRenderer:
   serializedVersion: 6
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}

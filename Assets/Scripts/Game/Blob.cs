@@ -73,6 +73,10 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeCorrect;
 
+    [Header("Sfx")]
+    [M8.SoundPlaylist]
+    public string soundSpawn;
+
     [Header("Signal Listens")]
     public M8.Signal signalListenDespawn; //use to animate and then despawn
 
@@ -346,6 +350,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     IEnumerator DoSpawn() {
+        M8.SoundPlaylist.instance.Play(soundSpawn, false);
+
         if(animator && !string.IsNullOrEmpty(takeSpawn))
             yield return animator.PlayWait(takeSpawn);
         else

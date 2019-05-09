@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6a109ff7ad827d4396e6fc363da6b6b, type: 3}
+  m_Name: musicPlaylist
+  m_EditorClassIdentifier: 
+  music:
+  - name: start
+    source: {fileID: 8300000, guid: ccb7a46802c225a4c8e776ec6f708c58, type: 3}
+  - name: lesson
+    source: {fileID: 8300000, guid: f6ffee782e1968e4d92ee6e16895b73c, type: 3}
+  - name: mission
+    source: {fileID: 8300000, guid: 2b0dc660b48bc924198336e3f432616d, type: 3}
+  - name: end
+    source: {fileID: 8300000, guid: 696539c29f72b7f4da2050cca5d36309, type: 3}
+  audioMixer: {fileID: 0}
+  muteOnFocusLost: 1
+  fadeInDelay: 0.3
+  fadeOutDelay: 0.3

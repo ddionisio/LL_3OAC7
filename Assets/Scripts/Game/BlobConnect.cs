@@ -65,6 +65,18 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeConnectedError;
 
+    [Header("Sfx")]
+    [M8.SoundPlaylist]
+    public string soundConnecting;
+    [M8.SoundPlaylist]
+    public string soundConnected;
+    [M8.SoundPlaylist]
+    public string soundDelete;
+    [M8.SoundPlaylist]
+    public string soundCorrect;
+    [M8.SoundPlaylist]
+    public string soundError;
+
     [Header("Signal Invokes")]
     public SignalBlobConnect signalInvokeDelete; //called when user released this via click hold
 
@@ -491,6 +503,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 break;
 
             case State.Connected:
+                M8.SoundPlaylist.instance.Play(soundConnected, false);
+
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
 
@@ -512,6 +526,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 break;
 
             case State.Connecting:
+                M8.SoundPlaylist.instance.Play(soundConnecting, false);
+
                 SetPhysicsActive(false);
 
                 SpringRelease();
@@ -525,6 +541,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 break;
 
             case State.Releasing:
+                M8.SoundPlaylist.instance.Play(soundDelete, false);
+
                 SetPhysicsActive(false);
 
                 SpringRelease();
@@ -547,6 +565,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 break;
 
             case State.Correct:
+                M8.SoundPlaylist.instance.Play(soundCorrect, false);
+
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
                 if(coll) coll.enabled = false;
@@ -561,6 +581,8 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
                 break;
 
             case State.Error:
+                M8.SoundPlaylist.instance.Play(soundError, false);
+
                 SetPhysicsActive(true);
                 if(body) body.bodyType = RigidbodyType2D.Dynamic;
                 if(coll) coll.enabled = false;

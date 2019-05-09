@@ -485,6 +485,7 @@ GameObject:
   - component: {fileID: 1739808162828569295}
   - component: {fileID: 8124778185031996189}
   - component: {fileID: 7920659239035569244}
+  - component: {fileID: 4800354033505092957}
   m_Layer: 5
   m_Name: multTableButton
   m_TagString: Untagged
@@ -602,6 +603,17 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4800354033505092957}
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &7920659239035569244
@@ -622,6 +634,20 @@ MonoBehaviour:
   modal: multTable
   onlyIfEmpty: 0
   closeIfOpened: 0
+--- !u!114 &4800354033505092957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4138719855980750505}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c3208c7ade34784eb92281584183c38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sound: click
+  mode: 0
 --- !u!1 &6290173445770380650
 GameObject:
   m_ObjectHideFlags: 0
