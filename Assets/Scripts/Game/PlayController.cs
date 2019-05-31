@@ -57,6 +57,7 @@ public class PlayController : GameModeController<PlayController> {
     //callbacks
     public event System.Action roundBeginCallback;
     public event System.Action roundEndCallback;
+    public event System.Action<Operation, int, bool> groupEvalCallback; //params: equation, answer, isCorrect
 
     private OperatorType[] mRoundOps;
     private int[] mNumbers;
@@ -346,6 +347,14 @@ public class PlayController : GameModeController<PlayController> {
                         
             yield return null;
             comboCurTime += Time.deltaTime;
+
+            //time expire, decrement combo?
+            if(comboCurTime >= comboMaxTime) {
+                if(comboCount > 1) {
+                    comboCount--;
+                    comboCurTime = 0;
+                }
+            }
         }
 
         comboCount = 0;
@@ -358,9 +367,11 @@ public class PlayController : GameModeController<PlayController> {
         float op1, op2, eq;
         grp.GetNumbers(out op1, out op2, out eq);
 
+        var op = grp.connectOp.op;
+
         bool isCorrect = false;
 
-        switch(grp.connectOp.op) {
+        switch(op) {
             case OperatorType.Multiply:
                 isCorrect = op1 * op2 == eq;
                 break;
@@ -412,12 +423,16 @@ public class PlayController : GameModeController<PlayController> {
             connectOp.state = BlobConnect.State.Error;
             connectEq.state = BlobConnect.State.Error;
 
-            //end combo
+            //decrement combo count
             if(mComboRout != null) {
-                StopCoroutine(mComboRout);
-                mComboRout = null;
+                if(comboCount > 0)
+                    comboCount--;
 
-                comboCount = 0;
+                if(comboCount == 0) {
+                    StopCoroutine(mComboRout);
+                    mComboRout = null;
+                }
+
                 comboCurTime = 0f;
             }
 
@@ -426,5 +441,7 @@ public class PlayController : GameModeController<PlayController> {
         }
 
         connectControl.ClearGroup(grp);
+
+        groupEvalCallback?.Invoke(new Operation { operand1=(int)op1, operand2= (int)op2, op=op }, (int)eq, isCorrect);
     }
 }

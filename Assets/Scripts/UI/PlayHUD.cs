@@ -37,6 +37,9 @@ public class PlayHUD : MonoBehaviour {
     public M8.Animator.Animate equationAnsAnim; //play take index 0 when highlight
     public Text equationAnsText;
 
+    public GameObject equationOpGO;
+    public GameObject equationEqGO;
+        
     [Header("Animation")]
     public M8.Animator.Animate animator;
     [M8.Animator.TakeSelector(animatorField = "animator")]
@@ -66,8 +69,28 @@ public class PlayHUD : MonoBehaviour {
     public string comboTakeUpdate;
     [M8.Animator.TakeSelector(animatorField = "comboAnimator")]
     public string comboTakeExit;
-       
-            
+
+    [Header("Equation Pop Up")]
+    public Text correctEqPopText;
+    public float correctEqPopShowDelay = 1.5f;
+    public M8.Animator.Animate correctEqPopAnimator; //also treat it as the root display
+    [M8.Animator.TakeSelector(animatorField = "correctEqPopAnimator")]
+    public string correctEqPopTakeEnter;
+    [M8.Animator.TakeSelector(animatorField = "correctEqPopAnimator")]
+    public string correctEqPopTakeUpdate;
+    [M8.Animator.TakeSelector(animatorField = "correctEqPopAnimator")]
+    public string correctEqPopTakeExit;
+
+    public Text incorrectEqPopText;
+    public float incorrectEqPopShowDelay = 1.5f;
+    public M8.Animator.Animate incorrectEqPopAnimator; //also treat it as the root display
+    [M8.Animator.TakeSelector(animatorField = "incorrectEqPopAnimator")]
+    public string incorrectEqPopTakeEnter;
+    [M8.Animator.TakeSelector(animatorField = "incorrectEqPopAnimator")]
+    public string incorrectEqPopTakeUpdate;
+    [M8.Animator.TakeSelector(animatorField = "incorrectEqPopAnimator")]
+    public string incorrectEqPopTakeExit;
+
     [Header("Signal Listens")]
     public GameModeSignal signalListenGameMode;
     public M8.Signal signalListenPlayEnd;
@@ -79,15 +102,58 @@ public class PlayHUD : MonoBehaviour {
     private Coroutine mComboDisplayRout;
     private Coroutine mEquationRout;
 
+    private BlobConnectController.Group mEquationGrp = null;
+
     private int mCurComboCountDisplay = 0;
 
     private OperatorType mCurOpTypeDisplay = OperatorType.None;
+
+    private struct PopUpData {
+        public int op1;
+        public OperatorType op;
+        public int op2;
+        public int answer;
+
+        public string GetString(bool isEqual) {
+            var strBuff = new System.Text.StringBuilder();
+
+            strBuff.Append(op1).Append(' ');
+
+            switch(op) {
+                case OperatorType.Multiply:
+                    strBuff.Append("x ");
+                    break;
+                case OperatorType.Divide:
+                    strBuff.Append("÷ ");
+                    break;
+            }
+
+            strBuff.Append(op2).Append(' ');
+
+            if(isEqual)
+                strBuff.Append("= ");
+            else
+                strBuff.Append("≠ ");
+
+            strBuff.Append(answer);
+
+            return strBuff.ToString();
+        }
+    }
+
+    private Queue<PopUpData> mCorrectPopUpQueue = new Queue<PopUpData>();
+    private Coroutine mCorrectPopUpRout;
+    private Coroutine mIncorrectPopUpRout;
 
     void OnDestroy() {
         if(PlayController.isInstantiated) {
             var playCtrl = PlayController.instance;
             playCtrl.roundBeginCallback -= OnRoundBegin;
             playCtrl.roundEndCallback -= OnRoundEnd;
+            playCtrl.groupEvalCallback -= OnGroupEvaluated;
+
+            if(playCtrl.connectControl)
+                playCtrl.connectControl.groupAddedCallback -= OnGroupAdded;
         }
 
         signalListenGameMode.callback -= OnSignalGameMode;
@@ -103,6 +169,12 @@ public class PlayHUD : MonoBehaviour {
         if(equationOp1Text) equationOp1Text.text = "";
         if(equationOp2Text) equationOp2Text.text = "";
         if(equationAnsText) equationAnsText.text = "";
+
+        if(equationOpGO) equationOpGO.SetActive(false);
+        if(equationEqGO) equationEqGO.SetActive(false);
+
+        if(correctEqPopAnimator) correctEqPopAnimator.gameObject.SetActive(false);
+        if(incorrectEqPopAnimator) incorrectEqPopAnimator.gameObject.SetActive(false);
 
         ApplyOpCurrentDisplay();
         
@@ -125,6 +197,8 @@ public class PlayHUD : MonoBehaviour {
         //hook up play callbacks
         PlayController.instance.roundBeginCallback += OnRoundBegin;
         PlayController.instance.roundEndCallback += OnRoundEnd;
+        PlayController.instance.groupEvalCallback += OnGroupEvaluated;
+        PlayController.instance.connectControl.groupAddedCallback += OnGroupAdded;
 
         StartCoroutine(DoPlayBegin());
     }
@@ -177,6 +251,29 @@ public class PlayHUD : MonoBehaviour {
             if(mComboDisplayRout == null)
                 mComboDisplayRout = StartCoroutine(DoComboDisplay());
         }
+    }
+
+    void OnGroupEvaluated(Operation op, int answer, bool isCorrect) {
+        var dat = new PopUpData { op1=op.operand1, op2=op.operand2, op=op.op, answer=answer };
+
+        if(isCorrect) {
+            mCorrectPopUpQueue.Enqueue(dat);
+
+            if(mCorrectPopUpRout == null)
+                mCorrectPopUpRout = StartCoroutine(DoCorrectPopUp());
+        }
+        else {
+            if(incorrectEqPopText) incorrectEqPopText.text = dat.GetString(false);
+
+            if(mIncorrectPopUpRout != null)
+                StopCoroutine(mIncorrectPopUpRout);
+
+            mIncorrectPopUpRout = StartCoroutine(DoIncorrectPopUp());
+        }
+    }
+
+    void OnGroupAdded(BlobConnectController.Group grp) {
+        mEquationGrp = grp;
     }
 
     IEnumerator DoPlayBegin() {
@@ -286,17 +383,55 @@ public class PlayHUD : MonoBehaviour {
 
         var playCtrl = PlayController.instance;
 
+        //TODO: assumes simple equation: num op num = answer
         while(playCtrl) {
-            //TODO: assumes simple equation: num op num = answer
+            bool isOpActive = false;
+            bool isEqActive = false;
+
+            //grab blob that is dragging, and one that is highlighted
+            Blob blobDragging = playCtrl.connectControl.curBlobDragging;
+            Blob blobHighlight = null;
+
+            var blobs = playCtrl.blobSpawner.blobActives;
+            for(int i = 0; i < blobs.Count; i++) {
+                var blob = blobs[i];
+                if(blob.isHighlighted) {
+                    if(blob != blobDragging)
+                        blobHighlight = blob;
+                }
+            }
+            
             //check for group
-            var grp = playCtrl.connectControl.activeGroup;
-            if(grp != null) {
+            if(mEquationGrp == null || !playCtrl.connectControl.IsGroupActive(mEquationGrp)) {
+                if(playCtrl.connectControl.curGroupDragging != null)
+                    mEquationGrp = playCtrl.connectControl.curGroupDragging;
+                else if(playCtrl.connectControl.activeGroup != null)
+                    mEquationGrp = playCtrl.connectControl.activeGroup;
+                else
+                    mEquationGrp = null;
+            }
+
+            if(mEquationGrp != null) {
+                //change grp?
+                if(playCtrl.connectControl.curGroupDragging != null)
+                    mEquationGrp = playCtrl.connectControl.curGroupDragging;
+                else if(blobHighlight) {
+                    //check if highlighted blob is in a group
+                    var otherGrp = playCtrl.connectControl.GetGroup(blobHighlight);
+                    if(otherGrp != null)
+                        mEquationGrp = otherGrp;
+                }
+
+                var grp = mEquationGrp;
+
                 if(equationOp1Anim) equationOp1Anim.Stop();
                 if(equationOp2Anim) equationOp2Anim.Stop();
-                
-                if(equationOp1Text) equationOp1Text.text = grp.blobOpLeft ? grp.blobOpLeft.number.ToString() : "";
-                if(equationOp2Text) equationOp2Text.text = grp.blobOpRight ? grp.blobOpRight.number.ToString() : "";
 
+                isOpActive = true;
+                                
+                string op1Text = grp.blobOpLeft ? grp.blobOpLeft.number.ToString() : "";
+                string op2Text = grp.blobOpRight ? grp.blobOpRight.number.ToString() : "";
+                                
                 //check answer blob
                 if(grp.blobEq) {
                     if(equationAnsAnim) equationAnsAnim.Stop();
@@ -308,26 +443,28 @@ public class PlayHUD : MonoBehaviour {
 
                     //update answer text
                     if(equationAnsText) {
-                        bool isBlobInGroupDragging = (grp.blobOpLeft && grp.blobOpLeft.isDragging) || (grp.blobOpRight && grp.blobOpRight.isDragging);
-                                                
                         Blob blobSelect = null;
 
-                        if(playCtrl.connectControl.curGroupDragging == grp || playCtrl.connectControl.curGroupDragging == null) {
-                            //get active blob that is highlighted or dragging
-                            var blobs = playCtrl.blobSpawner.blobActives;
-                            for(int i = 0; i < blobs.Count; i++) {
-                                var blob = blobs[i];
-                                if(blob.isHighlighted || blob.isDragging) {
-                                    //make sure it's not our blob in group
-                                    if(grp.IsBlobInGroup(blob))
-                                        continue;
+                        if(playCtrl.connectControl.curGroupDragging == grp) {
+                            //select highlighted blob if it's not in our group
+                            if(blobHighlight && !grp.IsBlobInGroup(blobHighlight))
+                                blobSelect = blobHighlight;
 
-                                    //make sure it's not in group
-                                    if(isBlobInGroupDragging || playCtrl.connectControl.GetGroup(blob) == null) {
-                                        blobSelect = blob;
-                                        break;
-                                    }
+                            isEqActive = true;
+                        }
+                        else if(playCtrl.connectControl.curGroupDragging == null) {
+                            //grab dragging blob and ensure it is highlighting one of the blobs in our group
+                            if(playCtrl.connectControl.curBlobDragging) {
+                                if(grp.blobOpLeft && grp.blobOpLeft.isHighlighted) {
+                                    //need to swap operand texts
+                                    var _txt = op1Text;
+                                    op1Text = op2Text;
+                                    op2Text = _txt;
                                 }
+
+                                blobSelect = playCtrl.connectControl.curBlobDragging;
+
+                                isEqActive = (grp.blobOpLeft && grp.blobOpLeft.isHighlighted) || (grp.blobOpRight && grp.blobOpRight.isHighlighted);
                             }
                         }
 
@@ -337,30 +474,19 @@ public class PlayHUD : MonoBehaviour {
                             equationAnsText.text = "";
                     }
                 }
+
+                if(equationOp1Text) equationOp1Text.text = op1Text;
+                if(equationOp2Text) equationOp2Text.text = op2Text;
             }
             else {
                 if(equationOp1Anim) equationOp1Anim.Play(0);
                 if(equationOp2Anim) equationOp2Anim.Play(0);
                 if(equationAnsAnim) equationAnsAnim.Stop();
-
-                //grab blob that is dragging, and one that is highlighted
-                Blob blobDragging = null, blobHighlight = null;
-
-                var blobs = playCtrl.blobSpawner.blobActives;
-                for(int i = 0; i < blobs.Count; i++) {
-                    var blob = blobs[i];
-                    if(blob.isDragging) {
-                        if(blob != blobHighlight)
-                            blobDragging = blob;
-                    }
-                    else if(blob.isHighlighted) {
-                        if(blob != blobDragging)
-                            blobHighlight = blob;
-                    }
-                }
-
+                                
                 if(blobDragging) {
                     if(equationOp1Text) equationOp1Text.text = blobDragging.number.ToString();
+
+                    isOpActive = true;
 
                     if(blobHighlight) {
                         if(equationOp2Text) equationOp2Text.text = blobHighlight.number.ToString();
@@ -381,6 +507,9 @@ public class PlayHUD : MonoBehaviour {
                 if(equationAnsText) equationAnsText.text = "";
             }
 
+            if(equationOpGO) equationOpGO.SetActive(isOpActive);
+            if(equationEqGO) equationEqGO.SetActive(isEqActive);
+
             yield return wait;
         }
 
@@ -388,10 +517,78 @@ public class PlayHUD : MonoBehaviour {
         SetEquationUpdateActive(false);
     }
 
+    IEnumerator DoCorrectPopUp() {
+        var wait = new WaitForSeconds(correctEqPopShowDelay);
+
+        while(mCorrectPopUpQueue.Count > 0) {
+            var dat = mCorrectPopUpQueue.Dequeue();
+
+            //apply display
+            if(correctEqPopText)
+                correctEqPopText.text = dat.GetString(true);
+
+            //show/update
+            if(correctEqPopAnimator) {
+                if(!correctEqPopAnimator.gameObject.activeSelf) {
+                    correctEqPopAnimator.gameObject.SetActive(true);
+
+                    if(!string.IsNullOrEmpty(correctEqPopTakeEnter))
+                        yield return correctEqPopAnimator.PlayWait(correctEqPopTakeEnter);
+                }
+
+                if(!string.IsNullOrEmpty(correctEqPopTakeUpdate))
+                    yield return correctEqPopAnimator.PlayWait(correctEqPopTakeUpdate);
+            }
+
+            yield return wait;
+
+            //hide
+            if(mCorrectPopUpQueue.Count == 0) {
+                if(correctEqPopAnimator) {
+                    if(!string.IsNullOrEmpty(correctEqPopTakeExit))
+                        yield return correctEqPopAnimator.PlayWait(correctEqPopTakeExit);
+
+                    correctEqPopAnimator.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        mCorrectPopUpRout = null;
+    }
+
+    IEnumerator DoIncorrectPopUp() {
+        var wait = new WaitForSeconds(incorrectEqPopShowDelay);
+
+        //show/update
+        if(incorrectEqPopAnimator) {
+            if(!incorrectEqPopAnimator.gameObject.activeSelf) {
+                incorrectEqPopAnimator.gameObject.SetActive(true);
+
+                if(!string.IsNullOrEmpty(incorrectEqPopTakeEnter))
+                    yield return incorrectEqPopAnimator.PlayWait(incorrectEqPopTakeEnter);
+            }
+
+            if(!string.IsNullOrEmpty(incorrectEqPopTakeUpdate))
+                yield return incorrectEqPopAnimator.PlayWait(incorrectEqPopTakeUpdate);
+        }
+
+        yield return wait;
+
+        //hide
+        if(incorrectEqPopAnimator) {
+            if(!string.IsNullOrEmpty(incorrectEqPopTakeExit))
+                yield return incorrectEqPopAnimator.PlayWait(incorrectEqPopTakeExit);
+
+            incorrectEqPopAnimator.gameObject.SetActive(false);
+        }
+
+        mIncorrectPopUpRout = null;
+    }
+
     private void ApplyCurrentComboCountDisplay() {
         mCurComboCountDisplay = PlayController.instance.comboCount;
 
-        if(comboCountText) comboCountText.text = string.Format(comboCountFormat, mCurComboCountDisplay);
+        if(comboCountText) comboCountText.text = string.Format(comboCountFormat, mCurComboCountDisplay + 1);
     }
 
     private void ApplyOpCurrentDisplay() {
@@ -440,6 +637,11 @@ public class PlayHUD : MonoBehaviour {
             if(equationOp1Text) equationOp1Text.text = "";
             if(equationOp2Text) equationOp2Text.text = "";
             if(equationAnsText) equationAnsText.text = "";
+
+            if(equationOpGO) equationOpGO.SetActive(false);
+            if(equationEqGO) equationEqGO.SetActive(false);
+
+            mEquationGrp = null;
         }
     }
 }

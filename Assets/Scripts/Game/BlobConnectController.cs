@@ -183,6 +183,7 @@ public class BlobConnectController : MonoBehaviour {
     public Group curGroupDragging { get; private set; } //which group is involved while dragging
 
     public event System.Action<Group> evaluateCallback;
+    public event System.Action<Group> groupAddedCallback;
 
     private M8.PoolController mPool;
 
@@ -194,6 +195,10 @@ public class BlobConnectController : MonoBehaviour {
 
     private M8.CacheList<Group> mGroupActives;
     private M8.CacheList<Group> mGroupCache;
+
+    public bool IsGroupActive(Group grp) {
+        return mGroupActives.Exists(grp);
+    }
         
     public void ReleaseDragging() {
         if(mCurConnectDragging) {
@@ -346,6 +351,12 @@ public class BlobConnectController : MonoBehaviour {
         curGroupDragging = GetGroup(blob);
         if(curGroupDragging != null) {
             //highlight entire group
+
+            //flip operand order based if it's the first operand
+            if(blob == curGroupDragging.blobOpLeft) {
+                curGroupDragging.blobOpLeft = curGroupDragging.blobOpRight;
+                curGroupDragging.blobOpRight = blob;
+            }
         }
     }
 
@@ -405,6 +416,7 @@ public class BlobConnectController : MonoBehaviour {
 
                             var newGrp = NewGroup();
                             newGrp.SetOp(blob, endBlob, mCurConnectDragging);
+                            groupAddedCallback?.Invoke(newGrp);
                         }
                     }
                 }
@@ -421,6 +433,7 @@ public class BlobConnectController : MonoBehaviour {
                     //create new group
                     var newGrp = NewGroup();
                     newGrp.SetOp(blob, endBlob, mCurConnectDragging);
+                    groupAddedCallback?.Invoke(newGrp);
                 }
 
                 //setup link
