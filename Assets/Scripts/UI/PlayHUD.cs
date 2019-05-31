@@ -17,13 +17,25 @@ public class PlayHUD : MonoBehaviour {
     public GameObject opNextTabMultiplyGO;
     public GameObject opNextTabDivideGO;
 
-    public GameObject opSymbolMultiplyGO;
-    public GameObject opSymbolDivideGO;
+    public Text[] opSymbolTexts;
+    public GameObject opSymbolGO;
+    public string opSymbolMultiply = "x";
+    public string opSymbolDivide = "÷";
 
     [M8.Localize]
     public string opTextSpeakRefMultiply;
     [M8.Localize]
     public string opTextSpeakRefDivide;
+
+    [Header("Equation Display")]
+    public M8.Animator.Animate equationOp1Anim; //play take index 0 when highlight
+    public Text equationOp1Text;
+
+    public M8.Animator.Animate equationOp2Anim; //play take index 0 when highlight
+    public Text equationOp2Text;
+
+    public M8.Animator.Animate equationAnsAnim; //play take index 0 when highlight
+    public Text equationAnsText;
 
     [Header("Animation")]
     public M8.Animator.Animate animator;
@@ -65,6 +77,7 @@ public class PlayHUD : MonoBehaviour {
 
     private Coroutine mChangeOpRout;
     private Coroutine mComboDisplayRout;
+    private Coroutine mEquationRout;
 
     private int mCurComboCountDisplay = 0;
 
@@ -85,12 +98,14 @@ public class PlayHUD : MonoBehaviour {
         //initial display state
         if(scoreCounter) scoreCounter.SetCountImmediate(0);
         if(comboGO) comboGO.SetActive(false);
+        if(opSymbolGO) opSymbolGO.SetActive(false);
+
+        if(equationOp1Text) equationOp1Text.text = "";
+        if(equationOp2Text) equationOp2Text.text = "";
+        if(equationAnsText) equationAnsText.text = "";
 
         ApplyOpCurrentDisplay();
-
-        if(opSymbolMultiplyGO) opSymbolMultiplyGO.SetActive(false);
-        if(opSymbolDivideGO) opSymbolDivideGO.SetActive(false);
-
+        
         //hide stuff
         if(readySetGoDisplayGO) readySetGoDisplayGO.SetActive(false);
 
@@ -128,6 +143,8 @@ public class PlayHUD : MonoBehaviour {
             StopCoroutine(mComboDisplayRout);
             mComboDisplayRout = null;
         }
+
+        SetEquationUpdateActive(false);
     }
 
     void OnRoundBegin() {
@@ -180,11 +197,12 @@ public class PlayHUD : MonoBehaviour {
 
         //play
         signalInvokePlayStart.Invoke();
+
+        SetEquationUpdateActive(true);
     }
 
     IEnumerator DoOpChange(OperatorType opNext) {
-        if(opSymbolMultiplyGO) opSymbolMultiplyGO.SetActive(false);
-        if(opSymbolDivideGO) opSymbolDivideGO.SetActive(false);
+        if(opSymbolGO) opSymbolGO.gameObject.SetActive(false);
 
         //wait for animator to finish
         if(animator) {
@@ -208,17 +226,18 @@ public class PlayHUD : MonoBehaviour {
         ApplyOpCurrentDisplay();
         ApplyOpNextDisplay(OperatorType.None);
 
-        //update op symbol display and speak text
+        //play symbol display
+        if(opSymbolGO)
+            opSymbolGO.SetActive(mCurOpTypeDisplay == OperatorType.Multiply || mCurOpTypeDisplay == OperatorType.Divide);
+
+        //speak text
         switch(mCurOpTypeDisplay) {
             case OperatorType.Multiply:
-                if(opSymbolMultiplyGO) opSymbolMultiplyGO.SetActive(true);
-
                 if(!string.IsNullOrEmpty(opTextSpeakRefMultiply))
                     LoLManager.instance.SpeakText(opTextSpeakRefMultiply);
                 break;
-            case OperatorType.Divide:
-                if(opSymbolDivideGO) opSymbolDivideGO.SetActive(true);
 
+            case OperatorType.Divide:
                 if(!string.IsNullOrEmpty(opTextSpeakRefDivide))
                     LoLManager.instance.SpeakText(opTextSpeakRefDivide);
                 break;
@@ -262,6 +281,113 @@ public class PlayHUD : MonoBehaviour {
         mComboDisplayRout = null;
     }
 
+    IEnumerator DoEquationUpdate() {
+        var wait = new WaitForSeconds(0.1f);
+
+        var playCtrl = PlayController.instance;
+
+        while(playCtrl) {
+            //TODO: assumes simple equation: num op num = answer
+            //check for group
+            var grp = playCtrl.connectControl.activeGroup;
+            if(grp != null) {
+                if(equationOp1Anim) equationOp1Anim.Stop();
+                if(equationOp2Anim) equationOp2Anim.Stop();
+                
+                if(equationOp1Text) equationOp1Text.text = grp.blobOpLeft ? grp.blobOpLeft.number.ToString() : "";
+                if(equationOp2Text) equationOp2Text.text = grp.blobOpRight ? grp.blobOpRight.number.ToString() : "";
+
+                //check answer blob
+                if(grp.blobEq) {
+                    if(equationAnsAnim) equationAnsAnim.Stop();
+
+                    if(equationAnsText) equationAnsText.text = grp.blobEq.number.ToString();
+                }
+                else {
+                    if(equationAnsAnim) equationAnsAnim.Play(0);
+
+                    //update answer text
+                    if(equationAnsText) {
+                        bool isBlobInGroupDragging = (grp.blobOpLeft && grp.blobOpLeft.isDragging) || (grp.blobOpRight && grp.blobOpRight.isDragging);
+                                                
+                        Blob blobSelect = null;
+
+                        if(playCtrl.connectControl.curGroupDragging == grp || playCtrl.connectControl.curGroupDragging == null) {
+                            //get active blob that is highlighted or dragging
+                            var blobs = playCtrl.blobSpawner.blobActives;
+                            for(int i = 0; i < blobs.Count; i++) {
+                                var blob = blobs[i];
+                                if(blob.isHighlighted || blob.isDragging) {
+                                    //make sure it's not our blob in group
+                                    if(grp.IsBlobInGroup(blob))
+                                        continue;
+
+                                    //make sure it's not in group
+                                    if(isBlobInGroupDragging || playCtrl.connectControl.GetGroup(blob) == null) {
+                                        blobSelect = blob;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if(blobSelect)
+                            equationAnsText.text = blobSelect.number.ToString();
+                        else
+                            equationAnsText.text = "";
+                    }
+                }
+            }
+            else {
+                if(equationOp1Anim) equationOp1Anim.Play(0);
+                if(equationOp2Anim) equationOp2Anim.Play(0);
+                if(equationAnsAnim) equationAnsAnim.Stop();
+
+                //grab blob that is dragging, and one that is highlighted
+                Blob blobDragging = null, blobHighlight = null;
+
+                var blobs = playCtrl.blobSpawner.blobActives;
+                for(int i = 0; i < blobs.Count; i++) {
+                    var blob = blobs[i];
+                    if(blob.isDragging) {
+                        if(blob != blobHighlight)
+                            blobDragging = blob;
+                    }
+                    else if(blob.isHighlighted) {
+                        if(blob != blobDragging)
+                            blobHighlight = blob;
+                    }
+                }
+
+                if(blobDragging) {
+                    if(equationOp1Text) equationOp1Text.text = blobDragging.number.ToString();
+
+                    if(blobHighlight) {
+                        if(equationOp2Text) equationOp2Text.text = blobHighlight.number.ToString();
+                    }
+                    else {
+                        if(equationOp2Text) equationOp2Text.text = "";
+                    }
+                }
+                else if(blobHighlight) {
+                    if(equationOp1Text) equationOp1Text.text = blobHighlight.number.ToString();
+                    if(equationOp2Text) equationOp2Text.text = "";
+                }
+                else {
+                    if(equationOp1Text) equationOp1Text.text = "";
+                    if(equationOp2Text) equationOp2Text.text = "";
+                }
+
+                if(equationAnsText) equationAnsText.text = "";
+            }
+
+            yield return wait;
+        }
+
+        mEquationRout = null;
+        SetEquationUpdateActive(false);
+    }
+
     private void ApplyCurrentComboCountDisplay() {
         mCurComboCountDisplay = PlayController.instance.comboCount;
 
@@ -271,10 +397,49 @@ public class PlayHUD : MonoBehaviour {
     private void ApplyOpCurrentDisplay() {
         if(opCurrentTabMultiplyGO) opCurrentTabMultiplyGO.SetActive(mCurOpTypeDisplay == OperatorType.Multiply);
         if(opCurrentTabDivideGO) opCurrentTabDivideGO.SetActive(mCurOpTypeDisplay == OperatorType.Divide);
+
+        string opSymbolStr;
+        switch(mCurOpTypeDisplay) {
+            case OperatorType.Multiply:
+                opSymbolStr = opSymbolMultiply;
+                break;
+            case OperatorType.Divide:
+                opSymbolStr = opSymbolDivide;
+                break;
+            default:
+                opSymbolStr = "";
+                break;
+        }
+
+        for(int i = 0; i < opSymbolTexts.Length; i++) {
+            if(opSymbolTexts[i])
+                opSymbolTexts[i].text = opSymbolStr;
+        }
     }
 
     private void ApplyOpNextDisplay(OperatorType nextOp) {
         if(opNextTabMultiplyGO) opNextTabMultiplyGO.SetActive(nextOp == OperatorType.Multiply);
         if(opNextTabDivideGO) opNextTabDivideGO.SetActive(nextOp == OperatorType.Divide);
+    }
+
+    private void SetEquationUpdateActive(bool isActive) {
+        if(isActive) {
+            if(mEquationRout != null) StopCoroutine(mEquationRout);
+            mEquationRout = StartCoroutine(DoEquationUpdate());
+        }
+        else {
+            if(mEquationRout != null) {
+                StopCoroutine(mEquationRout);
+                mEquationRout = null;
+            }
+
+            if(equationOp1Anim) equationOp1Anim.Stop();
+            if(equationOp2Anim) equationOp2Anim.Stop();
+            if(equationAnsAnim) equationAnsAnim.Stop();
+
+            if(equationOp1Text) equationOp1Text.text = "";
+            if(equationOp2Text) equationOp2Text.text = "";
+            if(equationAnsText) equationAnsText.text = "";
+        }
     }
 }

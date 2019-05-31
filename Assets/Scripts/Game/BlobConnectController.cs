@@ -174,6 +174,14 @@ public class BlobConnectController : MonoBehaviour {
     /// </summary>
     public OperatorType curOp { get { return mCurOp; } set { mCurOp = value; } }
 
+    /// <summary>
+    /// Grab the first element active group
+    /// </summary>
+    public Group activeGroup { get { return mGroupActives.Count > 0 ? mGroupActives[0] : null; } }
+
+    public Blob curBlobDragging { get; private set; }
+    public Group curGroupDragging { get; private set; } //which group is involved while dragging
+
     public event System.Action<Group> evaluateCallback;
 
     private M8.PoolController mPool;
@@ -181,23 +189,20 @@ public class BlobConnectController : MonoBehaviour {
     private OperatorType mCurOp = OperatorType.Multiply;
 
     private BlobConnect mCurConnectDragging; //when dragging a blob around.
-
-    private Blob mCurBlobDragging;
-    private Group mCurGroupDragging; //which group is involved while dragging
-
+        
     private M8.GenericParams mConnectSpawnParms = new M8.GenericParams();
 
     private M8.CacheList<Group> mGroupActives;
     private M8.CacheList<Group> mGroupCache;
-
+        
     public void ReleaseDragging() {
         if(mCurConnectDragging) {
             mCurConnectDragging.Release();
             mCurConnectDragging = null;
         }
 
-        mCurBlobDragging = null;
-        mCurGroupDragging = null;
+        curBlobDragging = null;
+        curGroupDragging = null;
     }
 
     public void ClearGroup(Group group) {
@@ -210,6 +215,16 @@ public class BlobConnectController : MonoBehaviour {
                 break;
             }
         }
+    }
+
+    public Group GetGroup(Blob blob) {
+        for(int i = 0; i < mGroupActives.Count; i++) {
+            var grp = mGroupActives[i];
+            if(grp.IsBlobInGroup(blob))
+                return grp;
+        }
+
+        return null;
     }
 
     void OnDestroy() {
@@ -240,12 +255,12 @@ public class BlobConnectController : MonoBehaviour {
     }
 
     void SetCurGroupDraggingOtherBlobHighlight(bool isHighlight) {
-        if(mCurGroupDragging != null) {
+        if(curGroupDragging != null) {
             Blob otherBlob = null;
-            if(mCurGroupDragging.connectOp)
-                otherBlob = mCurGroupDragging.connectOp.GetLinkedBlob(mCurBlobDragging);
-            else if(mCurGroupDragging.connectEq)
-                otherBlob = mCurGroupDragging.connectEq.GetLinkedBlob(mCurBlobDragging);
+            if(curGroupDragging.connectOp)
+                otherBlob = curGroupDragging.connectOp.GetLinkedBlob(curBlobDragging);
+            else if(curGroupDragging.connectEq)
+                otherBlob = curGroupDragging.connectEq.GetLinkedBlob(curBlobDragging);
             if(otherBlob)
                 otherBlob.ApplyJellySpriteMaterial(isHighlight ? otherBlob.hoverDragMaterial : null);
         }
@@ -254,23 +269,23 @@ public class BlobConnectController : MonoBehaviour {
     void Update() {
         //we are dragging
         if(mCurConnectDragging) {
-            if(mCurBlobDragging) {
+            if(curBlobDragging) {
                 //setup op
                 OperatorType dragOp = mCurOp;
 
-                if(mCurGroupDragging != null) {
-                    if(mCurGroupDragging.IsBlobOp(mCurBlobDragging))
+                if(curGroupDragging != null) {
+                    if(curGroupDragging.IsBlobOp(curBlobDragging))
                         dragOp = OperatorType.Equal;
                 }
 
                 //setup link position
                 Vector2 connectPtStart, connectPtEnd;
 
-                connectPtEnd = mCurBlobDragging.dragPoint;
+                connectPtEnd = curBlobDragging.dragPoint;
 
                 //check if dragging inside
-                var dragJellySprRef = mCurBlobDragging.dragPointerJellySpriteRefPt;
-                if(dragJellySprRef && dragJellySprRef.ParentJellySprite == mCurBlobDragging.gameObject) {
+                var dragJellySprRef = curBlobDragging.dragPointerJellySpriteRefPt;
+                if(dragJellySprRef && dragJellySprRef.ParentJellySprite == curBlobDragging.gameObject) {
                     //start set the same as end.
                     connectPtStart = connectPtEnd;
 
@@ -278,14 +293,14 @@ public class BlobConnectController : MonoBehaviour {
                     SetCurGroupDraggingOtherBlobHighlight(false);
                 }
                 else {
-                    connectPtStart = mCurBlobDragging.transform.position;
+                    connectPtStart = curBlobDragging.transform.position;
 
                     //check if we are over another blob
-                    if(mCurBlobDragging.dragPointerJellySpriteRefPt) {
+                    if(curBlobDragging.dragPointerJellySpriteRefPt) {
                         //check if it is in a group and we are setting it up as an equal connect
-                        var blobGO = mCurBlobDragging.dragPointerJellySpriteRefPt.ParentJellySprite;
+                        var blobGO = curBlobDragging.dragPointerJellySpriteRefPt.ParentJellySprite;
                         var toGrp = GetGroup(blobGO);
-                        if(toGrp != null && toGrp != mCurGroupDragging) {
+                        if(toGrp != null && toGrp != curGroupDragging) {
                             if(toGrp.IsBlobOp(blobGO))
                                 dragOp = OperatorType.Equal;
                         }
@@ -300,7 +315,7 @@ public class BlobConnectController : MonoBehaviour {
                 }
 
                 mCurConnectDragging.op = dragOp;
-                mCurConnectDragging.UpdateConnecting(connectPtStart, connectPtEnd, mCurBlobDragging.radius, mCurBlobDragging.color);
+                mCurConnectDragging.UpdateConnecting(connectPtStart, connectPtEnd, curBlobDragging.radius, curBlobDragging.color);
             }
             else //blob being dragged on released?
                 ReleaseDragging();
@@ -315,7 +330,7 @@ public class BlobConnectController : MonoBehaviour {
             mCurConnectDragging = mPool.Spawn<BlobConnect>(connectTemplate.name, "", null, mConnectSpawnParms);
         }
 
-        mCurBlobDragging = blob;
+        curBlobDragging = blob;
 
         var toOp = mCurOp;
 
@@ -325,11 +340,11 @@ public class BlobConnectController : MonoBehaviour {
         mCurConnectDragging.state = BlobConnect.State.Connecting;
 
         if(mCurConnectDragging.connectingSpriteRender)
-            mCurConnectDragging.connectingSpriteRender.color = mCurBlobDragging.color;
+            mCurConnectDragging.connectingSpriteRender.color = curBlobDragging.color;
 
         //determine if this is in a group
-        mCurGroupDragging = GetGroup(blob);
-        if(mCurGroupDragging != null) {
+        curGroupDragging = GetGroup(blob);
+        if(curGroupDragging != null) {
             //highlight entire group
         }
     }
@@ -346,10 +361,10 @@ public class BlobConnectController : MonoBehaviour {
 
             //determine op
             var toOp = mCurOp;
-            if(mCurGroupDragging != null) {
-                if(mCurGroupDragging.IsBlobOp(mCurBlobDragging)) {
+            if(curGroupDragging != null) {
+                if(curGroupDragging.IsBlobOp(curBlobDragging)) {
                     //cancel if dragging to the same group as ops
-                    if(mCurGroupDragging.IsBlobOp(endBlob))
+                    if(curGroupDragging.IsBlobOp(endBlob))
                         toOp = OperatorType.None;
                     else
                         toOp = OperatorType.Equal;
@@ -360,13 +375,13 @@ public class BlobConnectController : MonoBehaviour {
             if(toOp != OperatorType.None) {
                 //remove endBlob from its group
                 var endGroup = GetGroup(endBlob);
-                if(endGroup != null && endGroup != mCurGroupDragging) {
+                if(endGroup != null && endGroup != curGroupDragging) {
                     //if we are dragging to apply equal op, then remove it from end group and move to drag group
                     if(toOp == OperatorType.Equal) {
                         RemoveBlobFromGroup(endGroup, endBlob);
 
-                        mCurGroupDragging.SetEq(endBlob, mCurConnectDragging);
-                        evalGroup = mCurGroupDragging;
+                        curGroupDragging.SetEq(endBlob, mCurConnectDragging);
+                        evalGroup = curGroupDragging;
                     }
                     else {
                         //if dragging to one of the operands of end group, then move blob to this group
@@ -378,13 +393,13 @@ public class BlobConnectController : MonoBehaviour {
                             evalGroup = endGroup;
 
                             //remove from dragging group
-                            if(mCurGroupDragging != null)
-                                RemoveBlobFromGroup(mCurGroupDragging, blob);
+                            if(curGroupDragging != null)
+                                RemoveBlobFromGroup(curGroupDragging, blob);
                         }
                         else {
                             //remove blobs from its group, and create new group together
-                            if(mCurGroupDragging != null)
-                                RemoveBlobFromGroup(mCurGroupDragging, blob);
+                            if(curGroupDragging != null)
+                                RemoveBlobFromGroup(curGroupDragging, blob);
 
                             RemoveBlobFromGroup(endGroup, endBlob);
 
@@ -393,14 +408,14 @@ public class BlobConnectController : MonoBehaviour {
                         }
                     }
                 }
-                else if(mCurGroupDragging != null) {
+                else if(curGroupDragging != null) {
                     if(toOp == OperatorType.Equal) {
                         //refresh equal
-                        mCurGroupDragging.SetEq(endBlob, mCurConnectDragging);
-                        evalGroup = mCurGroupDragging;
+                        curGroupDragging.SetEq(endBlob, mCurConnectDragging);
+                        evalGroup = curGroupDragging;
                     }
                     else //re-establish group
-                        mCurGroupDragging.SetOp(blob, endBlob, mCurConnectDragging);
+                        curGroupDragging.SetOp(blob, endBlob, mCurConnectDragging);
                 }
                 else {
                     //create new group
@@ -416,8 +431,8 @@ public class BlobConnectController : MonoBehaviour {
                 mCurConnectDragging.Release();
 
             mCurConnectDragging = null;
-            mCurBlobDragging = null;
-            mCurGroupDragging = null;
+            curBlobDragging = null;
+            curGroupDragging = null;
 
             //send call to evaluate a group
             if(evalGroup != null && evalGroup.isComplete)
@@ -469,19 +484,6 @@ public class BlobConnectController : MonoBehaviour {
         if(newGrp != null)
             mGroupActives.Add(newGrp);
         return newGrp;
-    }
-
-    private Group GetGroup(Blob blob) {
-        Group grp = null;
-
-        for(int i = 0; i < mGroupActives.Count; i++) {
-            if(mGroupActives[i].IsBlobInGroup(blob)) {
-                grp = mGroupActives[i];
-                break;
-            }
-        }
-
-        return grp;
     }
 
     private Group GetGroup(GameObject blobGO) {

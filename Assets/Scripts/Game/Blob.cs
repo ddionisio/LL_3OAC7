@@ -169,6 +169,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public bool isHighlighted { get; private set; }
+
     private int mNumber;
 
     private M8.PoolDataController mPoolDataCtrl;
@@ -296,6 +298,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(inputLocked)
             return;
 
+        isHighlighted = true;
+
         if(state == State.Normal) {
             //highlight on
             ApplyJellySpriteMaterial(hoverDragMaterial);
@@ -307,6 +311,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public void OnPointerExit(JellySprite jellySprite, int index, PointerEventData eventData) {
         if(inputLocked)
             return;
+
+        isHighlighted = false;
 
         //highlight off
         if(state == State.Normal) {
@@ -567,6 +573,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         if(inputLocked) {
             //clear pointer highlight
             //update highlight
+            if(highlightGO) highlightGO.SetActive(false);
+            isHighlighted = false;
 
             if(isDragging)
                 DragInvalidate();
@@ -631,5 +639,6 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         RefreshMouthSprite();
 
         if(highlightGO) highlightGO.SetActive(false);
+        isHighlighted = false;
     }
 }
