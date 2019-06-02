@@ -9,11 +9,15 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     public const string parmTime = "time";
     public const string parmRoundsCount = "roundsCount";
     public const string parmMistakeCount = "mistake";
+    public const string parmBonusRoundScore = "bonusRoundScore";
     public const string parmNextScene = "nextScene";
 
     [Header("Display")]
     public GameObject scoreGO;
     public M8.UI.Texts.TextCounter scoreCounterText;
+
+    public GameObject bonusRoundScoreGO;
+    public M8.UI.Texts.TextCounter bonusRoundScoreCounterText;
 
     public GameObject timeGO;
     public M8.UI.Texts.TextTime timeText;
@@ -37,6 +41,7 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     public string soundEnter;
 
     private int mScore;
+    private int mBonusRoundScore;
     private float mTime;
     private int mRoundsCount;
     private int mTimeScore;
@@ -62,6 +67,7 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     void M8.IModalPush.Push(M8.GenericParams parms) {
 
         scoreGO.SetActive(false);
+        bonusRoundScoreGO.SetActive(false);
         timeGO.SetActive(false);
         timeBonusGO.SetActive(false);
         perfectBonusGO.SetActive(false);
@@ -70,6 +76,7 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
 
         mLevelIndex = -1;
         mScore = 0;
+        mBonusRoundScore = 0;
         mTime = float.MaxValue;
         mTimeScore = 0;
         mRoundsCount = 0;
@@ -79,6 +86,8 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         if(parms != null) {
             if(parms.ContainsKey(parmLevel))
                 mLevelIndex = parms.GetValue<int>(parmLevel);
+            if(parms.ContainsKey(parmBonusRoundScore))
+                mBonusRoundScore = parms.GetValue<int>(parmBonusRoundScore);
             if(parms.ContainsKey(parmScore))
                 mScore = parms.GetValue<int>(parmScore);
             if(parms.ContainsKey(parmTime))
@@ -102,7 +111,7 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         if(mMistakeCount == 0)
             mPerfectScore = GameData.instance.perfectPoints;
 
-        mTotalScore = mScore + mTimeScore + mPerfectScore;
+        mTotalScore = mScore + mBonusRoundScore + mTimeScore + mPerfectScore;
 
         M8.SoundPlaylist.instance.Play(soundEnter, false);
     }
@@ -121,6 +130,14 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         scoreCounterText.SetCountImmediate(0);
         yield return wait;
         scoreCounterText.count = mScore;
+
+        //bonus round score
+        if(mBonusRoundScore > 0) {
+            bonusRoundScoreGO.SetActive(true);
+            bonusRoundScoreCounterText.SetCountImmediate(0);
+            yield return wait;
+            bonusRoundScoreCounterText.count = mBonusRoundScore;
+        }
 
         //time
         timeGO.SetActive(true);

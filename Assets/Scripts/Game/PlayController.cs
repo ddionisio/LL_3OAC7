@@ -16,6 +16,10 @@ public class PlayController : GameModeController<PlayController> {
     [Header("Operations")]
     public OperationGroup[] opGroups;
 
+    [Header("Bonus Round Data")]
+    public string bonusRoundModal; //if empty, no bonus round
+    public M8.RangeInt bonusRoundIndex;
+
     [Header("Controls")]
     public BlobConnectController connectControl;
     public BlobSpawner blobSpawner;
@@ -37,6 +41,7 @@ public class PlayController : GameModeController<PlayController> {
 
     [Header("Signal Listen")]
     public M8.Signal signalListenPlayStart;
+    public SignalInteger signalListenBonusRoundScore;
 
     [Header("Signal Invoke")]
     public M8.Signal signalInvokePlayEnd;
@@ -68,6 +73,8 @@ public class PlayController : GameModeController<PlayController> {
 
     private int mMistakeRoundCount;
 
+    private int mBonusRoundScore;
+
     private M8.SpriteColorFromPalette[] mSpriteColorFromPalettes;
 
     private Coroutine mSpawnRout;
@@ -78,6 +85,7 @@ public class PlayController : GameModeController<PlayController> {
             connectControl.evaluateCallback -= OnGroupEval;
 
         signalListenPlayStart.callback -= OnSignalPlayBegin;
+        signalListenBonusRoundScore.callback -= OnSignalBonusRoundScore;
 
         base.OnInstanceDeinit();
     }
@@ -136,6 +144,7 @@ public class PlayController : GameModeController<PlayController> {
         connectControl.evaluateCallback += OnGroupEval;
 
         signalListenPlayStart.callback += OnSignalPlayBegin;
+        signalListenBonusRoundScore.callback += OnSignalBonusRoundScore;
     }
 
     protected override IEnumerator Start() {
@@ -156,6 +165,10 @@ public class PlayController : GameModeController<PlayController> {
         mSpawnRout = StartCoroutine(DoBlobSpawn());
 
         mPlayLastTime = Time.time;
+    }
+
+    void OnSignalBonusRoundScore(int score) {
+        mBonusRoundScore = score;
     }
 
     private void ApplyHintActive() {
@@ -287,6 +300,25 @@ public class PlayController : GameModeController<PlayController> {
         //play finish
         signalInvokePlayEnd.Invoke();
 
+        //check for bonus round
+        mBonusRoundScore = 0;
+
+        if(!string.IsNullOrEmpty(bonusRoundModal)) {
+            //wait for pop ups to clear
+            yield return new WaitForSeconds(2f);
+
+            var bonusRoundParms = new M8.GenericParams();
+            bonusRoundParms[ModalBonusFillSlots.parmDataIndexMin] = bonusRoundIndex.min;
+            bonusRoundParms[ModalBonusFillSlots.parmDataIndexMax] = bonusRoundIndex.max;
+
+            M8.ModalManager.main.Open(bonusRoundModal, bonusRoundParms);
+
+            yield return null;
+
+            while(M8.ModalManager.main.isBusy || M8.ModalManager.main.IsInStack(bonusRoundModal))
+                yield return null;
+        }
+
         //play end animation if available
         if(animator && !string.IsNullOrEmpty(takeEnd))
             yield return animator.PlayWait(takeEnd);
@@ -295,6 +327,7 @@ public class PlayController : GameModeController<PlayController> {
         var parms = new M8.GenericParams();
         parms[ModalVictory.parmLevel] = levelIndex;
         parms[ModalVictory.parmScore] = curScore;
+        parms[ModalVictory.parmBonusRoundScore] = mBonusRoundScore;
         parms[ModalVictory.parmTime] = playTotalTime;
         parms[ModalVictory.parmRoundsCount] = mRoundOps.Length;
         parms[ModalVictory.parmMistakeCount] = mistakeCount;

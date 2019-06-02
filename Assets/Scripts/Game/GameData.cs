@@ -17,6 +17,9 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     public float timeParPerRound = 6f; //in seconds
     public int timeBonus = 50; //per second based on (timePar - time)
 
+    public int bonusRoundScore = 1500;
+    public float bonusRoundDuration = 60f;
+
     public void ScoreApply(int level, int score) {
         M8.SceneState.instance.global.SetValue(levelScoreHeader + level.ToString(), score, true);
     }

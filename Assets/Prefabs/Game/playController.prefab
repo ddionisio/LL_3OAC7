@@ -359,11 +359,13 @@ MonoBehaviour:
     - operand1: 2
       op: 1
       operand2: 2
-      equal: 4
     - operand1: 6
       op: 2
       operand2: 3
-      equal: 2
+  bonusRoundModal: 
+  bonusRoundIndex:
+    min: 0
+    max: 0
   connectControl: {fileID: 1303996767351192693}
   blobSpawner: {fileID: 1303996767028365441}
   roundsRoot: {fileID: 8222959158719838818}
@@ -373,6 +375,8 @@ MonoBehaviour:
   takeEnd: end
   playMusic: mission
   signalListenPlayStart: {fileID: 11400000, guid: 556a8018413e94542a8b82d05378c75f,
+    type: 2}
+  signalListenBonusRoundScore: {fileID: 11400000, guid: d1b85d96f08583d4dbf67ffb727746f2,
     type: 2}
   signalInvokePlayEnd: {fileID: 11400000, guid: 98718950b931f004dba22f5dbf192996,
     type: 2}
