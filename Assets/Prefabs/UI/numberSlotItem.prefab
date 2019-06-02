@@ -182,12 +182,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4363795b8d62c9a4aa3808e0bc1fe036, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 500
+  moveDelay: 0.3
   numberText: {fileID: 4482681199430136910}
   highlightGO: {fileID: 4482681198076617203}
   dragRoot: {fileID: 2756576230035064444}
   animator: {fileID: 4482681198225342942}
   takeDragBegin: dragBegin
+  soundPlace: tap
 --- !u!114 &4482681198225342942
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -18,6 +18,10 @@ public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     [M8.Animator.TakeSelector(animatorField = "animator")]
     public string takeDragBegin;
 
+    [Header("Sound")]
+    [M8.SoundPlaylist]
+    public string soundPlace;
+
     public bool inputLocked {
         get { return mInputLocked || mMoveRout != null; }
         set {
@@ -38,15 +42,15 @@ public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public bool isDragging { get; private set; }
 
     public SlotWidget slotCurrent { get; private set; }
+    public SlotWidget slotCorrect { get; private set; }
 
     public bool isMoving { get { return mMoveRout != null; } }
 
-    public bool isSlotCorrect { get { return slotCurrent == mSlotCorrect; } }
+    public bool isSlotCorrect { get { return slotCurrent == slotCorrect; } }
 
     private bool mInputLocked;
 
     private SlotWidget mSlotOrigin;
-    private SlotWidget mSlotCorrect;
 
     private Transform mDragAreaRoot;
 
@@ -71,7 +75,7 @@ public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void Init(int number, SlotWidget originSlot, SlotWidget correctSlot, Transform dragAreaRoot) {
         //setup refs
         slotCurrent = mSlotOrigin = originSlot;
-        mSlotCorrect = correctSlot;
+        slotCorrect = correctSlot;
         mDragAreaRoot = dragAreaRoot;
 
         transform.SetParent(slotCurrent.transform);
@@ -87,7 +91,7 @@ public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     }
 
     public void Deinit(Transform toParent) {
-        slotCurrent = mSlotOrigin = mSlotCorrect = null;
+        slotCurrent = mSlotOrigin = slotCorrect = null;
         mDragAreaRoot = null;
 
         transform.SetParent(toParent);
@@ -157,6 +161,9 @@ public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                     slotItem.SetCurrentSlot(slotCurrent);
 
                     slotCurrent = toSlot;
+
+                    if(!string.IsNullOrEmpty(soundPlace))
+                        M8.SoundPlaylist.instance.Play(soundPlace, false);
                 }
                 else {
                     //check for slot
@@ -164,6 +171,9 @@ public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitH
                     if(slot) {
                         //apply slot
                         slotCurrent = slot;
+
+                        if(!string.IsNullOrEmpty(soundPlace))
+                            M8.SoundPlaylist.instance.Play(soundPlace, false);
                     }
                 }
             }

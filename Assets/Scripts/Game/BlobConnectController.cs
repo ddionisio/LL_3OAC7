@@ -222,6 +222,16 @@ public class BlobConnectController : MonoBehaviour {
         }
     }
 
+    public void ClearAllGroup() {
+        for(int i = 0; i < mGroupActives.Count; i++) {
+            var grp = mGroupActives[i];
+            grp.Clear();
+            mGroupCache.Add(grp);
+        }
+
+        mGroupActives.Clear();
+    }
+
     public Group GetGroup(Blob blob) {
         for(int i = 0; i < mGroupActives.Count; i++) {
             var grp = mGroupActives[i];

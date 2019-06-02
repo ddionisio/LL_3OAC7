@@ -280,6 +280,12 @@ public class ModalBonusFillSlots : M8.ModalController, M8.IModalPush, M8.IModalP
 
             //time expired
             timeExpireGO.SetActive(true);
+
+            //move items to correct slots
+            for(int i = 0; i < mItemActives.Count; i++) {
+                var item = mItemActives[i];
+                item.SetCurrentSlot(item.slotCorrect);
+            }
         }
 
         finishGO.SetActive(true);

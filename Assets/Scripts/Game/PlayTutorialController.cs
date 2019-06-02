@@ -32,6 +32,10 @@ public class PlayTutorialController : MonoBehaviour {
 
     private DragToGuideWidget mDragGuide;
 
+    public void ClearBlobConnects() {
+        connectControl.ClearAllGroup();
+    }
+
     public void HideDrag() {
         if(mDragIndicatorRout != null) {
             StopCoroutine(mDragIndicatorRout);

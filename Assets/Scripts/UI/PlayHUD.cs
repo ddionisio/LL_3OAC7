@@ -9,6 +9,7 @@ public class PlayHUD : MonoBehaviour {
 
     [Header("Display")]
     public GameObject readySetGoDisplayGO;
+    public Button linkDisconnectButton;
 
     [Header("Operator Display")]
     public GameObject opCurrentTabMultiplyGO;
@@ -189,6 +190,9 @@ public class PlayHUD : MonoBehaviour {
                 animator.ResetTake(takeChangeOp);
         }
 
+        linkDisconnectButton.interactable = false;
+        linkDisconnectButton.onClick.AddListener(PlayController.instance.connectControl.ClearAllGroup);
+
         signalListenGameMode.callback += OnSignalGameMode;
         signalListenPlayEnd.callback += OnSignalPlayEnd;
     }
@@ -296,6 +300,8 @@ public class PlayHUD : MonoBehaviour {
         signalInvokePlayStart.Invoke();
 
         SetEquationUpdateActive(true);
+
+        linkDisconnectButton.interactable = true;
     }
 
     IEnumerator DoOpChange(OperatorType opNext) {
