@@ -146,6 +146,11 @@ public class PlayHUD : MonoBehaviour {
     private Coroutine mCorrectPopUpRout;
     private Coroutine mIncorrectPopUpRout;
 
+    public void ClearAllLinks() {
+        if(PlayController.isInstantiated && PlayController.instance.connectControl)
+            PlayController.instance.connectControl.ClearAllGroup();
+    }
+
     void OnDestroy() {
         if(PlayController.isInstantiated) {
             var playCtrl = PlayController.instance;
@@ -191,7 +196,6 @@ public class PlayHUD : MonoBehaviour {
         }
 
         linkDisconnectButton.interactable = false;
-        linkDisconnectButton.onClick.AddListener(PlayController.instance.connectControl.ClearAllGroup);
 
         signalListenGameMode.callback += OnSignalGameMode;
         signalListenPlayEnd.callback += OnSignalPlayEnd;

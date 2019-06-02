@@ -33,6 +33,9 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     public GameObject totalGO;
     public M8.UI.Texts.TextCounter totalCounterText;
 
+    public GameObject rankingGO;
+    public RankWidget rankWidget;
+
     [Header("Settings")]
     public float showDelay = 0.6f;
 
@@ -74,6 +77,8 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         separatorGO.SetActive(false);
         totalGO.SetActive(false);
 
+        if(rankingGO) rankingGO.SetActive(false);
+
         mLevelIndex = -1;
         mScore = 0;
         mBonusRoundScore = 0;
@@ -112,6 +117,8 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
             mPerfectScore = GameData.instance.perfectPoints;
 
         mTotalScore = mScore + mBonusRoundScore + mTimeScore + mPerfectScore;
+
+        if(rankWidget) rankWidget.Apply(mRoundsCount, mTotalScore);
 
         M8.SoundPlaylist.instance.Play(soundEnter, false);
     }
@@ -158,6 +165,8 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
         }
 
         separatorGO.SetActive(true);
+
+        if(rankingGO) rankingGO.SetActive(true);
 
         //total
         totalGO.SetActive(true);

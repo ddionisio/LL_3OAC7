@@ -12,6 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 004af2abbc62598489491e31a35b8644, type: 3}
   m_Name: gameData
   m_EditorClassIdentifier: 
+  ranks:
+  - grade: SS
+    scale: 0.95
+  - grade: S
+    scale: 0.9
+  - grade: A
+    scale: 0.8
+  - grade: B
+    scale: 0.7
+  - grade: C
+    scale: 0.5
+  - grade: D
+    scale: 0
   hintDelay: 25
   hintErrorCount: 5
   blobSpawnCount: 5
@@ -20,6 +33,7 @@ MonoBehaviour:
   perfectPoints: 1000
   comboDuration: 8
   timeParPerRound: 18
+  timeParPerRoundRanking: 12
   timeBonus: 25
   bonusRoundScore: 500
   bonusRoundDuration: 60
