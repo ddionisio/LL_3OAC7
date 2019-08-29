@@ -15,6 +15,7 @@ public class PlayController : GameModeController<PlayController> {
 
     [Header("Operations")]
     public OperationGroup[] opGroups;
+    public int[] tableNumbers; //mult. table numbers used for this level (this is for when no solvable is found)
 
     [Header("Bonus Round Data")]
     public string bonusRoundModal; //if empty, no bonus round
@@ -115,7 +116,7 @@ public class PlayController : GameModeController<PlayController> {
 
         mRoundOps = roundOpList.ToArray();
         mNumbers = numberList.ToArray();
-
+                
         //mix up spawn orders
         var spawnCount = GameData.instance.blobSpawnCount;
         var spawnNextCount = 3;
@@ -130,6 +131,15 @@ public class PlayController : GameModeController<PlayController> {
             if(shuffleCount > 0)
                 M8.ArrayUtil.Shuffle(mNumbers, i, spawnNextCount);
         }
+
+        //debug
+        /*mNumbers[0] = 3;
+        mNumbers[1] = 4;
+        mNumbers[2] = 8;
+        mNumbers[3] = 5;
+        mNumbers[4] = 16;
+
+        mRoundOps[0] = OperatorType.Divide;*/
 
         //init rounds display
         int roundsDisplayCount = Mathf.Min(mRoundOps.Length, roundsRoot.childCount);
@@ -336,6 +346,199 @@ public class PlayController : GameModeController<PlayController> {
         M8.ModalManager.main.Open(modalVictory, parms);
     }
 
+    private M8.CacheList<int> mCheckNumbers = new M8.CacheList<int>(32);
+
+    private void GenerateCheckNumbers() {
+        mCheckNumbers.Clear();
+        for(int i = 0; i < blobSpawner.blobActives.Count; i++)
+            mCheckNumbers.Add(blobSpawner.blobActives[i].number);
+
+        foreach(var inf in blobSpawner.spawnQueue)
+            mCheckNumbers.Add(inf.number);
+    }
+
+    private bool CheckCurValid(int newNumber) {
+        switch(curRoundOp) {
+            case OperatorType.Multiply:
+                for(int i = 0; i < mCheckNumbers.Count; i++) {
+                    var num1 = mCheckNumbers[i];
+                    for(int j = 0; j < mCheckNumbers.Count; j++) {
+                        if(j == i) continue;
+
+                        var num2 = mCheckNumbers[j];
+                        for(int k = 0; k < mCheckNumbers.Count; k++) {
+                            if(k == i || k == j) continue;
+
+                            var num3 = mCheckNumbers[k];
+
+                            if(num1 * num2 == num3)
+                                return true;
+                            else if(num1 * num3 == num2)
+                                return true;
+                            else if(num2 * num3 == num1)
+                                return true;
+                        }
+
+                        if(num1 * num2 == newNumber)
+                            return true;
+                        else if(num1 * newNumber == num2)
+                            return true;
+                        else if(num2 * newNumber == num1)
+                            return true;
+                    }
+                }
+                break;
+
+            case OperatorType.Divide:
+                for(int i = 0; i < mCheckNumbers.Count; i++) {
+                    float num1 = mCheckNumbers[i];
+                    for(int j = 0; j < mCheckNumbers.Count; j++) {
+                        if(j == i) continue;
+
+                        float num2 = mCheckNumbers[j];
+                        for(int k = 0; k < mCheckNumbers.Count; k++) {
+                            if(k == i || k == j) continue;
+
+                            float num3 = mCheckNumbers[k];
+
+                            if(num1 / num2 == num3)
+                                return true;
+                            else if(num2 / num1 == num3)
+                                return true;
+                            else if(num1 / num3 == num2)
+                                return true;
+                            else if(num3 / num1 == num2)
+                                return true;
+                            else if(num2 / num3 == num1)
+                                return true;
+                            else if(num3 / num2 == num1)
+                                return true;
+                        }
+
+                        if(num1 / num2 == newNumber)
+                            return true;
+                        else if(num2 / num1 == newNumber)
+                            return true;
+                        else if(num1 / newNumber == num2)
+                            return true;
+                        else if(newNumber / num1 == num2)
+                            return true;
+                        else if(num2 / newNumber == num1)
+                            return true;
+                        else if(newNumber / num2 == num1)
+                            return true;
+                    }
+                }
+                break;
+        }
+
+        return false;
+    }
+
+    private bool IsWholeDivisible(int a, int b) {
+        if(a < b)
+            return false;
+
+        float c = (float)a / (float)b;
+        float cf = Mathf.Floor(c);
+        return c - cf == 0f;
+    }
+
+    private int GetTableNumberIndexMultiple(int a, int b) {
+        for(int i = 0; i < tableNumbers.Length; i++) {
+            var n = tableNumbers[i];
+
+            if(a * n == b || b * n == a)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private int GetTableNumberIndexDivisible(int a, int b) {
+        for(int i = 0; i < tableNumbers.Length; i++) {
+            var n = tableNumbers[i];
+
+            if(a / n == b || n / a == b || b / n == a || n / b == a)
+                return i;
+        }
+
+        return -1;
+    }
+
+    private int GenerateSolution(int newNumber) {
+        int num1, num2;
+
+        switch(curRoundOp) {
+            case OperatorType.Multiply:
+                //check if any number is divisible by another
+                for(int i = 0; i < mCheckNumbers.Count; i++) {
+                    num1 = mCheckNumbers[i];
+                    for(int j = 0; j < mCheckNumbers.Count; j++) {
+                        if(j == i) continue;
+
+                        num2 = mCheckNumbers[j];
+
+                        if(IsWholeDivisible(num1, num2))
+                            return num1 / num2;
+                        else if(IsWholeDivisible(num2, num1))
+                            return num2 / num1;
+                    }
+                }
+
+                //check if any numbers can be multiplied by any of tableNumbers
+                for(int i = 0; i < mCheckNumbers.Count; i++) {
+                    num1 = mCheckNumbers[i];
+                    for(int j = 0; j < mCheckNumbers.Count; j++) {
+                        if(j == i) continue;
+
+                        num2 = mCheckNumbers[j];
+
+                        var tableNumberInd = GetTableNumberIndexMultiple(num1, num2);
+                        if(tableNumberInd != -1)
+                            return tableNumbers[tableNumberInd];
+                    }
+                }
+
+                //spawn a solution to the multiples of two lowest number
+                if(mCheckNumbers.Count >= 2) { //fail-safe
+                    mCheckNumbers.Sort();
+                    return mCheckNumbers[0] * mCheckNumbers[1];
+                }
+                break;
+
+            case OperatorType.Divide:
+                //check if any number can be divisible by tableNumber
+                for(int i = 0; i < mCheckNumbers.Count; i++) {
+                    num1 = mCheckNumbers[i];
+                    for(int j = 0; j < mCheckNumbers.Count; j++) {
+                        if(j == i) continue;
+
+                        num2 = mCheckNumbers[j];
+
+                        var tableNumberInd = GetTableNumberIndexDivisible(num1, num2);
+                        if(tableNumberInd != -1)
+                            return tableNumbers[tableNumberInd];
+                    }
+                }
+
+                //grab two lowest number, and multiply
+                mCheckNumbers.Sort();
+                num1 = mCheckNumbers[0];
+                if(num1 <= 10) {
+                    for(int i = 1; i < mCheckNumbers.Count; i++) {
+                        num2 = mCheckNumbers[i];
+                        if(num2 <= 10)
+                            return num1 * num2;
+                    }
+                }
+
+                return mCheckNumbers[0] * mCheckNumbers[1];
+        }
+
+        return newNumber;
+    }
+
     IEnumerator DoBlobSpawn() {
         curNumberIndex = 0;
 
@@ -346,7 +549,20 @@ public class PlayController : GameModeController<PlayController> {
 
             //check if we have enough on the board
             while(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount < maxBlobCount) {
-                blobSpawner.Spawn(curBlobTemplateIndex, mNumbers[curNumberIndex]);
+                var newNumber = mNumbers[curNumberIndex];
+
+                //if we are about to spawn at max, check if there are solvables on board,
+                //if not, then set this number to a solvable number to any of the possible connects (for multiply, use lowest; for divide, use highest)
+                if(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount + 1 == maxBlobCount) {
+                    GenerateCheckNumbers();
+                    if(!CheckCurValid(newNumber)) {
+                        var lastNum = newNumber;
+                        newNumber = GenerateSolution(newNumber);
+                        //Debug.Log("Dynamic Generate Solution: " + newNumber + ", was: "+lastNum);
+                    }
+                }
+
+                blobSpawner.Spawn(curBlobTemplateIndex, newNumber);
 
                 curBlobTemplateIndex = (curBlobTemplateIndex + 1) % blobSpawner.templateGroups.Length;
 

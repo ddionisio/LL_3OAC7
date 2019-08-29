@@ -31,6 +31,8 @@ public class BlobSpawner : MonoBehaviour {
 
     public int spawnQueueCount { get { return mSpawnQueue.Count; } }
 
+    public Queue<SpawnInfo> spawnQueue { get { return mSpawnQueue; } }
+
     public M8.CacheList<Blob> blobActives { get { return mBlobActives; } }
 
     private M8.PoolController mPool;
