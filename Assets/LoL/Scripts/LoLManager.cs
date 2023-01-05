@@ -41,9 +41,9 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
         public int index;
         public string key;
     }
-        
+
     public const string userDataSettingsKey = "settings";
-    
+
     public const string settingsSpeechMuteKey = "sp";
 
     private const string questionsJSONFilePath = "questions.json";
@@ -58,16 +58,22 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     [SerializeField]
     int _progressMax;
     [SerializeField]
-    M8.UserData userSettings = null;
+    LoLSaveData _userData = null;
+    [SerializeField]
+    M8.UserData _settingsData = null;
     [SerializeField]
     float _speakQueueStartDelay = 0.3f;
+
+    [Header("Audio")]
+    public GameObject musicPlaylistRootGO;
+    public GameObject soundPlaylistRootGO;
 
     [Header("Signals")]
     public M8.Signal signalProgressUpdate;
 
     protected int mCurProgress;
     protected int mCurScore;
-    
+
     protected string mLangCode = "en";
 
     private bool mIsFocus;
@@ -79,8 +85,17 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     public int progressMax { get { return _progressMax; } set { _progressMax = value; } }
 
     public int curProgress { get { return mCurProgress; } }
-    public int curScore { get { return mCurScore; } set { mCurScore = value; } }
-    
+    public int curScore { 
+        get { return mCurScore; } 
+        set {
+            if(mCurScore != value) {
+                mCurScore = value;
+
+                scoreUpdateCallback?.Invoke(this);
+            }
+        } 
+    }
+
     public bool isQuestionsReceived { get { return mIsQuestionsReceived; } }
 
     public bool isQuestionsAllAnswered {
@@ -101,6 +116,11 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
         }
     }
 
+    public LoLSaveData userData { get { return _userData; } }
+    public M8.UserData settingsData { get { return _settingsData; } }
+
+    public virtual bool isAutoSpeechEnabled { get { return true; } }
+
     public List<QuestionAnswered> questionAnsweredList {
         get { return mQuestionsAnsweredList; }
     }
@@ -119,17 +139,24 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
             return mCurQuestionIndex;
         }
     }
-    
+
     public bool isSpeechMute {
         get {
             return mIsSpeechMute;
         }
     }
-    
+
+    public bool isSpeechQueued {
+        get {
+            return mSpeakQueueRout != null;
+        }
+    }
+
+    public event OnCallback scoreUpdateCallback;
     public event OnCallback progressCallback;
     public event OnCallback completeCallback;
     public event OnSpeakCallback speakCallback;
-    
+
     protected bool mIsSpeechMute;
 
     protected bool mIsQuestionsReceived;
@@ -137,7 +164,7 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     protected List<QuestionAnswered> mQuestionsAnsweredList;
 
     protected int mCurQuestionIndex;
-    
+
     protected bool mIsReady;
 
     //loading data, wait for true, then parse the jsons
@@ -150,7 +177,7 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     private Coroutine mSpeakQueueRout;
     private string mSpeakQueueGroup;
     private LinkedList<SpeakQueueData> mSpeakQueues = new LinkedList<SpeakQueueData>();
-    
+
     protected virtual void _SpeakText(string key) {
         //Debug.Log("Speaking: " + key);
         if(!mIsSpeechMute)
@@ -202,7 +229,17 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
         if(mSpeakQueueRout == null)
             mSpeakQueueRout = StartCoroutine(DoSpeakQueue());
     }
-    
+
+    public void StopSpeakQueue() {
+        if(mSpeakQueueRout != null) {
+            StopCoroutine(mSpeakQueueRout);
+            mSpeakQueueRout = null;
+        }
+
+        mSpeakQueueGroup = null;
+        mSpeakQueues.Clear();
+    }
+
     public MultipleChoiceQuestion GetQuestion(int index) {
         if(mQuestionsList == null)
             return null;
@@ -266,7 +303,7 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     public void ResetCurrentQuestionIndex() {
         mCurQuestionIndex = 0;
     }
-    
+
     protected void ProgressCallback() {
         if(progressCallback != null)
             progressCallback(this);
@@ -286,20 +323,23 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
 
     public virtual void ApplyProgress(int progress, int score) {
 
-        mCurProgress = Mathf.Clamp(progress, 0, _progressMax);
-        mCurScore = score;
+        mCurProgress = Mathf.Clamp(progress, 0, _progressMax);            
 
         LOLSDK.Instance.SubmitProgress(score, mCurProgress, _progressMax);
 
+        curScore = score;
+
+        _userData.Save();
+
         ProgressCallback();
     }
-    
+
     public void ApplySpeechMute(bool isMute) {
         if(mIsSpeechMute != isMute) {
             mIsSpeechMute = isMute;
 
-            if(userSettings)
-                userSettings.SetInt(settingsSpeechMuteKey, mIsSpeechMute ? 1 : 0);
+            if(_settingsData)
+                _settingsData.SetInt(settingsSpeechMuteKey, mIsSpeechMute ? 1 : 0);
         }
     }
 
@@ -330,24 +370,26 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
         Application.runInBackground = false;
 
         // Create the WebGL (or mock) object
-#if UNITY_EDITOR || UNITY_ANDROID
+#if UNITY_EDITOR
         ILOLSDK webGL = new LoLSDK.MockWebGL();
 #elif UNITY_WEBGL
-		ILOLSDK webGL = new LoLSDK.WebGL();
+        ILOLSDK webGL = new LoLSDK.WebGL();
+#else
+        ILOLSDK webGL = new LoLSDK.MockWebGL();
 #endif
-        
+
         // Initialize the object, passing in the WebGL
         LOLSDK.Init(webGL, _gameID);
 
         // Register event handlers
 #if !UNITY_EDITOR
-        LOLSDK.Instance.StartGameReceived += new StartGameReceivedHandler(this.HandleStartGame);
-        LOLSDK.Instance.QuestionsReceived += new QuestionListReceivedHandler(this.HandleQuestions);
-        LOLSDK.Instance.LanguageDefsReceived += new LanguageDefsReceivedHandler(this.HandleLanguageDefs);
+    LOLSDK.Instance.StartGameReceived += new StartGameReceivedHandler(this.HandleStartGame);
+    LOLSDK.Instance.QuestionsReceived += new QuestionListReceivedHandler(this.HandleQuestions);
+    LOLSDK.Instance.LanguageDefsReceived += new LanguageDefsReceivedHandler(this.HandleLanguageDefs);
 #endif
 
         mCurProgress = 0;
-                
+
         // Mock the platform-to-game messages when in the Unity editor.
 #if UNITY_EDITOR
         LoadMockData();
@@ -355,24 +397,68 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
 
         // Then, tell the platform the game is ready.
         LOLSDK.Instance.GameIsReady();
-        
+
         //wait for start and language to be handled
         while(!(mIsGameStartHandled && mIsLanguageHandled))
             yield return null;
-        
+
         //parse start
         if(!string.IsNullOrEmpty(mGameStartJson)) {
             ParseGameStart(mGameStartJson);
             mGameStartJson = null;
         }
-        
+
         //parse language
         if(!string.IsNullOrEmpty(mLanguageJson)) {
             ParseLanguage(mLanguageJson);
             mLanguageJson = null;
         }
 
+        const float timeOutDelay = 20.0f;
+
+        float lastTime = Time.time;
+
+        //load user data
+        if(_userData) {
+            _userData.Load();
+            while(!_userData.isLoaded) {
+                //time-out?
+                if(Time.time - lastTime >= timeOutDelay) {
+                    Debug.LogWarning("User Data loading timed-out.");
+                    break;
+                }
+
+                yield return null;
+            }
+
+            mCurScore = _userData.score;
+            mCurProgress = _userData.currentProgress;
+        }
+
+        lastTime = Time.time;
+
+        //load settings data
+        if(_settingsData && _settingsData != _userData) {
+            _settingsData.Load();
+            while(!_settingsData.isLoaded) {
+                //time-out?
+                if(Time.time - lastTime >= timeOutDelay) {
+                    Debug.LogWarning("Settings Data loading timed-out.");
+                    break;
+                }
+
+                yield return null;
+            }
+        }
+
         yield return null;
+
+        //initialize audio
+        if(M8.MusicPlaylist.instance)
+            M8.MusicPlaylist.instance.SetupSourceProxy(musicPlaylistRootGO);
+
+        if(M8.SoundPlaylist.instance)
+            M8.SoundPlaylist.instance.SetupSourceRoot(soundPlaylistRootGO);
 
         ApplySettings();
 
@@ -408,8 +494,12 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     }
 
     protected void ApplySettings() {
-        if(userSettings) {
-            mIsSpeechMute = userSettings.GetInt(settingsSpeechMuteKey) != 0;
+        if(_settingsData) {
+            mIsSpeechMute = _settingsData.GetInt(settingsSpeechMuteKey) != 0;
+
+            var audioSettings = GetComponent<M8.UserSettingAudio>();
+            if(audioSettings)
+                audioSettings.Load();
         }
     }
 
@@ -434,16 +524,6 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
             mLanguageJson = json;
             mIsLanguageHandled = true;
         }
-    }
-
-    private void StopSpeakQueue() {
-        if(mSpeakQueueRout != null) {
-            StopCoroutine(mSpeakQueueRout);
-            mSpeakQueueRout = null;
-        }
-
-        mSpeakQueueGroup = null;
-        mSpeakQueues.Clear();
     }
 
     private IEnumerator DoWait(float delay) {
@@ -522,7 +602,7 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
             HandleQuestions(qs);
         }
         //
-                
+
         mIsGameStartHandled = true;
         mIsLanguageHandled = true;
     }
