@@ -121,7 +121,95 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &173871127
+--- !u!1 &566095364 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2634414515818788006, guid: 04aa71415a510704d92d9f605ee981b3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1961761494}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &566095365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 566095364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb8727d4c679154fba211e781ab930d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _gameID: com.daviddionisio.LL_3OAC7
+  _progressMax: 10
+  _userData: {fileID: 11400000, guid: d1570a9011293b94a9b3d84278169e34, type: 2}
+  _settingsData: {fileID: 11400000, guid: 9d49958e44f75d147a748c1b9fa7ee0e, type: 2}
+  _speakQueueStartDelay: 0.3
+  musicPlaylistRootGO: {fileID: 1785673834}
+  soundPlaylistRootGO: {fileID: 1749377490}
+  signalProgressUpdate: {fileID: 11400000, guid: 639e3a00c6e5d6a468b0762512980c7b,
+    type: 2}
+  localizeText: {fileID: 4900000, guid: 5b7ce6efa5524b34284aa1b8256a05cf, type: 3}
+--- !u!1 &1561097179
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1561097181}
+  - component: {fileID: 1561097180}
+  m_Layer: 0
+  m_Name: toScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1561097180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561097179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cbbfaa9a077d984085161697a103b7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scene:
+    name: start
+    path: Assets/Scenes/start.unity
+  _delay: 0.1
+  _destroyAfter: 1
+--- !u!4 &1561097181
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561097179}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1749377490 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3219489352774116628, guid: 04aa71415a510704d92d9f605ee981b3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1961761494}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1785673834 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3219489352420917494, guid: 04aa71415a510704d92d9f605ee981b3,
+    type: 3}
+  m_PrefabInstance: {fileID: 1961761494}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1961761494
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -191,94 +279,6 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 2671217696396313358, guid: 04aa71415a510704d92d9f605ee981b3, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 04aa71415a510704d92d9f605ee981b3, type: 3}
---- !u!1 &173871128 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2634414515818788006, guid: 04aa71415a510704d92d9f605ee981b3,
-    type: 3}
-  m_PrefabInstance: {fileID: 173871127}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &173871129 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3219489352774116628, guid: 04aa71415a510704d92d9f605ee981b3,
-    type: 3}
-  m_PrefabInstance: {fileID: 173871127}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &173871130 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3219489352420917494, guid: 04aa71415a510704d92d9f605ee981b3,
-    type: 3}
-  m_PrefabInstance: {fileID: 173871127}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &173871131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 173871128}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ceb8727d4c679154fba211e781ab930d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _gameID: com.daviddionisio.LL_3OAC7
-  _progressMax: 10
-  _userData: {fileID: 11400000, guid: d1570a9011293b94a9b3d84278169e34, type: 2}
-  _settingsData: {fileID: 11400000, guid: 9d49958e44f75d147a748c1b9fa7ee0e, type: 2}
-  _speakQueueStartDelay: 0.3
-  musicPlaylistRootGO: {fileID: 173871130}
-  soundPlaylistRootGO: {fileID: 173871129}
-  signalProgressUpdate: {fileID: 11400000, guid: 639e3a00c6e5d6a468b0762512980c7b,
-    type: 2}
-  localizeText: {fileID: 4900000, guid: 5b7ce6efa5524b34284aa1b8256a05cf, type: 3}
---- !u!1 &1561097179
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1561097181}
-  - component: {fileID: 1561097180}
-  m_Layer: 0
-  m_Name: toScene
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1561097180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1561097179}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cbbfaa9a077d984085161697a103b7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _scene:
-    name: start
-    path: Assets/Scenes/start.unity
-  _delay: 0.1
-  _destroyAfter: 1
---- !u!4 &1561097181
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1561097179}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &6889213935254972704
 PrefabInstance:
   m_ObjectHideFlags: 0

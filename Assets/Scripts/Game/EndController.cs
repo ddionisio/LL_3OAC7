@@ -30,8 +30,9 @@ public class EndController : GameModeController<EndController> {
         int totalScore = LoLManager.instance.curScore;
         totalCounter.SetCountImmediate(totalScore);
 
-        //apply average ranking
+        //apply average ranking        
         var avgScore = Mathf.RoundToInt((float)totalScore / levelCounters.Length);
-        rankingWidget.Apply(10, avgScore);
+        int rankIndex = GameData.instance.GetRankIndex(10, avgScore);
+        rankingWidget.Apply(rankIndex);
     }
 }

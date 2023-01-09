@@ -14,6 +14,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
     [Header("Rank Settings")]
     public RankData[] ranks; //highest to lowest
+    public int rankIndexRetry; //threshold for retry    
 
     [Header("Play Settings")]
     public float hintDelay = 15f;
@@ -30,12 +31,16 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     public int bonusRoundScore = 1500;
     public float bonusRoundDuration = 60f;
 
+    public int maxRetryCount = 2;
+
+    public int retryCounter { get; set; }
+
     public void ScoreApply(int level, int score) {
-        M8.SceneState.instance.global.SetValue(levelScoreHeader + level.ToString(), score, true);
+        LoLManager.instance.userData.SetInt(levelScoreHeader + level.ToString(), score);
     }
 
     public int ScoreGet(int level) {
-        return M8.SceneState.instance.global.GetValue(levelScoreHeader + level.ToString());
+        return LoLManager.instance.userData.GetInt(levelScoreHeader + level.ToString());
     }
 
     public int GetRankIndex(int roundCount, int score) {

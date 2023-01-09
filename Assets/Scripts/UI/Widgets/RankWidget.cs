@@ -8,8 +8,7 @@ public class RankWidget : MonoBehaviour {
     public Text rankText;
     public GameObject[] rankPlatings; //highest to lowest
 
-    public void Apply(int roundCount, int score) {
-        var rankIndex = GameData.instance.GetRankIndex(roundCount, score);
+    public void Apply(int rankIndex) {
         var rank = GameData.instance.ranks[rankIndex];
 
         //setup plating

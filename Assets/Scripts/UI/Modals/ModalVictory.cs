@@ -43,7 +43,10 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     [M8.SoundPlaylist]
     public string soundEnter;
 
-    private int mScore;
+    [Header("Retry")]
+    public string modalRetry = "retry";
+
+    private int mScore;    
     private int mBonusRoundScore;
     private float mTime;
     private int mRoundsCount;
@@ -51,18 +54,36 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     private int mPerfectScore;
     private int mMistakeCount;
     private int mTotalScore;
+    private int mRankIndex;
 
     private int mLevelIndex = -1;
 
     private M8.SceneAssetPath mNextScene;
 
+    private M8.GenericParams mModalParms = new M8.GenericParams();
+
     public void Proceed() {
-        var curProgress = LoLManager.instance.curProgress;
-        var curScore = LoLManager.instance.curScore;
-        LoLManager.instance.ApplyProgress(curProgress + 1, curScore + mTotalScore);
+        //check ranking, show retry if rank is too low.
+        if(mRankIndex >= GameData.instance.rankIndexRetry && GameData.instance.retryCounter < GameData.instance.maxRetryCount) {
+            GameData.instance.retryCounter++;
+
+            mModalParms[ModalRetry.parmContinueCallback] = (System.Action)NextLevel;
+
+            M8.ModalManager.main.Open(modalRetry, mModalParms);
+        }
+        else
+            NextLevel();
+    }
+
+    private void NextLevel() {
+        GameData.instance.retryCounter = 0;
 
         if(mLevelIndex != -1)
             GameData.instance.ScoreApply(mLevelIndex, mTotalScore);
+
+        var curProgress = LoLManager.instance.curProgress;
+        var curScore = LoLManager.instance.curScore;
+        LoLManager.instance.ApplyProgress(curProgress + 1, curScore + mTotalScore);
 
         mNextScene.Load();
     }
@@ -118,7 +139,9 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
 
         mTotalScore = mScore + mBonusRoundScore + mTimeScore + mPerfectScore;
 
-        if(rankWidget) rankWidget.Apply(mRoundsCount, mTotalScore);
+        mRankIndex = GameData.instance.GetRankIndex(mRoundsCount, mTotalScore);
+
+        if(rankWidget) rankWidget.Apply(mRankIndex);
 
         M8.SoundPlaylist.instance.Play(soundEnter, false);
     }
