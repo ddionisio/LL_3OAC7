@@ -11,7 +11,7 @@ public class MultTableItemWidget : MonoBehaviour, IPointerEnterHandler, IPointer
 
     public string enterText;
 
-    public SignalString signalInvokeTextEnter;
+    public M8.SignalString signalInvokeTextEnter;
 
     void OnApplicationFocus(bool aActive) {
         if(!aActive)

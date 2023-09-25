@@ -313,7 +313,7 @@ public class BlobConnectController : MonoBehaviour {
                     //check if we are over another blob
                     if(curBlobDragging.dragPointerJellySpriteRefPt) {
                         //check if it is in a group and we are setting it up as an equal connect
-                        var blobGO = curBlobDragging.dragPointerJellySpriteRefPt.ParentJellySprite;
+                        var blobGO = curBlobDragging.dragPointerJellySpriteRefPt.ParentJellySpriteGO;
                         var toGrp = GetGroup(blobGO);
                         if(toGrp != null && toGrp != curGroupDragging) {
                             if(toGrp.IsBlobOp(blobGO))

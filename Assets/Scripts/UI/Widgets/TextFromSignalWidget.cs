@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class TextFromSignalWidget : MonoBehaviour {
     public Text target;
 
-    public SignalString signalText;
+    public M8.SignalString signalText;
 
     void OnDisable() {
         signalText.callback -= OnSignalText;

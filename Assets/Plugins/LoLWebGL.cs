@@ -33,7 +33,7 @@ namespace LoLSDK
         // PLUMBING
         // *************************************
 
-        public const string SDK_VERSION = "5.2";
+        public const string SDK_VERSION = "5.4";
 
         [DllImport("__Internal")]
         public static extern void _PostWindowMessage(string msgName, string jsonPayload);
