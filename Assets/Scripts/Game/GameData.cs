@@ -9,6 +9,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     [System.Serializable]
     public struct RankData {
         public string grade; //SS, S, A, B, C, D
+        public Sprite icon;
         public float scale;
     }
 

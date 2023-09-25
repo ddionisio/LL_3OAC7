@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class RankWidget : MonoBehaviour {
     [Header("Display")]
     public Text rankText;
+    public Image rankIcon;
+    public bool rankIconUseNative;
     public GameObject[] rankPlatings; //highest to lowest
 
     public void Apply(int rankIndex) {
@@ -23,5 +25,11 @@ public class RankWidget : MonoBehaviour {
         //setup rank text
         if(rankText)
             rankText.text = rank.grade;
+
+        if(rankIcon) {
+            rankIcon.sprite = rank.icon;
+            if(rankIconUseNative)
+                rankIcon.SetNativeSize();
+		}
     }
 }

@@ -394,3 +394,337 @@ AssetImportParameters requested are different than current active one (requested
   custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
   custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+========================================================================
+Received Prepare
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  8.193 seconds
+Refreshing native plugins compatible for Editor in 3.21 ms, found 0 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  2.138 seconds
+Domain Reload Profiling: 10330ms
+	BeginReloadAssembly (6434ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (4ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (22ms)
+	RebuildCommonClasses (170ms)
+	RebuildNativeTypeToScriptingClass (7ms)
+	initialDomainReloadingComplete (26ms)
+	LoadAllAssembliesAndSetupDomain (1554ms)
+		LoadAssemblies (1588ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (27ms)
+			TypeCache.Refresh (18ms)
+				TypeCache.ScanAssembly (12ms)
+			ScanForSourceGeneratedMonoScriptInfo (2ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (2138ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (203ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (6ms)
+			SetLoadedEditorAssemblies (3ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (47ms)
+			ProcessInitializeOnLoadAttributes (124ms)
+			ProcessInitializeOnLoadMethodAttributes (16ms)
+			AfterProcessingInitializeOnLoad (6ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (5ms)
+Shader 'M8/LitRepeatTileScroll3D': fallback shader 'RepeatTileScroll3D' not found
+Shader 'M8/LitRepeatTile3D': fallback shader 'RepeatTile3D' not found
+Refreshing native plugins compatible for Editor in 3.37 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 2797 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 57 unused Assets / (84.5 KB). Loaded Objects now: 3544.
+Memory consumption went from 119.4 MB to 119.4 MB.
+Total: 2.433100 ms (FindLiveObjects: 0.232500 ms CreateObjectMapping: 0.082500 ms MarkObjects: 1.993800 ms  DeleteObjects: 0.123800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:AudioImporter_EditorPlatform: d09bf68614088b80899f8185d706f6e7 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:CustomObjectIndexerAttribute: 756ad292c208cfabdd7b50bc23989ffe -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+========================================================================
+Received Import Request.
+  Time since last request: 6918.895468 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_angle_0.png
+  artifactKey: Guid(66ef547e5d413894c9fd495650eabf28) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_angle_0.png using Guid(66ef547e5d413894c9fd495650eabf28) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1ce5650e24fdc178bdbf50ea899dd509') in 0.051703 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_angle_270.png
+  artifactKey: Guid(28ffa870958b34543a68f76a68678622) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_angle_270.png using Guid(28ffa870958b34543a68f76a68678622) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '305bbb99dcffcc40630fa5b6a7b8f5f8') in 0.054326 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_box_orange.png
+  artifactKey: Guid(0a9ba34639512ce4ca83961cb465fe26) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_box_orange.png using Guid(0a9ba34639512ce4ca83961cb465fe26) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a8e513df045a1985335f09a126265e2f') in 0.019482 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_box_green.png
+  artifactKey: Guid(b46901cac04e4aa4dafa177588040bf1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_box_green.png using Guid(b46901cac04e4aa4dafa177588040bf1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b0500c4d999dacc1d49bea88d93ecdf6') in 0.026400 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_angle_0_light.png
+  artifactKey: Guid(892e79cb6edc342778fa12e93638932f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_angle_0_light.png using Guid(892e79cb6edc342778fa12e93638932f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8c9be0c965dadde7295b45ba9d697c69') in 0.015997 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_box_lightblue.png
+  artifactKey: Guid(c6570fa24b1fa594d9fc7240175ed569) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_box_lightblue.png using Guid(c6570fa24b1fa594d9fc7240175ed569) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fcc3981ef1a5a367f7d38ca6c38b0f5f') in 0.024154 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_angle_90_light.png
+  artifactKey: Guid(2cf83db1967944501b6f4667acc537e7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_angle_90_light.png using Guid(2cf83db1967944501b6f4667acc537e7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3d92584796d2068ecf8c47dacd4bde0e') in 0.015173 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_box_blue.png
+  artifactKey: Guid(76036c50a4995094a863d10b5a60c2a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_box_blue.png using Guid(76036c50a4995094a863d10b5a60c2a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '650cfd25bde84959e9ab018dbf6e4815') in 0.015397 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_box_red.png
+  artifactKey: Guid(baa9b2192c3db784d882cd7a1ed3b537) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_box_red.png using Guid(baa9b2192c3db784d882cd7a1ed3b537) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6e4b029b9010df8848c8a456b5172f46') in 0.017975 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_icon_duplicate_hover.png
+  artifactKey: Guid(485d1390f25c1e14fb27839f9f1a68e8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_icon_duplicate_hover.png using Guid(485d1390f25c1e14fb27839f9f1a68e8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e587221a4879c3fd4b3770cfa7e4e153') in 0.018519 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_cursor_zoom_blank.png
+  artifactKey: Guid(06396804e679dff45954fb429f9fa578) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_cursor_zoom_blank.png using Guid(06396804e679dff45954fb429f9fa578) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7fd9a16df58729052422043f4abe0043') in 0.018553 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_icon_animation.png
+  artifactKey: Guid(319c80762cb09f048afbd7353d025032) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_icon_animation.png using Guid(319c80762cb09f048afbd7353d025032) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '23092f5d6b89513f60963c4ffd4f2e45') in 0.016600 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000015 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_icon_duplicate.png
+  artifactKey: Guid(ac4ed5cdbdd6c46448fd1cd8c5356d46) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_icon_duplicate.png using Guid(ac4ed5cdbdd6c46448fd1cd8c5356d46) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cd726a614b28c6c0de9609335e359b53') in 0.017439 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_box_template.psd
+  artifactKey: Guid(6766f106f44394c4fa8729f2d758eee6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_box_template.psd using Guid(6766f106f44394c4fa8729f2d758eee6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ce839470474b1e8e5be071fa0a7bdb89') in 0.013975 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000033 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_frame_set.png
+  artifactKey: Guid(e439fa2f4d5ca9d499961ba38b5c7523) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_frame_set.png using Guid(e439fa2f4d5ca9d499961ba38b5c7523) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '17caf60d6a41ddbffddd6ed61a882bde') in 0.039452 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_icon_default_view_light.png
+  artifactKey: Guid(ca54788d85eb745448aa73430f87faab) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_icon_default_view_light.png using Guid(ca54788d85eb745448aa73430f87faab) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c172680d2ab0958c30d0252fa2ccf873') in 0.018675 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_frame_set_light.png
+  artifactKey: Guid(3576a89bab0354bf1a19e7dad8724651) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_frame_set_light.png using Guid(3576a89bab0354bf1a19e7dad8724651) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd22e027508b77f86f88467d0251ffbe6') in 0.015376 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000015 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_cursor_zoomout.png
+  artifactKey: Guid(f7c6ceeb1c96998478f14f517b4f4fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_cursor_zoomout.png using Guid(f7c6ceeb1c96998478f14f517b4f4fc8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '447dd0b24d77a3ef913751bd2aade5c0') in 0.017139 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/M8Animator/Resources/am_blank.png
+  artifactKey: Guid(1d19fc2e0a91a974d9864a686f2e0066) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/Resources/am_blank.png using Guid(1d19fc2e0a91a974d9864a686f2e0066) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e2dc1c671b2b86f4fca085e5f4cf91b7') in 0.014999 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 1.954010 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_icon_scale.png
+  artifactKey: Guid(a50f89c4a46f4c74e9291873c3848c5c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_icon_scale.png using Guid(a50f89c4a46f4c74e9291873c3848c5c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '52c65a66d51f6169ab38ef464273e6b8') in 0.015842 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000011 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_transition_a.png
+  artifactKey: Guid(bffc84954f757814389a515a69e24a63) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_transition_a.png using Guid(bffc84954f757814389a515a69e24a63) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dc992a1053cefd192b861b2fcbfea4b9') in 0.015368 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/Art/Sprites/Blob/blobBase0.png
+  artifactKey: Guid(cef1a525ac3cbc544a916c3ac30b03fa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Art/Sprites/Blob/blobBase0.png using Guid(cef1a525ac3cbc544a916c3ac30b03fa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '215556eaae0d143f98bfdf0e4a7d510b') in 0.433210 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 206
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/Art/Sprites/Start/stars.psd
+  artifactKey: Guid(018e2121699bd0548aafbdb02311fa87) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Art/Sprites/Start/stars.psd using Guid(018e2121699bd0548aafbdb02311fa87) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cdfaf277c32054bc1b1ca6e809bf7e83') in 0.020753 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 7
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/PlayMaker/Editor/Watermarks/Broadcast.png
+  artifactKey: Guid(531bf6557d7e6ea458ffc5f3908c6aa4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/PlayMaker/Editor/Watermarks/Broadcast.png using Guid(531bf6557d7e6ea458ffc5f3908c6aa4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c41166b2d085acc9390ed2c4fc20b56a') in 0.013970 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_key_birdseye.png
+  artifactKey: Guid(0b558ddcd2b3319408b4768e1f120b54) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_key_birdseye.png using Guid(0b558ddcd2b3319408b4768e1f120b54) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a78ca44230a91f72a34a5d3d106efdf3') in 0.017186 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/M8Animator/TexturesEditor/am_transition_toggle_button_bg.png
+  artifactKey: Guid(92b0d28e117535b479336f220ac71d27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/TexturesEditor/am_transition_toggle_button_bg.png using Guid(92b0d28e117535b479336f220ac71d27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ebb7fabffebde5f598a512e7a0e8a018') in 0.013579 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/Art/Textures/clouds3.psd
+  artifactKey: Guid(24a3c349e6ae20546aaf7e63fd69cef3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Art/Textures/clouds3.psd using Guid(24a3c349e6ae20546aaf7e63fd69cef3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e97ab6561ffb62d6167e46e1141d18cd') in 0.013317 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/Art/Sprites/Blob/blobBase2.png
+  artifactKey: Guid(bedf58d4614e31340a52fb025d205efb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Art/Sprites/Blob/blobBase2.png using Guid(bedf58d4614e31340a52fb025d205efb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ce78276bbcb6d072a6bb0880ab8b772c') in 0.028724 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 206
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/M8Animator/Textures/am_iris_round_512.png
+  artifactKey: Guid(928d2c0e3add83a47b0fb6535425ea6e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/Textures/am_iris_round_512.png using Guid(928d2c0e3add83a47b0fb6535425ea6e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd00725f14b7007d029cd61ed1f5c5c57') in 0.013280 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/PlayMaker/Editor/Watermarks/StarInCircle.png
+  artifactKey: Guid(d06d066acbe641949a1dbabc7a5de36f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/PlayMaker/Editor/Watermarks/StarInCircle.png using Guid(d06d066acbe641949a1dbabc7a5de36f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1de43edc7f2463a767935ec27d919bb5') in 0.012835 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/Art/Sprites/Blob/blobBase1.png
+  artifactKey: Guid(0823b4ac2b0ac4d4da355f77e44db827) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Art/Sprites/Blob/blobBase1.png using Guid(0823b4ac2b0ac4d4da355f77e44db827) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '74ded3a8a873ae0bd339715c3758bc41') in 0.030748 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 206
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/PlayMaker/Editor/Watermarks/Stars.png
+  artifactKey: Guid(66c5fc677b40c1f4a8bcac247d468660) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/PlayMaker/Editor/Watermarks/Stars.png using Guid(66c5fc677b40c1f4a8bcac247d468660) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8b11a958f33c5ed6e0f79ea7ac9693f4') in 0.013456 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 0.000061 seconds.
+  path: Assets/M8Animator/Textures/am_iris_star_1024.png
+  artifactKey: Guid(699715d50e26d5c4c8b877b3ee23be76) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/M8Animator/Textures/am_iris_star_1024.png using Guid(699715d50e26d5c4c8b877b3ee23be76) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '09c7636e3ab29353a46a770553d458ed') in 0.012915 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
+TcpMessagingSession - receive error: operation aborted. errorcode: 995, details: The I/O operation has been aborted because of either a thread exit or an application request.
+AssetImportWorker is now disconnected from the server
+Process exiting
+Exiting without the bug reporter. Application will terminate with return code 0

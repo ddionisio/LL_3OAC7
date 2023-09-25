@@ -339,7 +339,10 @@ public class BlobConnect : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn, IPoint
 
         mOp = OperatorType.None;
         ApplyCurOperator();
-    }
+
+        HideConnectingDisplay();
+        HideConnectDisplay();
+	}
 
     void Update() {
         if(mLinkBeginSpring)

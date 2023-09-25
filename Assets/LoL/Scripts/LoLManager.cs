@@ -46,6 +46,8 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
 
     public const string settingsSpeechMuteKey = "sp";
 
+    public const string scoreKey = "score";
+
     private const string questionsJSONFilePath = "questions.json";
     private const string startGameJSONFilePath = "startGame.json";
 
@@ -143,12 +145,6 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     public bool isSpeechMute {
         get {
             return mIsSpeechMute;
-        }
-    }
-
-    public bool isSpeechQueued {
-        get {
-            return mSpeakQueueRout != null;
         }
     }
 
@@ -329,6 +325,8 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
 
         curScore = score;
 
+        _userData.SetInt(scoreKey, curScore);
+
         _userData.Save();
 
         ProgressCallback();
@@ -431,7 +429,9 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
                 yield return null;
             }
 
-            mCurScore = _userData.score;
+            //mCurScore = _userData.score;
+            mCurScore = _userData.GetInt(scoreKey, _userData.score);
+
             mCurProgress = _userData.currentProgress;
         }
 

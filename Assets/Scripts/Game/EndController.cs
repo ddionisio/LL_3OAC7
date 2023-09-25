@@ -8,7 +8,8 @@ public class EndController : GameModeController<EndController> {
     public M8.UI.Texts.TextCounter totalCounter;
 
     public Text[] levelRankingTexts;
-    public RankWidget rankingWidget;
+	public Image[] levelRankingIcons;
+	public RankWidget rankingWidget;
 
     protected override void OnInstanceInit() {
         base.OnInstanceInit();
@@ -21,10 +22,21 @@ public class EndController : GameModeController<EndController> {
             if(score > 0) {
                 //assume all have 10 rounds
                 var rankInd = GameData.instance.GetRankIndex(10, score);
-                levelRankingTexts[i].text = GameData.instance.ranks[rankInd].grade;
+                var rank = GameData.instance.ranks[rankInd];
+
+                if(levelRankingTexts[i])
+                    levelRankingTexts[i].text = rank.grade;
+
+                if(levelRankingIcons[i])
+                    levelRankingIcons[i].sprite = rank.icon;
             }
-            else
-                levelRankingTexts[i].text = "";
+            else {
+                if(levelRankingTexts[i])
+                    levelRankingTexts[i].text = "";
+
+				if(levelRankingIcons[i])
+					levelRankingIcons[i].sprite = GameData.instance.ranks[GameData.instance.ranks.Length - 1].icon;
+			}
         }
 
         int totalScore = LoLManager.instance.curScore;
