@@ -8,6 +8,7 @@ public class DragToGuideWidget : MonoBehaviour {
     public GameObject displayRootGO;
     public Transform dragRoot;
     public RectTransform lineRoot;
+    public bool isClick;
 
     [Header("Animation")]
     public Image cursorImage;
@@ -76,6 +77,8 @@ public class DragToGuideWidget : MonoBehaviour {
 
         if(displayRootGO) displayRootGO.SetActive(true);
 
+        lineRoot.gameObject.SetActive(!isClick);
+
         StartCoroutine(DoCursorMove());
     }
 
@@ -123,6 +126,12 @@ public class DragToGuideWidget : MonoBehaviour {
 
             cursorImage.sprite = cursorPressSprite;
 
+            if(isClick) {
+				yield return new WaitForSecondsRealtime(cursorIdleDelay);
+
+				cursorImage.sprite = cursorIdleSprite;
+			}
+
             yield return new WaitForSecondsRealtime(cursorIdleDelay);
 
             //move
@@ -135,9 +144,15 @@ public class DragToGuideWidget : MonoBehaviour {
 
                 yield return null;
             } while(curTime < cursorMoveDelay);
-            //
+			//
 
-            yield return new WaitForSecondsRealtime(cursorIdleDelay);
+			if(isClick) {
+				yield return new WaitForSecondsRealtime(cursorIdleDelay);
+
+				cursorImage.sprite = cursorPressSprite;
+			}
+
+			yield return new WaitForSecondsRealtime(cursorIdleDelay);
 
             cursorImage.sprite = cursorIdleSprite;
 
