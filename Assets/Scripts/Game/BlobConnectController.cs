@@ -163,7 +163,9 @@ public class BlobConnectController : MonoBehaviour {
     
 
     [Header("Signal Listens")]
-    public SignalBlob signalListenBlobDragBegin;
+	public SignalBlob signalListenBlobClickBegin;
+	public SignalBlob signalListenBlobClickEnd;
+	public SignalBlob signalListenBlobDragBegin;
     public SignalBlob signalListenBlobDragEnd;
     public SignalBlob signalListenBlobDespawn;
 
@@ -190,6 +192,8 @@ public class BlobConnectController : MonoBehaviour {
     private OperatorType mCurOp = OperatorType.Multiply;
 
     private BlobConnect mCurConnectDragging; //when dragging a blob around.
+
+    private bool mIsDraggingClick; //dragging via blob click
         
     private M8.GenericParams mConnectSpawnParms = new M8.GenericParams();
 
@@ -243,7 +247,9 @@ public class BlobConnectController : MonoBehaviour {
     }
 
     void OnDestroy() {
-        signalListenBlobDragBegin.callback -= OnBlobDragBegin;
+		signalListenBlobClickBegin.callback -= OnBlobClickBegin;
+		signalListenBlobClickEnd.callback -= OnBlobClickEnd;
+		signalListenBlobDragBegin.callback -= OnBlobDragBegin;
         signalListenBlobDragEnd.callback -= OnBlobDragEnd;
         signalListenBlobDespawn.callback -= OnBlobDespawn;
 
@@ -262,7 +268,9 @@ public class BlobConnectController : MonoBehaviour {
         for(int i = 0; i < groupCapacity; i++)
             mGroupCache.Add(new Group());
 
-        signalListenBlobDragBegin.callback += OnBlobDragBegin;
+        signalListenBlobClickBegin.callback += OnBlobClickBegin;
+		signalListenBlobClickEnd.callback += OnBlobClickEnd;
+		signalListenBlobDragBegin.callback += OnBlobDragBegin;
         signalListenBlobDragEnd.callback += OnBlobDragEnd;
         signalListenBlobDespawn.callback += OnBlobDespawn;
 
@@ -296,10 +304,10 @@ public class BlobConnectController : MonoBehaviour {
                 //setup link position
                 Vector2 connectPtStart, connectPtEnd;
 
-                connectPtEnd = curBlobDragging.dragPoint;
+                connectPtEnd = mIsDraggingClick ? curBlobDragging.clickPoint : curBlobDragging.dragPoint;
 
                 //check if dragging inside
-                var dragJellySprRef = curBlobDragging.dragPointerJellySpriteRefPt;
+                var dragJellySprRef = mIsDraggingClick ? curBlobDragging.clickPointerJellySpriteRefPt : curBlobDragging.dragPointerJellySpriteRefPt;
                 if(dragJellySprRef && dragJellySprRef.ParentJellySpriteGO == curBlobDragging.gameObject) {
                     //start set the same as end.
                     connectPtStart = connectPtEnd;
@@ -311,9 +319,9 @@ public class BlobConnectController : MonoBehaviour {
                     connectPtStart = curBlobDragging.transform.position;
 
                     //check if we are over another blob
-                    if(curBlobDragging.dragPointerJellySpriteRefPt) {
+                    if(dragJellySprRef) {
                         //check if it is in a group and we are setting it up as an equal connect
-                        var blobGO = curBlobDragging.dragPointerJellySpriteRefPt.ParentJellySpriteGO;
+                        var blobGO = dragJellySprRef.ParentJellySpriteGO;
                         var toGrp = GetGroup(blobGO);
                         if(toGrp != null && toGrp != curGroupDragging) {
                             if(toGrp.IsBlobOp(blobGO))
@@ -337,7 +345,35 @@ public class BlobConnectController : MonoBehaviour {
         }
     }
 
-    void OnBlobDragBegin(Blob blob) {
+    void OnBlobClickBegin(Blob blob) {
+        if(!curBlobDragging) {
+            mIsDraggingClick = true;
+
+			OnBlobDragBegin(blob);
+        }
+        //click from another blob?
+		else if(curBlobDragging != blob) {
+			blob.ClickCancel();
+
+			var blobClicked = curBlobDragging;
+			OnBlobDragEnd(curBlobDragging);
+
+			blobClicked.ClickCancel();
+			mIsDraggingClick = false;
+		}
+	}
+
+	void OnBlobClickEnd(Blob blob) {
+        if(curBlobDragging == blob) {
+            var blobClicked = curBlobDragging;
+			OnBlobDragEnd(curBlobDragging);
+
+            blobClicked.ClickCancel();
+			mIsDraggingClick = false;
+		}
+	}
+
+	void OnBlobDragBegin(Blob blob) {
         if(!mCurConnectDragging) {
             mConnectSpawnParms.Clear();
             //params?
@@ -374,7 +410,7 @@ public class BlobConnectController : MonoBehaviour {
         SetCurGroupDraggingOtherBlobHighlight(false);
 
         //determine if we can connect to a new blob
-        var blobRefPt = blob.dragPointerJellySpriteRefPt;
+        var blobRefPt = mIsDraggingClick ? blob.clickPointerJellySpriteRefPt : blob.dragPointerJellySpriteRefPt;
         if(blobRefPt != null && blobRefPt.ParentJellySpriteGO != blob.gameObject) {
             Group evalGroup = null;
 

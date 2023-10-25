@@ -6450,6 +6450,10 @@ MonoBehaviour:
   takeCorrect: correct
   soundSpawn: boop
   signalListenDespawn: {fileID: 0}
+  signalInvokeClickBegin: {fileID: 11400000, guid: 38b3e7d779097814f950e6f4e4e911d6,
+    type: 2}
+  signalInvokeClickEnd: {fileID: 11400000, guid: 3012808c0e682c64aa33aeb57d039586,
+    type: 2}
   signalInvokeDragBegin: {fileID: 11400000, guid: ee51b3f94bf076444ad83ce3f061eb96,
     type: 2}
   signalInvokeDragEnd: {fileID: 11400000, guid: 9d63fbf0b420ed24b87233a8badafdf2,
@@ -6491,7 +6495,19 @@ MonoBehaviour:
       m_Calls: []
   upEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4469503036711194626}
+        m_TargetAssemblyTypeName: Blob, Assembly-CSharp
+        m_MethodName: OnPointerUp
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   enterEvent:
     m_PersistentCalls:
       m_Calls:

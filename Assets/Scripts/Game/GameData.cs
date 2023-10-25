@@ -6,7 +6,11 @@ using UnityEngine;
 public class GameData : M8.SingletonScriptableObject<GameData> {
     public const string levelScoreHeader = "levelScore_";
 
-    [System.Serializable]
+    public const int clickCategoryBackground = 1;
+	public const int clickCategoryBlob = 2;
+	public const int clickCategoryUI = 3;
+
+	[System.Serializable]
     public struct RankData {
         public string grade; //SS, S, A, B, C, D
         public Sprite icon;
@@ -33,6 +37,9 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     public float bonusRoundDuration = 60f;
 
     public int maxRetryCount = 2;
+
+    [Header("Signals")]
+    public SignalInteger signalClickCategory;
 
     public int retryCounter { get; set; }
 
@@ -69,6 +76,11 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
         return ranks.Length - 1;
     }
+
+    public void ClickCategory(int category) {
+        if(signalClickCategory) signalClickCategory.Invoke(category);
+
+	}
 
     protected override void OnInstanceInit() {
 

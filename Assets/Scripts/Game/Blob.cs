@@ -81,7 +81,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public M8.Signal signalListenDespawn; //use to animate and then despawn
 
     [Header("Signal Invokes")]
-    public SignalBlob signalInvokeDragBegin;
+    public SignalBlob signalInvokeClickBegin;
+	public SignalBlob signalInvokeClickEnd;
+	public SignalBlob signalInvokeDragBegin;
     public SignalBlob signalInvokeDragEnd;
     public SignalBlob signalInvokeDespawn;
 
@@ -101,7 +103,13 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     public GameObject dragPointerGO { get; private set; } //current GameObject on pointer during drag
     public JellySpriteReferencePoint dragPointerJellySpriteRefPt { get; private set; } //current jelly sprite ref pt. on pointer during drag
 
-    public M8.PoolDataController poolData {
+	public int clickRefPointIndex { get; private set; }
+	public Vector2 clickPoint { get; private set; } //world
+	public bool isClick { get; private set; }
+	public GameObject clickPointerGO { get; private set; } //current GameObject on pointer during drag
+	public JellySpriteReferencePoint clickPointerJellySpriteRefPt { get; private set; } //current jelly sprite ref pt. on pointer during drag
+
+	public M8.PoolDataController poolData {
         get {
             if(!mPoolDataCtrl)
                 mPoolDataCtrl = GetComponent<M8.PoolDataController>();
@@ -175,9 +183,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     private M8.PoolDataController mPoolDataCtrl;
 
-    private Camera mDragCamera;
+    private Camera mPointerCamera;
 
-    private Coroutine mRout;
+    private PointerEventData mClickEventData;
+
+	private Coroutine mRout;
     private Coroutine mEyeBlinkRout;
 
     private State mState = State.None;
@@ -246,14 +256,26 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
     }
 
+    public void ClickCancel() {
+		if(isClick) {
+			clickPointerGO = null;
+			clickPointerJellySpriteRefPt = null;
+		}
+
+		ClickEnd();
+	}
+
     void OnApplicationFocus(bool isActive) {
         if(!isActive) {
             if(isDragging)
                 DragInvalidate();
+
+            if(isClick)
+                ClickInvalidate();
         }
     }
 
-    /*void Awake() {
+	/*void Awake() {
         //apply children to jelly attach
         Transform[] attaches = new Transform[transform.childCount];
         for(int i = 0; i < transform.childCount; i++)
@@ -270,8 +292,15 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         jellySprite.m_NumAttachPoints = jellySprite.m_AttachPoints.Length;
     }*/
 
-    void M8.IPoolDespawn.OnDespawned() {        
-        state = State.None;
+	void Update() {
+		if(isClick)
+			ClickUpdate();
+	}
+
+	void M8.IPoolDespawn.OnDespawned() {
+		if(GameData.isInstantiated && GameData.instance.signalClickCategory) GameData.instance.signalClickCategory.callback -= OnClickCategory;
+
+		state = State.None;
                 
         if(signalInvokeDespawn)
             signalInvokeDespawn.Invoke(this);
@@ -292,7 +321,9 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         ApplyNumberDisplay();
 
         state = State.Spawning;
-    }
+
+        if(GameData.instance.signalClickCategory) GameData.instance.signalClickCategory.callback += OnClickCategory;
+	}
 
     public void OnPointerEnter(JellySprite jellySprite, int index, PointerEventData eventData) {
         if(inputLocked)
@@ -316,18 +347,46 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         //highlight off
         if(state == State.Normal) {
-            if(!isDragging)
+            if(!isDragging && !isClick)
                 ApplyJellySpriteMaterial(null);
 
             if(highlightGO) highlightGO.SetActive(false);
         }
     }
 
-    public void OnDragBegin(JellySprite jellySprite, int index, PointerEventData eventData) {
+	public void OnPointerUp(JellySprite jellySprite, int index, PointerEventData eventData) {
+		if(inputLocked)
+			return;
+
+        if(isDragging)
+            return;
+
+		if(isClick) {
+			ClickInvalidate();
+			return;
+		}
+
+		mClickEventData = eventData;
+		clickRefPointIndex = index;
+
+		ClickStart();
+
+		ClickUpdate();
+
+		GameData.instance.ClickCategory(GameData.clickCategoryBlob);
+
+		if(signalInvokeClickBegin)
+			signalInvokeClickBegin.Invoke(this);
+	}
+
+	public void OnDragBegin(JellySprite jellySprite, int index, PointerEventData eventData) {
         if(inputLocked)
             return;
 
-        DragStart();
+		if(isClick)
+			ClickInvalidate();
+
+		DragStart();
 
         DragUpdate(eventData, index);
 
@@ -353,6 +412,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             signalInvokeDragEnd.Invoke(this);
 
         DragEnd();
+    }
+
+    void OnClickCategory(int category) {
+        if(category != GameData.clickCategoryBlob)
+            ClickInvalidate();
     }
 
     IEnumerator DoSpawn() {
@@ -491,14 +555,75 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     private Vector2 GetWorldPoint(Vector2 screenPos) {
-        if(!mDragCamera)
-            mDragCamera = Camera.main;
+        if(!mPointerCamera)
+            mPointerCamera = Camera.main;
 
-        if(mDragCamera)
-            return mDragCamera.ScreenToWorldPoint(screenPos);
+        if(mPointerCamera)
+            return mPointerCamera.ScreenToWorldPoint(screenPos);
 
         return Vector2.zero;
     }
+
+    private void ClickStart() {
+        isClick = true;
+
+		//display stuff, sound, etc.
+		RefreshMouthSprite();
+
+		ApplyJellySpriteMaterial(hoverDragMaterial);
+	}
+
+    private void ClickUpdate() {
+        if(mClickEventData == null) return;
+
+		var prevClickPointerGO = clickPointerGO;
+		clickPointerGO = mClickEventData.pointerCurrentRaycast.gameObject;
+
+		if(clickPointerGO) {
+			//update ref.
+			if(clickPointerGO != prevClickPointerGO) {
+				clickPointerJellySpriteRefPt = clickPointerGO.GetComponent<JellySpriteReferencePoint>();
+			}
+
+            if(mClickEventData.pointerCurrentRaycast.distance > 0f)
+			    clickPoint = mClickEventData.pointerCurrentRaycast.worldPosition;
+            else
+				clickPoint = GetWorldPoint(mClickEventData.position);
+		}
+		else {
+			clickPointerJellySpriteRefPt = null;
+
+			//grab point from main camera
+			clickPoint = GetWorldPoint(mClickEventData.position);
+		}
+	}
+
+    private void ClickInvalidate() {
+        if(isClick) {
+            clickPointerGO = null;
+            clickPointerJellySpriteRefPt = null;
+
+            if(signalInvokeClickEnd)
+                signalInvokeClickEnd.Invoke(this);
+		}
+
+        ClickEnd();
+	}
+
+    private void ClickEnd() {
+		clickRefPointIndex = -1;
+		isClick = false;
+		clickPointerGO = null;
+		clickPointerJellySpriteRefPt = null;
+
+        mClickEventData = null;
+
+		//hide display, etc.
+		RefreshMouthSprite();
+
+		if(state == State.Normal)
+			ApplyJellySpriteMaterial(null);
+	}
 
     private void DragStart() {
         isDragging = true;
@@ -521,8 +646,11 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
                 dragPointerJellySpriteRefPt = dragPointerGO.GetComponent<JellySpriteReferencePoint>();
             }
 
-            dragPoint = eventData.pointerCurrentRaycast.worldPosition;
-        }
+            if(eventData.pointerCurrentRaycast.distance > 0f)
+                dragPoint = eventData.pointerCurrentRaycast.worldPosition;
+            else
+				dragPoint = GetWorldPoint(eventData.position);
+		}
         else {
             dragPointerJellySpriteRefPt = null;
 
@@ -586,7 +714,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
         ApplyJellySpriteMaterial(null);
 
-        bool isDragInvalid = false;
+        //bool isDragInvalid = false;
                 
         switch(mState) {
             case State.Normal:
@@ -627,12 +755,14 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
             default:
                 SetEyeBlinking(false);
                 hintActive = false;
-                isDragInvalid = true;
-                break;
+				//isDragInvalid = true;
+				DragInvalidate();
+                ClickInvalidate();
+				break;
         }
 
-        if(isDragInvalid)
-            DragInvalidate();
+        //if(isDragInvalid)
+            //DragInvalidate();
 
         mIsConnected = false;
 
