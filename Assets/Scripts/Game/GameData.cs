@@ -22,6 +22,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
     public int rankIndexRetry; //threshold for retry    
 
     [Header("Play Settings")]
+    public int roundCount = 10;
     public float hintDelay = 15f;
     public int hintErrorCount = 5;
     public int blobSpawnCount = 5;
@@ -51,7 +52,7 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
         return LoLManager.instance.userData.GetInt(levelScoreHeader + level.ToString());
     }
 
-    public int GetRankIndex(int roundCount, int score) {
+    public int GetRankIndex(int score) {
         int maxScore = 0;
 
         for(int i = 0; i < roundCount; i++)

@@ -21,7 +21,7 @@ public class EndController : GameModeController<EndController> {
 
             if(score > 0) {
                 //assume all have 10 rounds
-                var rankInd = GameData.instance.GetRankIndex(10, score);
+                var rankInd = GameData.instance.GetRankIndex(score);
                 var rank = GameData.instance.ranks[rankInd];
 
                 if(levelRankingTexts[i])
@@ -44,7 +44,7 @@ public class EndController : GameModeController<EndController> {
 
         //apply average ranking        
         var avgScore = Mathf.RoundToInt((float)totalScore / levelCounters.Length);
-        int rankIndex = GameData.instance.GetRankIndex(10, avgScore);
+        int rankIndex = GameData.instance.GetRankIndex(avgScore);
         rankingWidget.Apply(rankIndex);
     }
 }

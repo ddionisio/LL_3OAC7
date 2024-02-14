@@ -111,7 +111,10 @@ public class PlayController : GameModeController<PlayController> {
                 numberList.Add(inf.equal);
                 numberList.Add(inf.operand1);
                 numberList.Add(inf.operand2);
-            }
+
+                if(roundOpList.Count >= GameData.instance.roundCount)
+                    break;
+			}
         }
 
         mRoundOps = roundOpList.ToArray();
@@ -131,18 +134,17 @@ public class PlayController : GameModeController<PlayController> {
             if(shuffleCount > 0)
                 M8.ArrayUtil.Shuffle(mNumbers, i, spawnNextCount);
         }
+		//debug
+		/*mNumbers[0] = 6;
+		mNumbers[1] = 6;
+		mNumbers[2] = 8;
+		mNumbers[3] = 35;
+		mNumbers[4] = 5;
 
-        //debug
-        /*mNumbers[0] = 3;
-        mNumbers[1] = 4;
-        mNumbers[2] = 8;
-        mNumbers[3] = 5;
-        mNumbers[4] = 16;
+		mRoundOps[0] = OperatorType.Divide;*/
 
-        mRoundOps[0] = OperatorType.Divide;*/
-
-        //init rounds display
-        int roundsDisplayCount = Mathf.Min(mRoundOps.Length, roundsRoot.childCount);
+		//init rounds display
+		int roundsDisplayCount = Mathf.Min(mRoundOps.Length, roundsRoot.childCount);
         mSpriteColorFromPalettes = new M8.SpriteColorFromPalette[roundsDisplayCount];
         for(int i = 0; i < roundsDisplayCount; i++) {
             mSpriteColorFromPalettes[i] = roundsRoot.GetChild(i).GetComponent<M8.SpriteColorFromPalette>();
@@ -339,7 +341,6 @@ public class PlayController : GameModeController<PlayController> {
         parms[ModalVictory.parmScore] = curScore;
         parms[ModalVictory.parmBonusRoundScore] = mBonusRoundScore;
         parms[ModalVictory.parmTime] = playTotalTime;
-        parms[ModalVictory.parmRoundsCount] = mRoundOps.Length;
         parms[ModalVictory.parmMistakeCount] = mistakeCount;
         parms[ModalVictory.parmNextScene] = nextScene;
 
@@ -553,10 +554,10 @@ public class PlayController : GameModeController<PlayController> {
 
                 //if we are about to spawn at max, check if there are solvables on board,
                 //if not, then set this number to a solvable number to any of the possible connects (for multiply, use lowest; for divide, use highest)
-                if(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount + 1 == maxBlobCount) {
+                if(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount + 1 >= maxBlobCount || curNumberIndex + 1 >= mNumbers.Length) {
                     GenerateCheckNumbers();
                     if(!CheckCurValid(newNumber)) {
-                        var lastNum = newNumber;
+                        //var lastNum = newNumber;
                         newNumber = GenerateSolution(newNumber);
                         //Debug.Log("Dynamic Generate Solution: " + newNumber + ", was: "+lastNum);
                     }
