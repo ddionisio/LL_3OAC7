@@ -245,12 +245,13 @@ public class PlayController : GameModeController<PlayController> {
             isHintShown = false;
 
             mMistakeRoundCount = 0;
-                        
+
             //wait for correct answer
+            bool isCheckLastRound = true;
             mIsAnswerCorrectWait = true;
             while(mIsAnswerCorrectWait) {
                 //check if we are in the last 3 and it is unsolvable
-                if(curRoundIndex == mRoundOps.Length - 1 && blobSpawner.GetBlobStateCount(Blob.State.Normal) == 3 && blobSpawner.blobActives.Count == 3) {
+                if(isCheckLastRound && curRoundIndex == mRoundOps.Length - 1 && blobSpawner.GetBlobStateCount(Blob.State.Normal) == 3 && blobSpawner.blobActives.Count == 3) {
                     var blob1 = blobSpawner.blobActives[0];
                     var blob2 = blobSpawner.blobActives[1];
                     var blob3 = blobSpawner.blobActives[2];
@@ -274,15 +275,25 @@ public class PlayController : GameModeController<PlayController> {
                     }
 
                     if(!isValid) {
-                        blob1.state = Blob.State.Correct;
-                        blob2.state = Blob.State.Correct;
-                        blob3.state = Blob.State.Correct;
+                        bool isNumberValid = false;
+                        for(int i = 0; i < tableNumbers.Length; i++) {
+                            if(blobSpawner.IsSolvable(tableNumbers[i], curRoundOp)) {
+								blobSpawner.Spawn(0, tableNumbers[i]);
+								isNumberValid = true;
+								break;
+                            }
+                        }
 
-                        //force end the round, give credits
-                        curScore += GameData.instance.correctPoints * (comboCount + 1);
-                        break;
+                        if(!isNumberValid) {
+							blobSpawner.Spawn(0, tableNumbers[0]);
+							blobSpawner.Spawn(1, tableNumbers[0] * blobSpawner.GetBlobActiveLowestNumber());
+                        }
                     }
-                }
+                    else //add extra random blob
+						blobSpawner.Spawn(0, Random.Range(2, 9));
+
+                    isCheckLastRound = false;
+				}
                 //check if we want hint to activate
                 else if(!isHintShown) {
                     if(mMistakeRoundCount >= GameData.instance.hintErrorCount || Time.time - roundBeginLastTime > hintDelay) {
@@ -306,7 +317,9 @@ public class PlayController : GameModeController<PlayController> {
         var playTotalTime = curPlayTime;
 
         //wait for blobs to clear out
-        while(blobSpawner.blobActives.Count > 0)
+        blobSpawner.DespawnAllNormalBlobs();
+
+		while(blobSpawner.blobActives.Count > 0)
             yield return null;
 
         //play finish
@@ -549,12 +562,17 @@ public class PlayController : GameModeController<PlayController> {
             var maxBlobCount = GameData.instance.blobSpawnCount;
 
             //check if we have enough on the board
-            while(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount < maxBlobCount) {
-                var newNumber = mNumbers[curNumberIndex];
+            while(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount < maxBlobCount) {                
 
-                //if we are about to spawn at max, check if there are solvables on board,
-                //if not, then set this number to a solvable number to any of the possible connects (for multiply, use lowest; for divide, use highest)
-                if(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount + 1 >= maxBlobCount || curNumberIndex + 1 >= mNumbers.Length) {
+				//wait for blob states to finish
+				while(blobSpawner.CheckAnyBlobActiveState(Blob.State.Spawning, Blob.State.Despawning, Blob.State.Correct))
+					yield return null;
+
+				var newNumber = mNumbers[curNumberIndex];
+
+				//if we are about to spawn at max, check if there are solvables on board,
+				//if not, then set this number to a solvable number to any of the possible connects (for multiply, use lowest; for divide, use highest)
+				if(blobSpawner.blobActives.Count + blobSpawner.spawnQueueCount + 1 >= maxBlobCount) {
                     GenerateCheckNumbers();
                     if(!CheckCurValid(newNumber)) {
                         //var lastNum = newNumber;
@@ -575,7 +593,7 @@ public class PlayController : GameModeController<PlayController> {
             yield return null;
         }
 
-        mSpawnRout = null;
+		mSpawnRout = null;
     }
 
     IEnumerator DoComboUpdate() {

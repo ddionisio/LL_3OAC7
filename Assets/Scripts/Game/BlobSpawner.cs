@@ -47,7 +47,65 @@ public class BlobSpawner : MonoBehaviour {
 
     private M8.CacheList<Blob> mBlobActives;
 
-    private System.Text.StringBuilder mBlobNameCache = new System.Text.StringBuilder();
+	private M8.CacheList<int> mBlobCheck;
+
+	private System.Text.StringBuilder mBlobNameCache = new System.Text.StringBuilder();
+
+    public bool IsSolvable(int number, OperatorType op) {
+        if(mBlobCheck == null)
+            mBlobCheck = new M8.CacheList<int>(mBlobActives.Capacity);
+        else
+            mBlobCheck.Clear();
+
+        for(int i = 0; i < mBlobActives.Count; i++) {
+            var blob = mBlobActives[i];
+            if(!blob)
+                continue;
+
+            if(blob.state == Blob.State.Normal) {
+                mBlobCheck.Add(blob.number);
+            }
+        }
+
+		for(int i = 0; i < mBlobCheck.Count; i++) {
+			int numCheck = mBlobCheck[i];
+			for(int j = 0; j < mBlobCheck.Count; j++) {
+				if(j == i)
+					continue;
+
+                switch(op) {
+                    case OperatorType.Multiply:
+                        if(numCheck * number == mBlobCheck[j])
+                            return true;
+                        break;
+
+                    case OperatorType.Divide:
+                        if(numCheck / number == mBlobCheck[j])
+                            return true;
+                        break;
+                }
+			}
+		}
+
+		return false;
+    }
+
+    public int GetBlobActiveLowestNumber() {
+        int num = -1;
+
+		for(int i = 0; i < mBlobActives.Count; i++) {
+			var blob = mBlobActives[i];
+			if(!blob)
+				continue;
+
+			if(blob.state == Blob.State.Normal) {
+                if(blob.number < num || num == -1)
+                    num = blob.number;
+            }
+		}
+
+        return num == -1 ? 1 : num;
+	}
 
     public bool CheckAnyBlobActiveState(params Blob.State[] states) {
         for(int i = 0; i < mBlobActives.Count; i++) {
@@ -81,7 +139,7 @@ public class BlobSpawner : MonoBehaviour {
         return count;
     }
 
-    public void DespawnAllBlobs() {
+    public void DespawnAllNormalBlobs() {
         if(mBlobActives == null)
             return;
 
@@ -90,13 +148,9 @@ public class BlobSpawner : MonoBehaviour {
             if(!blob)
                 continue;
 
-            if(blob.poolData)
-                blob.poolData.despawnCallback -= OnBlobRelease;
-
-            blob.state = Blob.State.Despawning;
+            if(blob.state != Blob.State.Despawning || blob.state != Blob.State.Correct || blob.state != Blob.State.None)
+                blob.state = Blob.State.Despawning;
         }
-
-        mBlobActives.Clear();
     }
 
     public void SpawnStop() {
