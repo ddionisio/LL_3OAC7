@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+
+using TMPro;
 
 /// <summary>
 /// Blob number
@@ -62,7 +63,7 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     [Header("UI")]
     public GameObject highlightGO; //active during enter and dragging
-    public Text numericText;
+    public TMP_Text numericText;
 
     [Header("Animation")]
     public M8.Animator.Animate animator;

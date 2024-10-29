@@ -201,7 +201,7 @@ public class BlobSpawner : MonoBehaviour {
         SpawnStop();
     }
 
-    void Awake() {
+    void Start() {
 
         int blobCapacity = GameData.instance.blobSpawnCount;
 

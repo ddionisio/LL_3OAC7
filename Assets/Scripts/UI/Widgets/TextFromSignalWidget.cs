@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
+using TMPro;
 
 public class TextFromSignalWidget : MonoBehaviour {
-    public Text target;
+    public TMP_Text target;
 
     public M8.SignalString signalText;
 
@@ -14,7 +15,7 @@ public class TextFromSignalWidget : MonoBehaviour {
 
     void OnEnable() {
         if(!target)
-            target = GetComponent<Text>();
+            target = GetComponent<TMP_Text>();
 
         target.text = "";
 

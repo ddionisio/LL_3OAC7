@@ -12,7 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [RequireComponent (typeof(MeshFilter), typeof(MeshRenderer))]
-public abstract class JellySprite : MonoBehaviour 
+public abstract class JellySprite : MonoBehaviour, M8.IPoolInit 
 {
 #region PUBLIC_VARIABLES
 	// Arrangement of the physics bodies
@@ -195,6 +195,7 @@ public abstract class JellySprite : MonoBehaviour
 	bool[] m_IsAttachPointJellySprite = new bool[0];
 
 	// Parent object for rigidbodies
+	public GameObject m_ReferencePointHolder;
 	public GameObject m_ReferencePointParent;
 
 	// Central body point
@@ -386,6 +387,11 @@ public abstract class JellySprite : MonoBehaviour
 	}
 #endregion
 
+	void M8.IPoolInit.OnInit() {
+		m_ReferencePointHolder = transform.parent.gameObject;
+		Init();
+	}
+
 	/// <summary>
 	/// JellySprite constructor
 	/// </summary>
@@ -492,6 +498,8 @@ public abstract class JellySprite : MonoBehaviour
 #endif
 
 			m_ReferencePointParent = new GameObject();
+			if(m_ReferencePointHolder)
+				m_ReferencePointParent.transform.SetParent(m_ReferencePointHolder.transform);
 			m_ReferencePointParent.name = this.name + " Reference Points";
 
 			m_ReferencePoints = new List<ReferencePoint>();

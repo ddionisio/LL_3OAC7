@@ -1,0 +1,135 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8219030659272329652
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4280253167156750643}
+  - component: {fileID: 7312704133362033112}
+  - component: {fileID: 4027985266289141628}
+  m_Layer: 0
+  m_Name: blobs
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4280253167156750643
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219030659272329652}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7312704133362033112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219030659272329652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12efbbbc0b90e8d44af43399a8ed2654, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  group: 
+  factory:
+  - name: blobNumberVariant_1_1
+    template: {fileID: 4529565123728412510, guid: cf1e6950d58a9744db45f9b2faa4d392,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_1_2
+    template: {fileID: 6951405255603946199, guid: 9d50e055d5d860c47a4f9642f02cfa42,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_1_3
+    template: {fileID: 6289181759287714272, guid: 8fe686f115fefc2469b5ea903330d5e6,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_2_1
+    template: {fileID: 2010452243323158836, guid: 29dea99581684f54a916640a2e721701,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_2_2
+    template: {fileID: 2903805231084821784, guid: 616a7e35129bd4e458a066bf9c3654d0,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_2_3
+    template: {fileID: 5416329903843464122, guid: e241c0a6ddf0dc842b8158963937c460,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_3_1
+    template: {fileID: 3466165239029766972, guid: 5b92a6d68e58e004cba61a91d7db8c29,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_3_2
+    template: {fileID: 7937507285851658818, guid: c7545989ae864524ab96dad89b112248,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_3_3
+    template: {fileID: 7380113255339507159, guid: f30d61fb24bcc1f4d893dd4b4f5b07a3,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_4_1
+    template: {fileID: 3466165239029766972, guid: 41de60b4b6f41e343afecdcab2026957,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_4_2
+    template: {fileID: 2078578037180625394, guid: 928211e46305976429144121eebc6cf5,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  - name: blobNumberVariant_4_3
+    template: {fileID: 5453605715185759614, guid: bc1294c06594aa448a1298fe6d3c9b5d,
+      type: 3}
+    startCapacity: 5
+    maxCapacity: 5
+    defaultParent: {fileID: 0}
+  poolHolder: {fileID: 4280253167156750643}
+--- !u!114 &4027985266289141628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8219030659272329652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f63974507b4c7e4cbb09bcc3f217469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _dontDestroyOnLoad: 1

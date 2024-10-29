@@ -256,7 +256,7 @@ public class BlobConnectController : MonoBehaviour {
         signalListenBlobConnectDelete.callback -= OnBlobConnectDelete;
     }
 
-    void Awake() {
+    void Start() {
         mPool = M8.PoolController.CreatePool(poolGroup);
         mPool.AddType(connectTemplate, capacity, capacity);
 

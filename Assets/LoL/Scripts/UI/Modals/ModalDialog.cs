@@ -1,7 +1,8 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
+using TMPro;
 
 public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M8.IModalPop {
     public const string modalNameGeneric = "dialog";
@@ -15,9 +16,9 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
     public Image portraitImage;
     public bool portraitResize;
 
-    public Text nameLabel;
+    public TMP_Text nameLabel;
 
-    public Text textLabel;
+    public TMP_Text textLabel;
     public float textCharPerSecond = 0.05f;
 
     public GameObject textProcessActiveGO;

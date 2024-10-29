@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
+using TMPro;
 
 public class ModalBonusFillSlots : M8.ModalController, M8.IModalPush, M8.IModalPop, M8.IModalActive {
     public const string parmDataIndexMin = "datIndMin";
@@ -22,7 +23,7 @@ public class ModalBonusFillSlots : M8.ModalController, M8.IModalPush, M8.IModalP
     public Transform templateCacheHolder;
 
     [Header("Slot Data")]
-    public Text[] numberTexts;
+    public TMP_Text[] numberTexts;
     public SlotWidget[] fillSlots;
     public Transform itemSlotRoot;
 
@@ -42,7 +43,7 @@ public class ModalBonusFillSlots : M8.ModalController, M8.IModalPush, M8.IModalP
     public float timeNearExpireScale = 0.75f;
 
     [Header("Bonus Score Data")]
-    public Text bonusScoreText;
+    public TMP_Text bonusScoreText;
     [M8.Localize]
     public string bonusScoreTextFormatRef;
 

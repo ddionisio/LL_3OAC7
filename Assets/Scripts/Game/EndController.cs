@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EndController : GameModeController<EndController> {
-    public M8.UI.Texts.TextCounter[] levelCounters;
-    public M8.UI.Texts.TextCounter totalCounter;
+using TMPro;
 
-    public Text[] levelRankingTexts;
+public class EndController : GameModeController<EndController> {
+    public M8.TextMeshPro.TextMeshProCounter[] levelCounters;
+    public M8.TextMeshPro.TextMeshProCounter totalCounter;
+
+    public TMP_Text[] levelRankingTexts;
 	public Image[] levelRankingIcons;
 	public RankWidget rankingWidget;
 

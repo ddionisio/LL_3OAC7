@@ -1,15 +1,15 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+
+using TMPro;
 
 public class SlotItemWidget : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler {
     [Header("Data")]
     public float moveDelay = 0.3f; //when moving to a slot
 
     [Header("Display")]
-    public Text numberText;
+    public TMP_Text numberText;
     public GameObject highlightGO;
     public Transform dragRoot;
 

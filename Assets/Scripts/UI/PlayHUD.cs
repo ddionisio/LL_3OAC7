@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+using TMPro;
+
 public class PlayHUD : MonoBehaviour {
     [Header("Settings")]
     public float beginDelay = 0.5f;
@@ -18,7 +20,7 @@ public class PlayHUD : MonoBehaviour {
     public GameObject opNextTabMultiplyGO;
     public GameObject opNextTabDivideGO;
 
-    public Text[] opSymbolTexts;
+    public TMP_Text[] opSymbolTexts;
     public GameObject opSymbolGO;
     public string opSymbolMultiply = "x";
     public string opSymbolDivide = "÷";
@@ -30,13 +32,13 @@ public class PlayHUD : MonoBehaviour {
 
     [Header("Equation Display")]
     public M8.Animator.Animate equationOp1Anim; //play take index 0 when highlight
-    public Text equationOp1Text;
+    public TMP_Text equationOp1Text;
 
     public M8.Animator.Animate equationOp2Anim; //play take index 0 when highlight
-    public Text equationOp2Text;
+    public TMP_Text equationOp2Text;
 
     public M8.Animator.Animate equationAnsAnim; //play take index 0 when highlight
-    public Text equationAnsText;
+    public TMP_Text equationAnsText;
 
     public GameObject equationOpGO;
     public GameObject equationEqGO;
@@ -51,7 +53,7 @@ public class PlayHUD : MonoBehaviour {
     public string takeChangeOp;
 
     [Header("Score Display")]
-    public M8.UI.Texts.TextCounter scoreCounter;
+    public M8.TextMeshPro.TextMeshProCounter scoreCounter;
 
     public M8.Animator.Animate scoreAnimator;
     [M8.Animator.TakeSelector(animatorField = "scoreAnimator")]
@@ -59,7 +61,7 @@ public class PlayHUD : MonoBehaviour {
 
     [Header("Combo Display")]
     public GameObject comboGO;
-    public Text comboCountText;
+    public TMP_Text comboCountText;
     public string comboCountFormat = "x{0}";
     public Image comboTimeFill;
 
@@ -72,7 +74,7 @@ public class PlayHUD : MonoBehaviour {
     public string comboTakeExit;
 
     [Header("Equation Pop Up")]
-    public Text correctEqPopText;
+    public TMP_Text correctEqPopText;
     public float correctEqPopShowDelay = 1.5f;
     public M8.Animator.Animate correctEqPopAnimator; //also treat it as the root display
     [M8.Animator.TakeSelector(animatorField = "correctEqPopAnimator")]
@@ -82,7 +84,7 @@ public class PlayHUD : MonoBehaviour {
     [M8.Animator.TakeSelector(animatorField = "correctEqPopAnimator")]
     public string correctEqPopTakeExit;
 
-    public Text incorrectEqPopText;
+    public TMP_Text incorrectEqPopText;
     public float incorrectEqPopShowDelay = 1.5f;
     public M8.Animator.Animate incorrectEqPopAnimator; //also treat it as the root display
     [M8.Animator.TakeSelector(animatorField = "incorrectEqPopAnimator")]

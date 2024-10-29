@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class LoLSpeakTextFromLocalizer : MonoBehaviour {
 
-    M8.UI.Texts.Localizer localizer;
+    M8.TextMeshPro.LocalizerTextMeshPro localizer;
 
     public string playGroup = "default";
     public int playIndex = -1;
@@ -28,6 +26,6 @@ public class LoLSpeakTextFromLocalizer : MonoBehaviour {
 
     void Awake() {
         if(!localizer)
-            localizer = GetComponent<M8.UI.Texts.Localizer>();
+            localizer = GetComponent<M8.TextMeshPro.LocalizerTextMeshPro>();
     }
 }

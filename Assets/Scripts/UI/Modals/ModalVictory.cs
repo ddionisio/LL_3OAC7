@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
     public const string parmLevel = "level";
@@ -13,24 +11,24 @@ public class ModalVictory : M8.ModalController, M8.IModalPush, M8.IModalActive {
 
     [Header("Display")]
     public GameObject scoreGO;
-    public M8.UI.Texts.TextCounter scoreCounterText;
+    public M8.TextMeshPro.TextMeshProCounter scoreCounterText;
 
     public GameObject bonusRoundScoreGO;
-    public M8.UI.Texts.TextCounter bonusRoundScoreCounterText;
+    public M8.TextMeshPro.TextMeshProCounter bonusRoundScoreCounterText;
 
     public GameObject timeGO;
-    public M8.UI.Texts.TextTime timeText;
+    public M8.TextMeshPro.TextMeshProTime timeText;
 
     public GameObject timeBonusGO;
-    public M8.UI.Texts.TextCounter timeBonusCounterText;
+    public M8.TextMeshPro.TextMeshProCounter timeBonusCounterText;
 
     public GameObject perfectBonusGO;
-    public M8.UI.Texts.TextCounter perfectBonusCounterText;
+    public M8.TextMeshPro.TextMeshProCounter perfectBonusCounterText;
 
     public GameObject separatorGO;
 
     public GameObject totalGO;
-    public M8.UI.Texts.TextCounter totalCounterText;
+    public M8.TextMeshPro.TextMeshProCounter totalCounterText;
 
     public GameObject rankingGO;
     public RankWidget rankWidget;
