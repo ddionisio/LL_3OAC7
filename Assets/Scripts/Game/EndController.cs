@@ -13,7 +13,25 @@ public class EndController : GameModeController<EndController> {
 	public Image[] levelRankingIcons;
 	public RankWidget rankingWidget;
 
-    protected override void OnInstanceInit() {
+	[Header("Displays")]
+	public GameObject congratsTitleGO;
+	public GameObject congratsDescGO;
+	public GameObject thanksGO;
+	public GameObject summaryGO;
+
+	[Header("Animations")]
+	public AnimatorEnterExit blackholeAnim;
+	public AnimatorEnterExit ringsAnim;
+	public AnimatorEnterExit blobsAnim;
+
+	[Header("Audio")]
+	[M8.MusicPlaylist]
+	public string music;
+
+    [M8.SoundPlaylist]
+    public string sfxMagic;
+
+	protected override void OnInstanceInit() {
         base.OnInstanceInit();
 
         //setup each level's score
@@ -48,5 +66,73 @@ public class EndController : GameModeController<EndController> {
         var avgScore = Mathf.RoundToInt((float)totalScore / levelCounters.Length);
         int rankIndex = GameData.instance.GetRankIndex(avgScore);
         rankingWidget.Apply(rankIndex);
-    }
+
+		congratsTitleGO.SetActive(false);
+		congratsDescGO.SetActive(false);
+		thanksGO.SetActive(false);
+
+		summaryGO.SetActive(false);
+
+		blackholeAnim.gameObject.SetActive(false);
+		ringsAnim.gameObject.SetActive(false);
+		blobsAnim.gameObject.SetActive(false);
+	}
+
+	protected override IEnumerator Start() {
+		yield return base.Start();
+
+		var lolMgr = LoLManager.instance;
+
+		while(!lolMgr.isReady)
+			yield return null;
+
+		if(!string.IsNullOrEmpty(music))
+			M8.MusicPlaylist.instance.Play(music, false, false);
+
+        var wait = new WaitForSeconds(0.3f);
+
+        //enter
+		blackholeAnim.gameObject.SetActive(true);
+        yield return blackholeAnim.PlayEnterWait();
+
+        yield return wait;
+
+		ringsAnim.gameObject.SetActive(true);
+		yield return ringsAnim.PlayEnterWait();
+
+        if(!string.IsNullOrEmpty(sfxMagic))
+            M8.SoundPlaylist.instance.Play(sfxMagic, false);
+
+		yield return wait;
+
+		blobsAnim.gameObject.SetActive(true);
+		yield return blobsAnim.PlayEnterWait();
+
+
+        yield return new WaitForSeconds(3f);
+
+		//exit
+		yield return blobsAnim.PlayExitWait();
+		blobsAnim.gameObject.SetActive(false);
+
+		yield return ringsAnim.PlayExitWait();
+		ringsAnim.gameObject.SetActive(false);
+
+		yield return blackholeAnim.PlayExitWait();
+		blackholeAnim.gameObject.SetActive(false);
+
+		//congrats
+		congratsTitleGO.SetActive(true);
+		yield return wait;
+		congratsDescGO.SetActive(true);
+		yield return wait;
+		thanksGO.SetActive(true);
+
+		//summary
+		summaryGO.SetActive(true);
+
+		yield return new WaitForSeconds(12f);
+
+		lolMgr.Complete();
+	}
 }
