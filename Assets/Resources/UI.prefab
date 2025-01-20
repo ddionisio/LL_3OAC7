@@ -1767,6 +1767,7 @@ GameObject:
   - component: {fileID: 6574218671333076264}
   - component: {fileID: 7549476251389800230}
   - component: {fileID: 5337247113884234424}
+  - component: {fileID: 6567582894352856739}
   m_Layer: 5
   m_Name: optionsButton
   m_TagString: Untagged
@@ -1918,6 +1919,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   category: 3
+--- !u!114 &6567582894352856739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232938176139810533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab31252b1dbe9d54e91abb49fcf16879, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 6574218671333076264}
 --- !u!1 &255741528841029819
 GameObject:
   m_ObjectHideFlags: 0
@@ -27187,6 +27201,7 @@ MonoBehaviour:
   nextDelay: 0.5
   isCloseOnNext: 0
   isTextSpeechAuto: 1
+  inputProceed: {fileID: 11400000, guid: d04264778c197b0459642ff7c7bcfdc3, type: 2}
   signalNext: {fileID: 0}
 --- !u!114 &3783403734027974936
 MonoBehaviour:

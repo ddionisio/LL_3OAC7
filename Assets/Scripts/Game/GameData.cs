@@ -17,15 +17,26 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
         public float scale;
     }
 
-    [Header("Rank Settings")]
-    public RankData[] ranks; //highest to lowest
-    public int rankIndexRetry; //threshold for retry    
+	[System.Serializable]
+	public struct BlobVariantData {
+		public Color faceColor;
+		public Color bodyColor;
+		public Sprite bodySprite;
+	}
 
-    [Header("Play Settings")]
+	[Header("Rank Settings")]
+    public RankData[] ranks; //highest to lowest
+    public int rankIndexRetry; //threshold for retry
+
+    [Header("Blob Settings")]
+	public int blobSpawnCount = 5;
+	public int blobSpawnCapacity = 8;
+	public BlobVariantData[] blobVariants;
+
+	[Header("Play Settings")]
     public int roundCount = 10;
     public float hintDelay = 15f;
-    public int hintErrorCount = 5;
-    public int blobSpawnCount = 5;
+    public int hintErrorCount = 5;    
     public int correctPoints = 100;
     public int correctDecayPoints = 25; //if hint was shown
     public int perfectPoints = 1000;
@@ -44,7 +55,32 @@ public class GameData : M8.SingletonScriptableObject<GameData> {
 
     public int retryCounter { get; set; }
 
-    public void ScoreApply(int level, int score) {
+    private int[] mBlobVariantIndices;
+    private int mBlobVariantInd;
+
+	public BlobVariantData GetBlobVariant() {
+        if(mBlobVariantIndices == null || mBlobVariantIndices.Length != blobVariants.Length) {
+            mBlobVariantIndices = new int[blobVariants.Length];
+
+            for(int i = 0; i < mBlobVariantIndices.Length; i++)
+                mBlobVariantIndices[i] = i;
+
+            M8.ArrayUtil.Shuffle(mBlobVariantIndices);
+            mBlobVariantInd = 0;
+		}
+
+        var ind = mBlobVariantInd;
+
+        mBlobVariantInd++;
+        if(mBlobVariantInd == mBlobVariantIndices.Length) {
+			M8.ArrayUtil.Shuffle(mBlobVariantIndices);
+			mBlobVariantInd = 0;
+		}
+
+        return blobVariants[mBlobVariantIndices[ind]];
+	}
+
+	public void ScoreApply(int level, int score) {
         LoLManager.instance.userData.SetInt(levelScoreHeader + level.ToString(), score);
     }
 

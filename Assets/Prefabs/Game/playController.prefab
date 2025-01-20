@@ -733,27 +733,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolGroup: blobs
-  templateGroups:
-  - name: blob1
-    templates:
-    - {fileID: 2010452243323158836, guid: 29dea99581684f54a916640a2e721701, type: 3}
-    - {fileID: 2903805231084821784, guid: 616a7e35129bd4e458a066bf9c3654d0, type: 3}
-    - {fileID: 5416329903843464122, guid: e241c0a6ddf0dc842b8158963937c460, type: 3}
-  - name: blob2
-    templates:
-    - {fileID: 4529565123728412510, guid: cf1e6950d58a9744db45f9b2faa4d392, type: 3}
-    - {fileID: 6951405255603946199, guid: 9d50e055d5d860c47a4f9642f02cfa42, type: 3}
-    - {fileID: 6289181759287714272, guid: 8fe686f115fefc2469b5ea903330d5e6, type: 3}
-  - name: blob3
-    templates:
-    - {fileID: 3466165239029766972, guid: 5b92a6d68e58e004cba61a91d7db8c29, type: 3}
-    - {fileID: 7937507285851658818, guid: c7545989ae864524ab96dad89b112248, type: 3}
-    - {fileID: 7380113255339507159, guid: f30d61fb24bcc1f4d893dd4b4f5b07a3, type: 3}
-  - name: blob4
-    templates:
-    - {fileID: 3466165239029766972, guid: 41de60b4b6f41e343afecdcab2026957, type: 3}
-    - {fileID: 2078578037180625394, guid: 928211e46305976429144121eebc6cf5, type: 3}
-    - {fileID: 5453605715185759614, guid: bc1294c06594aa448a1298fe6d3c9b5d, type: 3}
+  template: {fileID: 7998822268617303331, guid: 1f249c316ee6fc9459cac208fe4ca123,
+    type: 3}
   spawnPointsRoot: {fileID: 1303996767028365440}
   spawnPointsShuffle: 1
   spawnPointCheckMask:
@@ -6296,13 +6277,15 @@ ParticleSystemRenderer:
   m_RenderAlignment: 0
   m_Pivot: {x: 0, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
-  m_UseCustomVertexStreams: 0
   m_EnableGPUInstancing: 1
   m_ApplyActiveColorSpace: 1
   m_AllowRoll: 1
   m_FreeformStretching: 0
   m_RotateWithStretchDirection: 1
+  m_UseCustomVertexStreams: 0
   m_VertexStreams: 00010304
+  m_UseCustomTrailVertexStreams: 0
+  m_TrailVertexStreams: 00010304
   m_Mesh: {fileID: 0}
   m_Mesh1: {fileID: 0}
   m_Mesh2: {fileID: 0}

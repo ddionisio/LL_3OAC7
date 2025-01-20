@@ -56,6 +56,15 @@ public class UnityJellySprite : JellySprite
 
 		s_MaterialList.Clear();
 	}
+
+	public void SetSprite(Sprite sprite) {
+		if(m_Sprite != sprite) {
+			m_Sprite = sprite;
+
+			RefreshUV();
+			InitMaterial();
+		}
+	}
 	
 	/// <summary>
 	/// Get the bounds of the sprite

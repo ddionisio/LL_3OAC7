@@ -29,7 +29,10 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
     public bool isCloseOnNext;
     public bool isTextSpeechAuto = true;
 
-    [Header("Signals")]
+	[Header("Input")]
+	public M8.InputAction inputProceed;
+
+	[Header("Signals")]
     public M8.Signal signalNext; //when the next button is pressed.
     
     private static M8.GenericParams mParms = new M8.GenericParams();
@@ -159,8 +162,15 @@ public class ModalDialog : M8.ModalController, M8.IModalActive, M8.IModalPush, M
         if(LoLManager.isInstantiated && !string.IsNullOrEmpty(mDialogTextRef))
             LoLManager.instance.SpeakText(mDialogTextRef);
     }
-        
-    void M8.IModalActive.SetActive(bool aActive) {
+
+	void Update() {
+		if(mIsActive && inputProceed) {
+			if(inputProceed.IsPressed())
+				Next();
+		}
+	}
+
+	void M8.IModalActive.SetActive(bool aActive) {
         mIsActive = aActive;
 
         ApplyActive();

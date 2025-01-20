@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 using TMPro;
+using M8.Animator;
 
 /// <summary>
 /// Blob number
@@ -200,6 +201,8 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
 
     private bool mIsConnected;
 
+    private bool mIsSpawn;
+
     /// <summary>
     /// Get an approximate edge towards given point, relies on reference points to provide edge.
     /// </summary>
@@ -294,6 +297,12 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }*/
 
 	void Update() {
+        if(mIsSpawn) {
+            mIsSpawn = false;
+			state = State.Spawning;
+			return;
+		}
+
 		if(isClick)
 			ClickUpdate();
 	}
@@ -308,9 +317,37 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
     }
 
     void M8.IPoolSpawn.OnSpawned(M8.GenericParams parms) {
-        jellySprite.Init();
+        var blobVariantDat = GameData.instance.GetBlobVariant();
 
-        mNumber = 0;
+		//setup display
+		if(eyeSpriteRenders != null) {
+			for(int i = 0; i < eyeSpriteRenders.Length; i++) {
+				if(eyeSpriteRenders[i])
+					eyeSpriteRenders[i].color = blobVariantDat.faceColor;
+			}
+		}
+
+		if(mouthSpriteRender)
+			mouthSpriteRender.color = blobVariantDat.faceColor;
+
+		if(jellySprite.isInit) {
+            var spr = blobVariantDat.bodySprite;
+			if(jellySprite.m_Sprite != spr)
+				jellySprite.SetSprite(spr);
+
+            var clr = blobVariantDat.bodyColor;
+            if(jellySprite.m_Color != clr)
+				jellySprite.SetColor(clr);
+		}
+        else {
+			jellySprite.m_Sprite = blobVariantDat.bodySprite;
+            jellySprite.m_Color = blobVariantDat.bodyColor;
+
+			jellySprite.Init();
+        }
+
+        //
+		mNumber = 0;
         mInputLocked = false;
         mInputLockedInternal = false;
 
@@ -320,10 +357,13 @@ public class Blob : MonoBehaviour, M8.IPoolSpawn, M8.IPoolDespawn {
         }
 
         ApplyNumberDisplay();
-
-        state = State.Spawning;
-
+                
         if(GameData.instance.signalClickCategory) GameData.instance.signalClickCategory.callback += OnClickCategory;
+
+        if(animator && !string.IsNullOrEmpty(takeSpawn))
+            animator.ResetTake(takeSpawn);
+
+		mIsSpawn = true;
 	}
 
     public void OnPointerEnter(JellySprite jellySprite, int index, PointerEventData eventData) {

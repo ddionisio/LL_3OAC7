@@ -8,6 +8,10 @@ public class Preservatives : MonoBehaviour {
 	public CanvasGroup _canvasGroup;
 	public RectTransformGroupSizeDeltaRange _rectTransformGroupSizeDeltaRange;
 	public RectTransform _rectTransform;
+	public Blob _blob;
+	public SpriteRenderer _spriteRenderer;
+	public M8.SpriteColorAlpha _spriteColorAlpha;
+	public ParticleSystem _particleSystem;
 
 	void Awake() {
 		if(_img) {
@@ -27,6 +31,24 @@ public class Preservatives : MonoBehaviour {
 		if(_rectTransform) {
 			_rectTransform.anchoredPosition = Vector2.zero;
 			_rectTransform.sizeDelta = Vector2.zero;
+		}
+
+		if(_blob) {
+			_blob.colorAlpha = 1f;
+		}
+
+		if(_spriteRenderer) {
+			_spriteRenderer.sprite = null;
+			_spriteRenderer.color = Color.white;
+		}
+
+		if(_spriteColorAlpha) {
+			_spriteColorAlpha.alpha = 1f;
+		}
+
+		if(_particleSystem) {
+			_particleSystem.Play();
+			_particleSystem.Stop();
 		}
 	}
 }

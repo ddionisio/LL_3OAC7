@@ -34,12 +34,16 @@ public class EndController : GameModeController<EndController> {
 	protected override void OnInstanceInit() {
         base.OnInstanceInit();
 
-        //setup each level's score
+		//setup each level's score
+		var _totalScore = 0; //fail-safe
+
         for(int i = 0; i < levelCounters.Length; i++) {
             int score = GameData.instance.ScoreGet(i);
             levelCounters[i].SetCountImmediate(score);
 
-            if(score > 0) {
+			_totalScore += score;
+
+			if(score > 0) {
                 //assume all have 10 rounds
                 var rankInd = GameData.instance.GetRankIndex(score);
                 var rank = GameData.instance.ranks[rankInd];
@@ -59,7 +63,7 @@ public class EndController : GameModeController<EndController> {
 			}
         }
 
-        int totalScore = LoLManager.instance.curScore;
+        int totalScore = Mathf.Max(LoLManager.instance.curScore, _totalScore);
         totalCounter.SetCountImmediate(totalScore);
 
         //apply average ranking        

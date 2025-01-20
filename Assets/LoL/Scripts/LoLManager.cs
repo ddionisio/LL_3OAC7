@@ -66,6 +66,9 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
     [SerializeField]
     float _speakQueueStartDelay = 0.3f;
 
+    [Header("Ready")]
+    public GameObject readyActiveGO;
+
     [Header("Audio")]
     public GameObject musicPlaylistRootGO;
     public GameObject soundPlaylistRootGO;
@@ -462,7 +465,10 @@ public class LoLManager : M8.SingletonBehaviour<LoLManager> {
 
         ApplySettings();
 
-        mIsReady = true;
+        if(readyActiveGO)
+            readyActiveGO.SetActive(true);
+
+		mIsReady = true;
     }
 
     protected void ParseGameStart(string json) {

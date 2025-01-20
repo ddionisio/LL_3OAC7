@@ -42,6 +42,9 @@ public class LoLManagerMockup : LoLManager {
 
         mIsReady = true;
 
-        yield return null;
+        if(readyActiveGO)
+			readyActiveGO.SetActive(true);
+
+		yield return null;
     }
 }

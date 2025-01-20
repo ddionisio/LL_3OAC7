@@ -278,19 +278,19 @@ public class PlayController : GameModeController<PlayController> {
                         bool isNumberValid = false;
                         for(int i = 0; i < tableNumbers.Length; i++) {
                             if(blobSpawner.IsSolvable(tableNumbers[i], curRoundOp)) {
-								blobSpawner.Spawn(0, tableNumbers[i]);
+								blobSpawner.Spawn(tableNumbers[i]);
 								isNumberValid = true;
 								break;
                             }
                         }
 
                         if(!isNumberValid) {
-							blobSpawner.Spawn(0, tableNumbers[0]);
-							blobSpawner.Spawn(1, tableNumbers[0] * blobSpawner.GetBlobActiveLowestNumber());
+							blobSpawner.Spawn(tableNumbers[0]);
+							blobSpawner.Spawn(tableNumbers[0] * blobSpawner.GetBlobActiveLowestNumber());
                         }
                     }
                     else //add extra random blob
-						blobSpawner.Spawn(0, Random.Range(2, 9));
+						blobSpawner.Spawn(Random.Range(2, 9));
 
                     isCheckLastRound = false;
 				}
@@ -556,8 +556,6 @@ public class PlayController : GameModeController<PlayController> {
     IEnumerator DoBlobSpawn() {
         curNumberIndex = 0;
 
-        int curBlobTemplateIndex = 0;
-        
         while(curNumberIndex < mNumbers.Length) {
             var maxBlobCount = GameData.instance.blobSpawnCount;
 
@@ -581,9 +579,7 @@ public class PlayController : GameModeController<PlayController> {
                     }
                 }
 
-                blobSpawner.Spawn(curBlobTemplateIndex, newNumber);
-
-                curBlobTemplateIndex = (curBlobTemplateIndex + 1) % blobSpawner.templateGroups.Length;
+                blobSpawner.Spawn(newNumber);
 
                 curNumberIndex++;
                 if(curNumberIndex == mNumbers.Length)

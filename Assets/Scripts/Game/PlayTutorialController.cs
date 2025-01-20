@@ -106,9 +106,9 @@ public class PlayTutorialController : MonoBehaviour {
         connectControl.curOp = op.op;
 
         //spawn operation
-        blobSpawner.Spawn(0, op.operand1);
-        blobSpawner.Spawn(1 % blobSpawner.templateGroups.Length, op.operand2);
-        blobSpawner.Spawn(2 % blobSpawner.templateGroups.Length, op.equal);
+        blobSpawner.Spawn(op.operand1);
+        blobSpawner.Spawn(op.operand2);
+        blobSpawner.Spawn(op.equal);
 
         mRout = null;
     }

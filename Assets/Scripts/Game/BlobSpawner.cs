@@ -3,24 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BlobSpawner : MonoBehaviour {
-    [System.Serializable]
-    public class TemplateGroup {
-        public string name;
-        public GameObject[] templates;
-
-        public GameObject template {
-            get { return templates.Length > 0 ? templates[Random.Range(0, templates.Length)] : null; }
-        }
-    }
-
     public struct SpawnInfo {
-        public int templateIndex;
         public int number;
     }
 
     [Header("Template")]
     public string poolGroup = "blobs";
-    public TemplateGroup[] templateGroups;
+    public GameObject template;
 
     [Header("Spawn")]
     public Transform spawnPointsRoot; //grab child for spawn point
@@ -162,31 +151,8 @@ public class BlobSpawner : MonoBehaviour {
         mSpawnQueue.Clear();
     }
 
-    public void Spawn(string templateName, int number) {
-        //grab template index
-        int templateIndex = -1;
-        for(int i = 0; i < templateGroups.Length; i++) {
-            if(templateGroups[i].name == templateName) {
-                templateIndex = i;
-                break;
-            }
-        }
-
-        if(templateIndex == -1) {
-            Debug.LogWarning("No template for: " + templateName);
-            return;
-        }
-
-        Spawn(templateIndex, number);
-    }
-
-    public void Spawn(int templateIndex, int number) {        
-        if(templateIndex < 0 || templateIndex >= templateGroups.Length) {
-            Debug.LogWarning("Invalid template index: " + templateIndex);
-            return;
-        }
-
-        mSpawnQueue.Enqueue(new SpawnInfo { templateIndex = templateIndex, number = number });
+    public void Spawn(int number) {
+        mSpawnQueue.Enqueue(new SpawnInfo { number = number });
         if(mSpawnRout == null)
             mSpawnRout = StartCoroutine(DoSpawnQueue());
     }
@@ -203,20 +169,21 @@ public class BlobSpawner : MonoBehaviour {
 
     void Start() {
 
-        int blobCapacity = GameData.instance.blobSpawnCount;
+        int blobCapacity = GameData.instance.blobSpawnCapacity;
 
         mBlobActives = new M8.CacheList<Blob>(blobCapacity);
 
         //setup pool
-        mPool = M8.PoolController.CreatePool(poolGroup);
-        for(int i = 0; i < templateGroups.Length; i++) {
-            var grp = templateGroups[i];
-            for(int j = 0; j < grp.templates.Length; j++)
-                mPool.AddType(grp.templates[j], blobCapacity, blobCapacity);
+        mPool = M8.PoolController.GetPool(poolGroup);
+        if(!mPool) {
+			mPool = M8.PoolController.CreatePool(poolGroup);
+            mPool.gameObject.DontDestroyOnLoad();
         }
 
-        //generate spawn points
-        mSpawnPts = new Vector2[spawnPointsRoot.childCount];
+        mPool.AddType(template, blobCapacity, blobCapacity);
+
+		//generate spawn points
+		mSpawnPts = new Vector2[spawnPointsRoot.childCount];
         for(int i = 0; i < spawnPointsRoot.childCount; i++)
             mSpawnPts[i] = spawnPointsRoot.GetChild(i).position;
 
@@ -261,11 +228,8 @@ public class BlobSpawner : MonoBehaviour {
             mSpawnParms[JellySpriteSpawnController.parmPosition] = spawnPt;
             mSpawnParms[Blob.parmNumber] = spawnInfo.number;
 
-            var template = templateGroups[spawnInfo.templateIndex].template;
-
             mBlobNameCache.Clear();
-            mBlobNameCache.Append(template.name);
-            mBlobNameCache.Append(' ');
+            mBlobNameCache.Append("blob ");
             mBlobNameCache.Append(spawnInfo.number);
 
             var blob = mPool.Spawn<Blob>(template.name, mBlobNameCache.ToString(), null, mSpawnParms);

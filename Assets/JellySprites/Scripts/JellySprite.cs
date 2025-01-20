@@ -10,6 +10,7 @@ using UnityEditor;
 
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 [RequireComponent (typeof(MeshFilter), typeof(MeshRenderer))]
 public abstract class JellySprite : MonoBehaviour, M8.IPoolInit 
@@ -195,7 +196,7 @@ public abstract class JellySprite : MonoBehaviour, M8.IPoolInit
 	bool[] m_IsAttachPointJellySprite = new bool[0];
 
 	// Parent object for rigidbodies
-	public GameObject m_ReferencePointHolder;
+	//public GameObject m_ReferencePointHolder;
 	public GameObject m_ReferencePointParent;
 
 	// Central body point
@@ -388,8 +389,8 @@ public abstract class JellySprite : MonoBehaviour, M8.IPoolInit
 #endregion
 
 	void M8.IPoolInit.OnInit() {
-		m_ReferencePointHolder = transform.parent.gameObject;
-		Init();
+		//m_ReferencePointHolder = transform.parent.gameObject;
+		//Init();
 	}
 
 	/// <summary>
@@ -424,7 +425,7 @@ public abstract class JellySprite : MonoBehaviour, M8.IPoolInit
 	void Start()
 	{
 		//MODIFIED: allow manual initialization
-		Init();
+		//Init();
 	}
 
 	//MODIFIED: allow manual initialization
@@ -498,8 +499,9 @@ public abstract class JellySprite : MonoBehaviour, M8.IPoolInit
 #endif
 
 			m_ReferencePointParent = new GameObject();
-			if(m_ReferencePointHolder)
-				m_ReferencePointParent.transform.SetParent(m_ReferencePointHolder.transform);
+			//if(m_ReferencePointHolder)
+			//m_ReferencePointParent.transform.SetParent(m_ReferencePointHolder.transform);
+			m_ReferencePointParent.transform.SetParent(transform.parent);
 			m_ReferencePointParent.name = this.name + " Reference Points";
 
 			m_ReferencePoints = new List<ReferencePoint>();
@@ -1259,6 +1261,56 @@ public abstract class JellySprite : MonoBehaviour, M8.IPoolInit
 	/// Check if the source sprite is rotated
 	/// </summary>
 	protected abstract bool IsSourceSpriteRotated();
+
+	protected void RefreshUV() {
+		if(!isInit) return;
+
+		var spriteBounds = GetSpriteBounds();
+
+		float width = spriteBounds.size.x * m_SpriteScale.x;
+		float height = spriteBounds.size.y * m_SpriteScale.y;
+
+		// Work out how many nodes we need in each direction
+		float nodeDistance = Mathf.Min(width, height) / m_VertexDensity;
+		int vertexGridWidth = Mathf.CeilToInt(width / nodeDistance);
+		int vertexGridHeight = Mathf.CeilToInt(height / nodeDistance);
+
+		bool rotated = IsSourceSpriteRotated();
+
+		for(int x = 0; x < vertexGridWidth; x++) {
+			for(int y = 0; y < vertexGridHeight; y++) {
+				int vertexIndex = (x * vertexGridHeight) + y;
+				Vector2 uv = Vector2.zero;
+				uv.x = x / ((float)vertexGridWidth - 1);
+				uv.y = y / ((float)vertexGridHeight - 1);
+
+				if(m_FlipX) {
+					uv.x = 1.0f - uv.x;
+				}
+
+				if(m_FlipY) {
+					uv.y = 1.0f - uv.y;
+				}
+
+				if(rotated) {
+					float temp = uv.x;
+					uv.x = 1.0f;
+					uv.y = temp;
+				}
+
+				m_TexCoords[vertexIndex] = uv;
+			}
+		}
+
+		Vector2 minTextureCoords;
+		Vector2 maxTextureCoords;
+
+		GetMinMaxTextureRect(out minTextureCoords, out maxTextureCoords);
+		FixupTextureCoordinates(minTextureCoords, maxTextureCoords);
+
+		if(m_SpriteMesh)
+			m_SpriteMesh.uv = m_TexCoords;
+	}
 
 	/// <summary>
 	/// Initialise the grid of vertices that will be used to render this object.
